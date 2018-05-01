@@ -2,10 +2,10 @@ module Pos.Core.Slotting.SlotCount
        ( SlotCount (..)
        ) where
 
-import           Universum
-
 import           Data.SafeCopy (base, deriveSafeCopySimple)
+import           Formatting.Buildable (Buildable)
 import           System.Random (Random (..))
+import           Universum
 
 import           Pos.Binary.Class (Bi (..))
 

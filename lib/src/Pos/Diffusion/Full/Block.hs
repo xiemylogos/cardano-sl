@@ -23,8 +23,9 @@ import           Data.List.NonEmpty (NonEmpty ((:|)))
 import qualified Data.List.NonEmpty as NE
 import qualified Data.Map as M
 import qualified Data.Set as S
-import qualified Data.Text.Buildable as B
-import           Formatting (bprint, build, int, sformat, shown, stext, (%))
+import           Formatting (bprint, int, sformat, shown, stext, (%))
+import qualified Formatting as F
+import           Formatting.Buildable (Buildable (build))
 import qualified Network.Broadcast.OutboundQueue as OQ
 import           Node.Conversation (sendRaw)
 import           Pipes (await, runEffect, (>->))
@@ -70,6 +71,16 @@ import           Pos.Util (_neHead, _neLast)
 import           Pos.Util.Timer (Timer, startTimer)
 import           Pos.Util.Trace (Severity (..), Trace, traceWith)
 
+import           Data.Text.Lazy (toStrict)
+import           Data.Text.Lazy.Builder (toLazyText)
+----------------------------------------------------------------------------
+-- Compat shims
+----------------------------------------------------------------------------
+-- pretty used to be in Universum
+pretty :: Buildable a => a -> Text
+pretty = toStrict . toLazyText . build
+
+
 {-# ANN module ("HLint: ignore Reduce duplication" :: Text) #-}
 
 ----------------------------------------------------------------------------
@@ -85,7 +96,7 @@ data BlockNetLogicException
       -- logic error.
     deriving (Show)
 
-instance B.Buildable BlockNetLogicException where
+instance Buildable BlockNetLogicException where
     build e = bprint ("BlockNetLogicException: "%shown) e
 
 instance Exception BlockNetLogicException where
@@ -178,7 +189,7 @@ getBlocks logTrace logic recoveryHeadersMessage enqueue nodeId tipHeaderHash che
         -> ConversationActions MsgGetHeaders MsgHeaders
         -> IO (NewestFirst NE BlockHeader)
     requestHeadersConversation bvd conv = do
-        traceWith logTrace (Debug, sformat ("requestHeaders: sending "%build) mgh)
+        traceWith logTrace (Debug, sformat ("requestHeaders: sending "%F.build) mgh)
         send conv mgh
         mHeaders <- recvLimited conv (mlMsgHeaders bvd (fromIntegral recoveryHeadersMessage))
         inRecovery <- Logic.recoveryInProgress logic
@@ -189,17 +200,17 @@ getBlocks logTrace logic recoveryHeadersMessage enqueue nodeId tipHeaderHash che
             Nothing -> do
                 traceWith logTrace (Warning, "requestHeaders: received Nothing as a response on MsgGetHeaders")
                 throwIO $ DialogUnexpected $
-                    sformat ("requestHeaders: received Nothing from "%build) nodeId
+                    sformat ("requestHeaders: received Nothing from "%F.build) nodeId
             Just (MsgNoHeaders t) -> do
                 traceWith logTrace (Warning, "requestHeaders: received MsgNoHeaders: " <> t)
                 throwIO $ DialogUnexpected $
                     sformat ("requestHeaders: received MsgNoHeaders from "%
-                             build%", msg: "%stext)
+                            F.build%", msg: "%stext)
                             nodeId
                             t
             Just (MsgHeaders headers) -> do
                 traceWith logTrace (Debug, sformat
-                    ("requestHeaders: received "%int%" headers from nodeId "%build)
+                    ("requestHeaders: received "%int%" headers from nodeId "%F.build)
                     (headers ^. _NewestFirst . to NE.length)
                     nodeId)
                 return headers
@@ -234,7 +245,7 @@ getBlocks logTrace logic recoveryHeadersMessage enqueue nodeId tipHeaderHash che
             Left e -> do
                 let msg = sformat ("Error retrieving blocks from "%shortHashF%
                                    " to "%shortHashF%" from peer "%
-                                   build%": "%stext)
+                                  F.build%": "%stext)
                                   lcaChild newestHeader nodeId e
                 traceWith logTrace (Warning, msg)
                 throwIO $ DialogUnexpected msg
@@ -410,7 +421,7 @@ streamBlocks logTrace smM logic streamWindow enqueue nodeId tipHeader checkpoint
                  traceWith logTrace (Warning, msg)
                  throwM $ DialogUnexpected msg
              MsgStreamEnd -> do
-                 traceWith logTrace (Debug, sformat ("Streaming done client-side for node"%build) nodeId)
+                 traceWith logTrace (Debug, sformat ("Streaming done client-side for node"%F.build) nodeId)
                  return ()
              MsgStreamBlock b -> do
                  -- traceWith logTrace (Debug, sformat ("Read block "%shortHashF) (headerHash b))
@@ -430,7 +441,7 @@ streamBlocks logTrace smM logic streamWindow enqueue nodeId tipHeader checkpoint
         blockE <- recvLimited conv (mlMsgStreamBlock bvd)
         case blockE of
             Nothing -> do
-                let msg = sformat ("Error retrieving blocks from peer "%build) nodeId
+                let msg = sformat ("Error retrieving blocks from peer "%F.build) nodeId
                 traceWith logTrace (Warning, msg)
                 throwM $ DialogUnexpected msg
             Just block -> return block
@@ -469,7 +480,7 @@ announceBlockHeader
     -> MainBlockHeader
     -> IO (Map NodeId (IO ()))
 announceBlockHeader logTrace logic protocolConstants recoveryHeadersMessage enqueue header =  do
-    traceWith logTrace (Debug, sformat ("Announcing header to others:\n"%build) header)
+    traceWith logTrace (Debug, sformat ("Announcing header to others:\n"%F.build) header)
     waitForDequeues <$> enqueue (MsgAnnounceBlockHeader OriginSender) (\addr _ -> announceBlockDo addr)
   where
     announceBlockDo nodeId = pure $ Conversation $ \cA -> do
@@ -494,7 +505,7 @@ announceBlockHeader logTrace logic protocolConstants recoveryHeadersMessage enqu
         when (AttackNoBlocks `elem` spAttackTypes sparams) (throwOnIgnored nodeId)
         traceWith logTrace (Debug,
             sformat
-                ("Announcing block"%shortHashF%" to "%build)
+                ("Announcing block"%shortHashF%" to "%F.build)
                 (headerHash header)
                 nodeId)
         send cA $ MsgHeaders (one (BlockHeaderMain header))
@@ -515,7 +526,7 @@ handleHeadersCommunication
 handleHeadersCommunication logTrace logic protocolConstants recoveryHeadersMessage conv = do
     let bc = fromIntegral (pcK protocolConstants)
     whenJustM (recvLimited conv (mlMsgGetHeaders bc)) $ \mgh@(MsgGetHeaders {..}) -> do
-        traceWith logTrace (Debug, sformat ("Got request on handleGetHeaders: "%build) mgh)
+        traceWith logTrace (Debug, sformat ("Got request on handleGetHeaders: "%F.build) mgh)
         -- FIXME
         -- Diffusion layer is entirely capable of serving blocks even if the
         -- logic layer is in recovery mode.
@@ -615,7 +626,7 @@ handleGetBlocks
 handleGetBlocks logTrace logic recoveryHeadersMessage oq = listenerConv logTrace oq $ \__ourVerInfo nodeId conv -> do
     mbMsg <- recvLimited conv mlMsgGetBlocks
     whenJust mbMsg $ \mgb@MsgGetBlocks{..} -> do
-        traceWith logTrace (Debug, sformat ("handleGetBlocks: got request "%build%" from "%build)
+        traceWith logTrace (Debug, sformat ("handleGetBlocks: got request "%F.build%" from "%F.build)
             mgb nodeId)
         -- [CSL-2148] will probably make this a faster, streaming style:
         -- get the blocks directly from headers rather than getting the list
@@ -629,7 +640,7 @@ handleGetBlocks logTrace logic recoveryHeadersMessage oq = listenerConv logTrace
             Right hashes -> do
                 traceWith logTrace (Debug, sformat
                     ("handleGetBlocks: started sending "%int%
-                     " blocks to "%build%" one-by-one")
+                     " blocks to "%F.build%" one-by-one")
                     (length hashes) nodeId )
                 for_ hashes $ \hHash ->
                     Logic.getSerializedBlock logic hHash >>= \case
@@ -660,17 +671,17 @@ handleStreamStart logTrace logic oq = listenerConv logTrace oq $ \__ourVerInfo n
     whenJust msMsg $ \ms -> do
         case ms of
              MsgStart s -> do
-                 traceWith logTrace (Debug, sformat ("Streaming Request from node "%build) nodeId)
+                 traceWith logTrace (Debug, sformat ("Streaming Request from node "%F.build) nodeId)
                  stream nodeId conv (mssFrom s) (mssTo s) (mssWindow s)
              MsgUpdate _ -> do
                  send conv $ MsgStreamNoBlock "MsgUpdate without MsgStreamStart"
-                 traceWith logTrace (Debug, sformat ("MsgStream without MsgStreamStart from node "%build) nodeId)
+                 traceWith logTrace (Debug, sformat ("MsgStream without MsgStreamStart from node "%F.build) nodeId)
                  return ()
 
   where
     stream nodeId conv [] _ _ = do
         send conv $ MsgStreamNoBlock "MsgStreamStart with empty from chain"
-        traceWith logTrace (Debug, sformat ("MsgStreamStart with empty from chain from node "%build) nodeId)
+        traceWith logTrace (Debug, sformat ("MsgStreamStart with empty from chain from node "%F.build) nodeId)
         return ()
     stream nodeId conv (cl:cxs) _ window = do
         -- Ideally we want a function that only returns the oldest blockheader derived from the
@@ -696,10 +707,10 @@ handleStreamStart logTrace logic oq = listenerConv logTrace oq $ \__ourVerInfo n
              case ms of
                   MsgStart _ -> do
                       lift $ send conv $ MsgStreamNoBlock ("MsgStreamStart, expected MsgStreamUpdate")
-                      lift $ traceWith logTrace (Debug, sformat ("handleStreamStart:loop MsgStart, expected MsgStreamUpdate from "%build) nodeId)
+                      lift $ traceWith logTrace (Debug, sformat ("handleStreamStart:loop MsgStart, expected MsgStreamUpdate from "%F.build) nodeId)
                       return ()
                   MsgUpdate u -> do
-                      lift $ traceWith logTrace (Debug, sformat ("handleStreamStart:loop new window "%shown%" from "%build) u nodeId)
+                      lift $ traceWith logTrace (Debug, sformat ("handleStreamStart:loop new window "%shown%" from "%F.build) u nodeId)
                       loop nodeId conv (msuWindow u)
     loop nodeId conv window = do
         b <- await

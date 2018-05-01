@@ -13,9 +13,10 @@ import           Universum
 
 import qualified Data.List as List
 import qualified Data.Text as T
-import qualified Data.Text.Buildable
 import           Data.Typeable
-import           Formatting (bprint, build, formatToString, sformat, (%))
+import           Formatting (bprint, formatToString, sformat, (%))
+import qualified Formatting as F
+import           Formatting.Buildable (Buildable (build))
 import qualified Generics.SOP as SOP
 import           GHC.TypeLits (KnownSymbol, Symbol, symbolVal)
 import           Pos.Infra.Util.LogSafe (BuildableSafe, BuildableSafeGen (..),
@@ -55,7 +56,7 @@ data FilterOperations a where
 infixr 6 `FilterOp`
 
 instance Show (FilterOperations a) where
-    show = formatToString build
+    show = formatToString F.build
 
 instance Eq (FilterOperations a) where
     NoFilters == NoFilters =
@@ -95,7 +96,7 @@ data FilterOrdering =
     deriving (Show, Eq, Enum, Bounded)
 
 renderFilterOrdering :: FilterOrdering -> Text
-renderFilterOrdering = sformat build
+renderFilterOrdering = sformat F.build
 
 instance Buildable FilterOrdering where
     build = \case
@@ -118,7 +119,7 @@ data FilterOperation ix a =
     deriving Eq
 
 instance (BuildableSafe ix, sym ~ IndexToQueryParam a ix, KnownSymbol sym) => Show (FilterOperation ix a) where
-    show = formatToString build
+    show = formatToString F.build
 
 instance ToHttpApiData ix => ToHttpApiData (FilterOperation ix a) where
     toQueryParam = renderFilterOperation
@@ -126,13 +127,13 @@ instance ToHttpApiData ix => ToHttpApiData (FilterOperation ix a) where
 instance (BuildableSafe ix, sym ~ IndexToQueryParam a ix, KnownSymbol sym) =>
     BuildableSafeGen (FilterOperation ix a) where
     buildSafeGen sl (FilterByIndex ix) =
-        bprint (build%"="%buildSafe sl) (symbolVal (Proxy @sym)) ix
+        bprint (F.build%"="%buildSafe sl) (symbolVal (Proxy @sym)) ix
     buildSafeGen sl (FilterByPredicate o ix) =
-        bprint (build%"="%build%"["%buildSafe sl%"]") (symbolVal (Proxy @sym)) o ix
+        bprint (F.build%"="%F.build%"["%buildSafe sl%"]") (symbolVal (Proxy @sym)) o ix
     buildSafeGen sl (FilterByRange lo hi) =
-        bprint (build%"=RANGE["%buildSafe sl%","%buildSafe sl%"]") (symbolVal (Proxy @sym)) lo hi
+        bprint (F.build%"=RANGE["%buildSafe sl%","%buildSafe sl%"]") (symbolVal (Proxy @sym)) lo hi
     buildSafeGen sl (FilterIn ixs) =
-        bprint (build % "=IN[" % build % "]")
+        bprint (F.build % "=IN[" % F.build % "]")
             (symbolVal (Proxy @sym))
             bps
       where

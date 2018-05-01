@@ -11,9 +11,11 @@ import           Universum
 
 import           Control.Monad.Except (MonadError (throwError))
 import           Data.SafeCopy (base, deriveSafeCopySimple)
-import qualified Data.Text.Buildable as Buildable
+import qualified Formatting as F
+import           Formatting.Buildable (Buildable (build))
+
 import           Data.Text.Lazy.Builder (Builder)
-import           Formatting (Format, bprint, build, builder, later, (%))
+import           Formatting (Format, bprint, later, (%))
 import           Serokell.Util.Text (listJson)
 
 import           Pos.Binary.Class (Bi (..), encodeListLen, enforceSize)
@@ -44,13 +46,13 @@ instance NFData UpdateVote
 
 instance Buildable UpdateVote where
     build UnsafeUpdateVote {..} =
-      bprint ("Update Vote { voter: "%build%", proposal id: "%build%", voter's decision: "%build%" }")
+      bprint ("Update Vote { voter: "%F.build%", proposal id: "%F.build%", voter's decision: "%F.build%" }")
              (addressHash uvKey) uvProposalId uvDecision
 
 instance Buildable (UpdateProposal, [UpdateVote]) where
     build (up, votes) =
         bprint
-            (build % " with votes: " %listJson)
+            (F.build % " with votes: " %listJson)
             up
             (map formatVoteShort votes)
 
@@ -96,7 +98,7 @@ mkUpdateVoteSafe pm sk uvProposalId uvDecision =
 -- | Format 'UpdateVote' compactly.
 formatVoteShort :: UpdateVote -> Builder
 formatVoteShort UnsafeUpdateVote {..} =
-    bprint ("("%shortHashF%" "%builder%" "%shortHashF%")")
+    bprint ("("%shortHashF%" "%F.builder%" "%shortHashF%")")
         (addressHash uvKey)
         (bool "against" "for" uvDecision)
         uvProposalId

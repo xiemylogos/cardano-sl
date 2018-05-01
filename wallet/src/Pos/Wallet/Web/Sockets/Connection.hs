@@ -21,7 +21,8 @@ import           Universum
 import           Control.Concurrent.STM.TVar (swapTVar)
 import           Data.Aeson (encode)
 import           Data.Default (Default (def))
-import           Formatting (build, sformat, (%))
+import           Formatting (sformat, (%))
+import qualified Formatting as F
 import           Network.Wai (Application)
 import           Network.Wai.Handler.WebSockets (websocketsOr)
 import qualified Network.WebSockets as WS
@@ -43,10 +44,10 @@ closeWSConnection tag var = liftIO $ usingLoggerName "closeWSConnection" $ do
     maybeConn <- atomically $ CS.deregisterConnection tag var
     case maybeConn of
         Nothing   ->
-            logError $ sformat ("Attempted to close an unknown connection with tag "%build) tag
+            logError $ sformat ("Attempted to close an unknown connection with tag "%F.build) tag
         Just conn -> do
             liftIO $ WS.sendClose conn ConnectionClosed
-            logNotice $ sformat ("Closed WS connection with tag "%build) tag
+            logNotice $ sformat ("Closed WS connection with tag "%F.build) tag
 
 closeWSConnections :: MonadIO m => CS.ConnectionsVar -> m ()
 closeWSConnections var = liftIO $ do

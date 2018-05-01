@@ -30,7 +30,8 @@ import qualified Data.ByteString.Lazy as LBS
 import           Data.Coerce (coerce)
 import qualified Data.Foldable as Foldable
 import           Data.SafeCopy (SafeCopy (..))
-import qualified Data.Text.Buildable as Buildable
+import           Formatting.Buildable (Buildable (build))
+
 import qualified Prelude
 
 import           Pos.Binary.Class (Bi (..), Raw, serializeBuilder)
@@ -45,7 +46,7 @@ newtype MerkleRoot a = MerkleRoot
     } deriving (Show, Eq, Ord, Generic, ByteArrayAccess, Typeable, NFData)
 
 instance Buildable (MerkleRoot a) where
-    build (MerkleRoot h) = "MerkleRoot|" <> Buildable.build h
+    build (MerkleRoot h) = "MerkleRoot|" <> build h
 
 instance (Bi a, Bi (Hash Raw)) => Bi (MerkleRoot a) where
     encode = encode . getMerkleRoot

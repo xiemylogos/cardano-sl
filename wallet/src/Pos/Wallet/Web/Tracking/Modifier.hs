@@ -23,7 +23,8 @@ module Pos.Wallet.Web.Tracking.Modifier
 import           Universum
 
 import           Data.DList (DList)
-import           Formatting (bprint, build, (%))
+import           Formatting (bprint, (%))
+import qualified Formatting as F
 import           Serokell.Util (listJson, listJsonIndent)
 
 import           Pos.Client.Txp.History (TxHistoryEntry (..))
@@ -88,7 +89,7 @@ instance BuildableSafeGen CAccModifier where
             %",\n    deleted addresses: "%secureListF sl (listJsonIndent 8)
             %",\n    used addresses: "%secureListF sl listJson
             %",\n    change addresses: "%secureListF sl listJson
-            %",\n    local utxo (difference): "%secretOnlyF sl build
+            %",\n    local utxo (difference): "%secretOnlyF sl F.build
             %",\n    added history entries: "%secureListF sl (listJsonIndent 8)
             %",\n    deleted history entries: "%secureListF sl (listJsonIndent 8)
             %",\n    added pending candidates: "%secureListF sl listJson

@@ -52,7 +52,8 @@ import qualified Data.HashSet as HS
 import qualified Data.List as List (last)
 import qualified Data.List.NonEmpty as NE
 import           Data.Time.Units (Microsecond, TimeUnit (..))
-import           Formatting (build, float, sformat, shown, (%))
+import           Formatting (float, sformat, shown, (%))
+import qualified Formatting as F
 import           Pos.Block.Types (Blund, undoTx)
 import           Pos.Client.Txp.History (TxHistoryEntry (..),
                      txHistoryListToMap)
@@ -137,7 +138,7 @@ txMempoolToModifier ws (txs, undoMap) credentials = do
     txsWUndo <- forM txs $ \(id, tx) -> case HM.lookup id undoMap of
         Just undo -> pure (id, tx, undo)
         Nothing -> do
-            let errMsg sl = sformat ("There is no undo corresponding to TxId #"%secretOnlyF sl build%" from txp mempool") id
+            let errMsg sl = sformat ("There is no undo corresponding to TxId #"%secretOnlyF sl F.build%" from txp mempool") id
             logErrorSP errMsg
             throwM $ InternalError (errMsg secure)
 
@@ -157,23 +158,23 @@ processSyncError sr = case sr of
     GenesisBlockHeaderNotFound -> logError "Couldn't extract the genesis block header from the database."
     GenesisHeaderHashNotFound  -> logError "Couldn't extract the genesis header hash from the database."
     NoSyncStateAvailable walletId ->
-        logWarningSP $ \sl -> sformat ("There is no sync state corresponding to wallet #"%secretOnlyF sl build) walletId
+        logWarningSP $ \sl -> sformat ("There is no sync state corresponding to wallet #"%secretOnlyF sl F.build) walletId
     NotSyncable walletId walletError -> do
-        logErrorSP   $ \sl -> sformat ("Wallet #" % secretOnlyF sl build
+        logErrorSP   $ \sl -> sformat ("Wallet #" % secretOnlyF sl F.build
                                                   % " is not syncable. Error was: "
-                                                  % build) walletId walletError
+                                                  % F.build) walletId walletError
     SyncFailed  walletId exception -> do
-        let errMsg sl = "Sync failed for Wallet #" % secretOnlyF sl build
+        let errMsg sl = "Sync failed for Wallet #" % secretOnlyF sl F.build
                                                    % ". An exception was raised during the sync process: "
-                                                   % build
+                                                   % F.build
         logErrorSP $ \sl -> sformat (errMsg sl) walletId exception
     RestorationInvariantViolated walletId expectedRbd actualRbd -> do
-        let errMsg sl = "Restoration invariant violated for Wallet #" % secretOnlyF sl build
-                      % ". Expected restoration header hash was " % build % " , but this one was passed: " % build
+        let errMsg sl = "Restoration invariant violated for Wallet #" % secretOnlyF sl F.build
+                      % ". Expected restoration header hash was " % F.build % " , but this one was passed: " % F.build
         logErrorSP $ \sl -> sformat (errMsg sl) walletId (WS.getRestorationBlockDepth expectedRbd)
                                                          (WS.getRestorationBlockDepth actualRbd)
     StateTransitionNotAllowed walletId _ _ -> do
-        let errMsg sl = "SyncState transition for Wallet #" % secretOnlyF sl build % " is not allowed."
+        let errMsg sl = "SyncState transition for Wallet #" % secretOnlyF sl F.build % " is not allowed."
         logErrorSP $ \sl -> sformat (errMsg sl) walletId
 
 
@@ -181,7 +182,7 @@ processSyncError sr = case sr of
 logSuccess :: (WithLogger m, MonadIO m) => SyncRequest -> m ()
 logSuccess SyncRequest{..} = do
   let (_, walletId) = srCredentials
-  logInfoSP   $ \sl -> sformat ("Wallet #" % secretOnlyF sl build
+  logInfoSP   $ \sl -> sformat ("Wallet #" % secretOnlyF sl F.build
                                            % " is now 100% synced.") walletId
 
 -- | Iterates over blocks (using forward links) and reconstructs the transaction
@@ -200,7 +201,7 @@ syncWalletWithBlockchain syncRequest@SyncRequest{..} = setLogger $ do
     ws <- WS.askWalletSnapshot
     let (_, walletId) = srCredentials
     let onError       = pure . Left . SyncFailed walletId
-    let internalError = InternalError . sformat ("Couldn't get block header of wallet by last synced hh: "%build)
+    let internalError = InternalError . sformat ("Couldn't get block header of wallet by last synced hh: "%F.build)
     handleAny onError $ do
         case WS.getWalletSyncState ws walletId of
             Nothing                -> pure $ Left (NoSyncStateAvailable walletId)
@@ -212,9 +213,9 @@ syncWalletWithBlockchain syncRequest@SyncRequest{..} = setLogger $ do
             Just (SyncedWith wTip) -> do
                 logDebugSP $ \sl ->
                     sformat ( "Resuming syncing of Wallet "
-                            % secretOnlyF sl build
+                            % secretOnlyF sl F.build
                             % " from HeaderHash "
-                            % build
+                            % F.build
                             % "...") walletId wTip
                 wHeaderMb <- DB.getHeader wTip
                 -- We compare the syncRequest's 'TrackingOperation' expecting it to be a 'SyncRequest',
@@ -225,9 +226,9 @@ syncWalletWithBlockchain syncRequest@SyncRequest{..} = setLogger $ do
             Just (RestoringFrom expectedRbd wTip) -> do
                 logDebugSP $ \sl ->
                     sformat ( "Wallet "
-                            % secretOnlyF sl build
+                            % secretOnlyF sl F.build
                             % " is restoring from a blockchain depth of "
-                            % build
+                            % F.build
                             % "...") walletId (WS.getRestorationBlockDepth expectedRbd)
                 wHeaderMb <- DB.getHeader wTip
                 -- If we are trying to restore this wallet, we first check our internal model state is
@@ -270,7 +271,7 @@ syncWalletWithBlockchain syncRequest@SyncRequest{..} = setLogger $ do
                 -- to avoid blocking of blocks verification/application.
                 stableBlockHeader <- List.last . getNewestFirst <$> GS.loadHeadersByDepth (blkSecurityParam + 1) (headerHash gstateTipH)
                 logInfo $
-                    sformat ( "Wallet's tip is far from GState tip. Syncing with the last stable known header " %build%
+                    sformat ( "Wallet's tip is far from GState tip. Syncing with the last stable known header " %F.build%
                               " (the tip of the blockchain - k blocks) without the block lock"
                             ) (headerHash stableBlockHeader)
                 result <- syncWalletWithBlockchainUnsafe (syncRequest { srOperation = trackingOp }) walletTipHeader stableBlockHeader
@@ -278,7 +279,7 @@ syncWalletWithBlockchain syncRequest@SyncRequest{..} = setLogger $ do
             else pure (Nothing, walletTipHeader)
 
         let finaliseSyncUnderBlockLock = withStateLockNoMetrics HighPriority $ \tip -> do
-                logInfo $ sformat ("Syncing wallet with "%build%" under the block lock") tip
+                logInfo $ sformat ("Syncing wallet with "%F.build%" under the block lock") tip
                 tipH <- maybe (error "No block header corresponding to tip") pure =<< DB.getHeader tip
                 syncWalletWithBlockchainUnsafe (syncRequest { srOperation = SyncWallet }) wNewTip tipH
 
@@ -334,7 +335,7 @@ syncWalletWithBlockchainUnsafe syncRequest walletTip blockchainTip = setLogger $
     case headerHash newSyncTip == headerHash blockchainTip of
         True -> do
             logInfoSP $ \sl ->
-                sformat ("Wallet "%secretOnlyF sl build%" has been synced with tip "
+                sformat ("Wallet "%secretOnlyF sl F.build%" has been synced with tip "
                         %shortHashF%", "%buildSafe sl)
                         walletId (headerHash newSyncTip) mapModifier
             -- If we have here is means we are fully synced with the blockchain,
@@ -396,7 +397,7 @@ syncWalletWithBlockchainUnsafe syncRequest walletTip blockchainTip = setLogger $
                              let newModifier = foldl' (\r b -> r <> rollbackBlock credentials usedAddresses b getBlockTimestamp) currentModifier blunds
                              pure (newModifier, getBlockHeader . fst . List.last $ blunds)
                        | otherwise -> do
-                             logInfoSP $ \sl -> sformat ("Wallet " % secretOnlyF sl build %" has finally caught up with the blockchain.") walletId
+                             logInfoSP $ \sl -> sformat ("Wallet " % secretOnlyF sl F.build %" has finally caught up with the blockchain.") walletId
                              pure (currentModifier, blockchainTip)
 
         gbTxs = either (const []) (^. mainBlockTxPayload . to flattenTxPayload)

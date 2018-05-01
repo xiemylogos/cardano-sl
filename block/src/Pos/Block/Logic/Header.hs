@@ -24,7 +24,8 @@ import           Control.Monad.Trans.Maybe (MaybeT (MaybeT), runMaybeT)
 import qualified Data.List as List (last)
 import qualified Data.List.NonEmpty as NE (toList)
 import qualified Data.Text as T
-import           Formatting (build, int, sformat, (%))
+import           Formatting (int, sformat, (%))
+import qualified Formatting as F
 import           Serokell.Util.Text (listJson)
 import           Serokell.Util.Verify (VerificationRes (..), isVerSuccess)
 import           System.Wlog (WithLogger, logDebug)
@@ -52,6 +53,16 @@ import           Pos.Infra.Slotting.Class (MonadSlots (getCurrentSlot))
 import qualified Pos.Lrc.DB as LrcDB
 import qualified Pos.Update.DB as GS (getAdoptedBVFull)
 import           Pos.Util (buildListBounds, _neHead, _neLast)
+
+import           Data.Text.Lazy (toStrict)
+import           Data.Text.Lazy.Builder (toLazyText)
+import           Formatting.Buildable (Buildable (build))
+----------------------------------------------------------------------------
+-- Compat shims
+----------------------------------------------------------------------------
+-- pretty used to be in Universum
+pretty :: Buildable a => a -> Text
+pretty = toStrict . toLazyText . build
 
 -- | Result of single (new) header classification.
 data ClassifyHeaderRes
@@ -99,14 +110,14 @@ classifyNewHeader pm (BlockHeaderMain header) = fmap (either identity identity) 
     when (maybe False (newHeaderSlot >) curSlot) $
         throwError $
         CHUseless $ sformat
-            ("header is for future slot: our is "%build%
-             ", header's is "%build)
+            ("header is for future slot: our is "%F.build%
+             ", header's is "%F.build)
             curSlot newHeaderSlot
     when (newHeaderEoS <= tipEoS) $
         throwError $
         CHUseless $ sformat
-            ("header's slot "%build%
-             " is less or equal than our tip's slot "%build)
+            ("header's slot "%F.build%
+             " is less or equal than our tip's slot "%F.build)
             newHeaderEoS tipEoS
         -- If header's parent is our tip, we verify it against tip's header.
     if | tip == header ^. prevBlockL -> do
@@ -197,8 +208,8 @@ classifyHeaders pm inRecovery headers = do
          not inRecovery,
          newestHeaderConvertedSlot /= currentSlot ->
              pure $ CHsUseless $ sformat
-                 ("Newest header is from slot "%build%", but current slot"%
-                  " is "%build%" (and we're not in recovery mode)")
+                 ("Newest header is from slot "%F.build%", but current slot"%
+                  " is "%F.build%" (and we're not in recovery mode)")
                  (newestHeader ^. epochOrSlotG) currentSlot
          -- This check doesn't normally fail. RetrievalWorker
          -- calculates lrc every time before calling this function so
@@ -265,7 +276,7 @@ getHeadersFromManyTo ::
     -> m (Either GetHeadersFromManyToError (NewestFirst NE BlockHeader))
 getHeadersFromManyTo mLimit checkpoints startM = runExceptT $ do
     logDebug $
-        sformat ("getHeadersFromManyTo: "%listJson%", start: "%build)
+        sformat ("getHeadersFromManyTo: "%listJson%", start: "%F.build)
                 checkpoints startM
     tip <- lift DB.getTipHeader
     let tipHash = headerHash tip
@@ -383,7 +394,7 @@ getHashesRange depthLimitM older newer | older == newer = runExceptT $ do
         when (depthLimit < 1) $
         throwGHR $
         sformat ("depthLimit is "%int%
-                 ", we can't return the single requested header "%build)
+                 ", we can't return the single requested header "%F.build)
                 depthLimit
                 newer
     pure $ OldestFirst $ one newer
@@ -399,7 +410,7 @@ getHashesRange depthLimitM older newer = runExceptT $ do
     let newerD = newerHd ^. difficultyL
 
     -- Proving newerD >= olderD
-    let newerOlderF = "newer: "%build%", older: "%build
+    let newerOlderF = "newer: "%F.build%", older: "%F.build
     when (newerD == olderD) $
         throwGHR $
         sformat ("newer and older headers have "%
@@ -448,8 +459,8 @@ getHashesRange depthLimitM older newer = runExceptT $ do
         throwGHR $
         sformat ("getHashesRange: newest block parent is not "%
                  "equal to the newest one iterated. It may indicate recent fork or "%
-                 "inconsistent request. Newest: "%build%
-                 ", last list hash: "%build%", already retrieved (w/o last): "%listJson)
+                 "inconsistent request. Newest: "%F.build%
+                 ", last list hash: "%F.build%", already retrieved (w/o last): "%listJson)
                 newerHd
                 lastElem
                 allExceptNewest

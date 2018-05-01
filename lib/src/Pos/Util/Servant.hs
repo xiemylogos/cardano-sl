@@ -64,10 +64,11 @@ import           Data.Constraint.Forall (Forall, inst)
 import           Data.Default (Default (..))
 import           Data.Reflection (Reifies (..), reflect)
 import qualified Data.Text as T
-import qualified Data.Text.Buildable
 import           Data.Time.Clock.POSIX (getPOSIXTime)
-import           Formatting (bprint, build, builder, fconst, formatToString,
-                     sformat, shown, stext, string, (%))
+import           Formatting (bprint, fconst, formatToString, sformat, shown,
+                     stext, string, (%))
+import qualified Formatting as F
+import           Formatting.Buildable (Buildable (build))
 import           GHC.IO.Unsafe (unsafePerformIO)
 import           GHC.TypeLits (KnownSymbol, symbolVal)
 import           Serokell.Util (listJsonIndent)
@@ -84,6 +85,15 @@ import           System.Wlog (LoggerName, LoggerNameBox, usingLoggerName)
 
 import           Pos.Infra.Util.LogSafe (BuildableSafe, SecureLog, SecuredText,
                      buildSafe, logInfoSP, plainOrSecureF, secretOnlyF)
+
+import           Data.Text.Lazy (toStrict)
+import           Data.Text.Lazy.Builder (toLazyText)
+----------------------------------------------------------------------------
+-- Compat shims
+----------------------------------------------------------------------------
+-- pretty used to be in Universum
+pretty :: Buildable a => a -> Text
+pretty = toStrict . toLazyText . build
 
 -------------------------------------------------------------------------
 -- Utility functions
@@ -379,7 +389,7 @@ newtype WithTruncatedLog a = WithTruncatedLog a
 
 instance {-# OVERLAPPABLE #-}
          Buildable a => Buildable (WithTruncatedLog a) where
-    build (WithTruncatedLog a) = bprint build a
+    build (WithTruncatedLog a) = bprint F.build a
 
 -- | When item list is going to be printed, we impose taking care of
 -- truncating.
@@ -395,9 +405,9 @@ instance (Buildable (WithTruncatedLog a), HasTruncateLogPolicy a) =>
         let lt = truncateLogPolicy l
             diff = length l - length lt
             mMore | diff == 0 = ""
-                  | otherwise = bprint ("\n    and "%build%" entries more...")
+                  | otherwise = bprint ("\n    and "%F.build%" entries more...")
                                 diff
-        bprint (listJsonIndent 4%builder)
+        bprint (listJsonIndent 4%F.builder)
             (map WithTruncatedLog lt)
             mMore
 
@@ -539,7 +549,7 @@ instance HasLoggingServer config res ctx =>
 newtype RequestId = RequestId Integer
 
 instance Buildable RequestId where
-    build (RequestId id) = bprint ("#"%build) id
+    build (RequestId id) = bprint ("#"%F.build) id
 
 -- | We want all servant servers to have non-overlapping ids,
 -- so using singleton counter here.
@@ -611,7 +621,7 @@ applyServantLogging configP methodP paramsInfo showResponse action = do
                         (colorizeDull Red "Unexecuted request due to error") e
             Right paramLogs -> do
                 inLogCtx $ logInfoSP $ \sl ->
-                    sformat ("\n"%stext%" "%stext%"\n"%build)
+                    sformat ("\n"%stext%" "%stext%"\n"%F.build)
                         cmethod
                         (colorizeDull White $ "Request " <> pretty reqId)
                         (paramLogs sl)
@@ -631,7 +641,7 @@ applyServantLogging configP methodP paramsInfo showResponse action = do
         handleAny (exceptionsHandler reqId st)
     servantErrHandler reqId timer err@ServantErr{..} = do
         durationText <- timer
-        let errMsg = sformat (build%" "%string) errHTTPCode errReasonPhrase
+        let errMsg = sformat (F.build%" "%string) errHTTPCode errReasonPhrase
         inLogCtx $ logInfoSP $ \_sl ->
             sformat ("\n    "%stext%" "%stext%" "%stext)
                 (colorizeDull White $ responseTag reqId)
@@ -657,7 +667,7 @@ applyLoggingToHandler
 applyLoggingToHandler configP methodP (paramsInfo, handler) =
     handler & serverHandlerL %~ withLogging paramsInfo
   where
-    display = sformat build . WithTruncatedLog
+    display = sformat F.build . WithTruncatedLog
     withLogging params = applyServantLogging configP methodP params display
 
 instance ( HasServer (Verb mt st ct a) ctx

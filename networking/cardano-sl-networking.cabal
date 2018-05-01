@@ -89,7 +89,6 @@ Library
                       , serokell-util
                       , stm
                       , text
-                      , text-format
                       , time
                       , time-units
                       , transformers
@@ -229,7 +228,6 @@ executable bench-log-reader
                      , resourcet
                      , safe-exceptions
                      , text
-                     , text-format
                      , unliftio-core
   hs-source-dirs:      bench/LogReader
   if flag(benchmarks)

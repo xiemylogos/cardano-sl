@@ -15,7 +15,7 @@ import           Control.Monad.Except (ExceptT (..), throwError)
 import qualified Data.ByteArray as BA
 import qualified Data.ByteString.Lazy as BSL
 import qualified Data.HashMap.Strict as HM
-import           Formatting (build, sformat, stext, (%))
+import           Formatting (sformat, stext, (%))
 import           Network.HTTP.Client (Manager, newManager)
 import           Network.HTTP.Client.TLS (tlsManagerSettings)
 import           Network.HTTP.Simple (getResponseBody, getResponseStatus,
@@ -26,6 +26,7 @@ import           Serokell.Util.Text (listJsonIndent, mapJson)
 import           System.Directory (doesFileExist)
 import           System.Wlog (WithLogger, logDebug, logInfo, logWarning)
 
+import qualified Formatting as F
 import           Pos.Binary.Class (Raw)
 import           Pos.Core.Update (SoftwareVersion (..), UpdateData (..),
                      UpdateProposal (..))
@@ -40,6 +41,16 @@ import           Pos.Update.Params (UpdateParams (..))
 import           Pos.Update.Poll.Types (ConfirmedProposalState (..))
 import           Pos.Util.Concurrent (withMVar)
 import           Pos.Util.Util (HasLens (..), (<//>))
+
+import           Data.Text.Lazy (toStrict)
+import           Data.Text.Lazy.Builder (toLazyText)
+import           Formatting.Buildable (Buildable (build))
+----------------------------------------------------------------------------
+-- Compat shims
+----------------------------------------------------------------------------
+-- pretty used to be in Universum
+pretty :: Buildable a => a -> Text
+pretty = toStrict . toLazyText . build
 
 -- | Compute hash of installer, this is hash is 'udPkgHash' from 'UpdateData'.
 --
@@ -79,15 +90,15 @@ downloadUpdate cps = do
     onAlreadyDownloaded ConfirmedProposalState {..} =
         logInfo $
         sformat
-            ("We won't download an update for proposal "%build%
-             ", because we have already downloaded another update: "%build%
+            ("We won't download an update for proposal "%F.build%
+             ", because we have already downloaded another update: "%F.build%
              " and we are waiting for it to be applied")
             proposalToDL
             cpsUpdateProposal
     onAlreadyInstalled =
         logInfo $
         sformat
-            ("We won't download an update for proposal "%build%
+            ("We won't download an update for proposal "%F.build%
              ", because it's already installed")
             proposalToDL
 
@@ -104,7 +115,7 @@ getUpdateHash ConfirmedProposalState{..} = do
     -- It must be enforced by the caller.
     maybe (reportFatalError $ sformat
             ("We are trying to download an update not for our "%
-            "system, update proposal is: "%build)
+            "system, update proposal is: "%F.build)
             cpsUpdateProposal)
         pure
         mupdHash
@@ -114,7 +125,7 @@ downloadUpdateDo :: UpdateMode ctx m => Hash Raw -> ConfirmedProposalState -> m 
 downloadUpdateDo updHash cps@ConfirmedProposalState {..} = do
     updateServers <- views (lensOf @UpdateParams) upUpdateServers
 
-    logInfo $ sformat ("We are going to start downloading an update for "%build)
+    logInfo $ sformat ("We are going to start downloading an update for "%F.build)
               cpsUpdateProposal
     res <- handleAny handleErr $ runExceptT $ do
         let updateVersion = upSoftwareVersion cpsUpdateProposal
@@ -124,7 +135,7 @@ downloadUpdateDo updHash cps@ConfirmedProposalState {..} = do
         -- ensure by the caller of 'downloadUpdate'.
         unless (isVersionAppropriate updateVersion) $
             reportFatalError $
-            sformat ("Update #"%build%" hasn't been downloaded: "%
+            sformat ("Update #"%F.build%" hasn't been downloaded: "%
                     "its version is not newer than current software "%
                     "software version or it's not for our "%
                     "software at all") updHash
@@ -135,7 +146,7 @@ downloadUpdateDo updHash cps@ConfirmedProposalState {..} = do
 
         logInfo "Downloading update..."
         file <- ExceptT $ downloadHash updateServers updHash <&>
-                first (sformat ("Update download (hash "%build%
+                first (sformat ("Update download (hash "%F.build%
                                 ") has failed: "%stext) updHash)
 
         logInfo $ "Update was downloaded, saving to " <> show updPath
@@ -152,7 +163,7 @@ downloadUpdateDo updHash cps@ConfirmedProposalState {..} = do
         Left (pretty e) <$ reportOrLogW "Update downloading failed: " e
     logDownloadError e =
         logWarning $ sformat
-            ("Failed to download update proposal "%build%": "%stext)
+            ("Failed to download update proposal "%F.build%": "%stext)
             cpsUpdateProposal e
     -- Check that we really should download an update with given
     -- 'SoftwareVersion'.

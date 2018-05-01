@@ -12,7 +12,8 @@ import           Data.Aeson (FromJSON (..), FromJSONKey (..),
 import           Data.Aeson.TH (defaultOptions, deriveJSON)
 import           Data.Aeson.Types (toJSONKeyText)
 import qualified Data.Text as T
-import           Formatting (build, int, sformat, (%))
+import           Formatting (int, sformat, (%))
+import qualified Formatting as F
 import qualified Serokell.Util.Base16 as B16
 import           Serokell.Util.Base64 (JsonByteString (..))
 
@@ -56,7 +57,7 @@ instance FromJSON TxOut where
 instance ToJSON TxOut where
     toJSON TxOut{..} = object [
         "coin"    .= coinToInteger txOutValue,
-        "address" .= sformat build txOutAddress ]
+        "address" .= sformat F.build txOutAddress ]
 
 instance ToJSON TxInWitness where
     toJSON = \case

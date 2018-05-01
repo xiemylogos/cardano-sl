@@ -26,7 +26,8 @@ import           Universum
 import           Control.Lens (_Wrapped)
 import           Control.Monad.Except (MonadError (throwError))
 import qualified Data.List.NonEmpty as NE
-import           Formatting (build, sformat, (%))
+import           Formatting (sformat, (%))
+import qualified Formatting as F
 import           Serokell.Util (Color (Red), colorize)
 import           Serokell.Util.Verify (formatAllErrors, verResToMonadError)
 import           System.Wlog (WithLogger)
@@ -140,7 +141,7 @@ slogVerifyBlocks pm blocks = runExceptT $ do
         lrcActionOnEpochReason
             headEpoch
             (sformat
-                 ("slogVerifyBlocks: there are no leaders for epoch " %build)
+                 ("slogVerifyBlocks: there are no leaders for epoch " %F.build)
                  headEpoch)
             LrcDB.getLeadersForEpoch
     -- We take head here, because blocks are in oldest first order and

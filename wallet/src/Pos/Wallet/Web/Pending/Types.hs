@@ -29,9 +29,11 @@ module Pos.Wallet.Web.Pending.Types
 import           Universum
 
 import           Control.Lens (makeLenses, makePrisms)
-import qualified Data.Text.Buildable
+import qualified Formatting as F
+import           Formatting.Buildable (Buildable (build))
+
 import           Data.Text.Lazy.Builder (Builder)
-import           Formatting (bprint, build, (%))
+import           Formatting (bprint, (%))
 
 import           Pos.Client.Txp.History (TxHistoryEntry)
 import           Pos.Core.Common (ChainDifficulty)
@@ -109,11 +111,11 @@ buildPtxCondition _sl = \case
     PtxApplying{} ->
         "applying"
     PtxInNewestBlocks cd ->
-        bprint ("in newest blocks (since "%build%" difficulty)") cd
+        bprint ("in newest blocks (since "%F.build%" difficulty)") cd
     PtxPersisted ->
         "persisted"
     PtxWontApply reason _ ->
-        bprint ("wont apply ("%build%")") reason
+        bprint ("wont apply ("%F.build%")") reason
 
 instance Buildable PtxCondition where
     build = buildPtxCondition unsecure

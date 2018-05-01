@@ -54,8 +54,9 @@ import qualified Data.List as List
 import qualified Data.List.NonEmpty as NE
 import qualified Data.Map as Map
 import qualified Data.Sequence as Seq
-import qualified Data.Text.Buildable
-import           Formatting (bprint, build, sformat, shown, (%))
+import           Formatting (bprint, sformat, shown, (%))
+import qualified Formatting as F
+import           Formatting.Buildable (Buildable (build))
 import qualified Prelude
 import           Serokell.Util (listJson)
 
@@ -97,7 +98,7 @@ instance IsString Path where
     fromString = Path . Seq.singleton . fromString
 
 instance Buildable Path where
-    build (Path segs) = bprint build
+    build (Path segs) = bprint F.build
         (fold . intersperse ("/" :: Text) . toList $
             decodeUtf8 . SBS.fromShort . pathSegmentByteString <$> segs)
 
@@ -301,7 +302,7 @@ instance Buildable blund => Buildable (BlockEvent' blund) where
     build = \case
         BlkEvApply ev -> bprint ("Apply blocks: "%listJson) (getOldestFirst $ ev ^. beaInput)
         BlkEvRollback ev -> bprint ("Rollback blocks: "%listJson) (getNewestFirst $ ev ^. berInput)
-        BlkEvSnap s -> bprint build s
+        BlkEvSnap s -> bprint F.build s
 
 type BlockEvent = BlockEvent' Blund
 

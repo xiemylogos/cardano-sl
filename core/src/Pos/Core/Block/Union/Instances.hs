@@ -14,7 +14,7 @@ module Pos.Core.Block.Union.Instances
 import           Universum
 
 import           Control.Lens (Getter, choosing, lens, to)
-import qualified Data.Text.Buildable as Buildable
+import           Formatting.Buildable (Buildable (build))
 
 import           Pos.Core.Block.Blockchain (GenericBlock (..))
 import           Pos.Core.Block.Genesis ()
@@ -34,8 +34,8 @@ import           Pos.Util.Some (Some)
 
 instance Buildable BlockHeader where
     build = \case
-        BlockHeaderGenesis bhg -> Buildable.build bhg
-        BlockHeaderMain    bhm -> Buildable.build bhm
+        BlockHeaderGenesis bhg -> build bhg
+        BlockHeaderMain    bhm -> build bhm
 
 ----------------------------------------------------------------------------
 -- HasHeaderHash

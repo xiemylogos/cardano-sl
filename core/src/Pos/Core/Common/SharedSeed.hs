@@ -8,7 +8,7 @@ import qualified Data.ByteString as BS (pack, zipWith)
 import qualified Data.ByteString.Char8 as BSC (pack)
 import           Data.SafeCopy (base, deriveSafeCopySimple)
 import qualified Data.Semigroup (Semigroup (..))
-import qualified Data.Text.Buildable as Buildable
+import           Formatting.Buildable (Buildable (build))
 import           Serokell.Util.Base16 (formatBase16)
 
 import           Pos.Binary.Class (Cons (..), Field (..), deriveSimpleBi)

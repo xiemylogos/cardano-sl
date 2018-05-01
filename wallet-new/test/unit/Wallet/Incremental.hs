@@ -23,8 +23,8 @@ import           Universum hiding (State)
 
 import           Control.Lens.TH
 import qualified Data.Map as Map
-import qualified Data.Text.Buildable
-import           Formatting (bprint, build, (%))
+import           Formatting (bprint, (%))
+import           Formatting.Buildable (Buildable (build))
 
 import           Cardano.Wallet.Kernel.Util (disjoint)
 

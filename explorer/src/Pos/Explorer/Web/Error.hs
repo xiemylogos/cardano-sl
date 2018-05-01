@@ -4,8 +4,8 @@ module Pos.Explorer.Web.Error
        ( ExplorerError (..)
        ) where
 
-import qualified Data.Text.Buildable
 import           Formatting (bprint, stext, (%))
+import           Formatting.Buildable (Buildable (build))
 import           Universum
 
 newtype ExplorerError =

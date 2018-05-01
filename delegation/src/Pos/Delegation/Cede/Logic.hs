@@ -18,7 +18,8 @@ import           Control.Lens (uses, (%=))
 import           Control.Monad.Except (throwError)
 import qualified Data.HashMap.Strict as HM
 import qualified Data.HashSet as HS
-import           Formatting (build, sformat, (%))
+import           Formatting (sformat, (%))
+import qualified Formatting as F
 
 import           Pos.Core (EpochIndex, HeavyDlgIndex (..), ProxySKHeavy,
                      StakeholderId, addressHash, gbhConsensus)
@@ -30,6 +31,16 @@ import           Pos.DB (DBError (DBMalformed))
 import           Pos.Delegation.Cede.Class (MonadCedeRead (..), getPskPk)
 import           Pos.Delegation.Types (DlgMemPool, isRevokePsk)
 import           Pos.Lrc.Types (RichmenSet)
+
+import           Data.Text.Lazy (toStrict)
+import           Data.Text.Lazy.Builder (toLazyText)
+import           Formatting.Buildable (Buildable (build))
+----------------------------------------------------------------------------
+-- Compat shims
+----------------------------------------------------------------------------
+-- pretty used to be in Universum
+pretty :: Buildable a => a -> Text
+pretty = toStrict . toLazyText . build
 
 -- | Given an issuer, retrieves all certificate chains starting in
 -- issuer. This function performs a series of sequential db reads so
@@ -124,8 +135,8 @@ dlgVerifyHeader h = runExceptT $ do
         (BlockSignature _) -> do
             whenJustM (getPskPk leader) $ \psk ->
                 throwError $
-                sformat ("issuer "%build%" has delegated issuance right, "%
-                         "so he can't issue the block himself, psk: "%build%", sig: "%build)
+                sformat ("issuer "%F.build%" has delegated issuance right, "%
+                         "so he can't issue the block himself, psk: "%F.build%", sig: "%F.build)
                     leader psk sig
         -- We check that the cert is related to block issuer. This
         -- also checks that the delegate didn't delegate himself.
@@ -133,7 +144,7 @@ dlgVerifyHeader h = runExceptT $ do
             lastPskM <- dlgLastPsk (addressHash leader)
             let canIssue = lastPskM == (Just $ psigPsk pSig)
             unless canIssue $ throwError $
-                sformat ("heavy proxy signature's "%build%" "%
+                sformat ("heavy proxy signature's "%F.build%" "%
                          "related proxy cert can't be found/doesn't "%
                          "match the one in current allowed heavy psks set")
                         pSig
@@ -141,8 +152,8 @@ dlgVerifyHeader h = runExceptT $ do
         (BlockPSignatureLight pSig) -> do
             let pskIPk = pskIssuerPk (psigPsk pSig)
             unless (pskIPk == leader) $ throwError $
-                sformat ("light proxy signature's "%build%" issuer "%
-                         build%" doesn't match block slot leader "%build)
+                sformat ("light proxy signature's "%F.build%" issuer "%
+                        F.build%" doesn't match block slot leader "%F.build)
                         pSig pskIPk leader
 
 -- | Wrapper that turns on/off check of cycle creation in psk
@@ -171,7 +182,7 @@ dlgVerifyPskHeavy pm richmen (CheckForCycle checkCycle) curEpoch psk = do
     when (not (isRevokePsk psk) &&
           not (stakeholderId `HS.member` richmen)) $
         throwError $ sformat
-            ("PSK can't be accepted: issuer doesn't have enough stake: "%build)
+            ("PSK can't be accepted: issuer doesn't have enough stake: "%F.build)
             psk
 
     -- There are no psks that are isomorphic to ones from
@@ -186,7 +197,7 @@ dlgVerifyPskHeavy pm richmen (CheckForCycle checkCycle) curEpoch psk = do
     whenJust duplicate $ \psk2 ->
         throwError $ sformat
             ("User effectively duplicates his previous PSK: "%
-             build%" with new one "%build)
+            F.build%" with new one "%F.build)
             psk2 psk
 
     -- No issuer has posted psk this epoch before (unless
@@ -194,7 +205,7 @@ dlgVerifyPskHeavy pm richmen (CheckForCycle checkCycle) curEpoch psk = do
     alreadyPostedThisEpoch <- hasPostedThisEpoch stakeholderId
     when (not (isRevokePsk psk) && alreadyPostedThisEpoch) $
         throwError $ sformat
-            ("PSK "%build%" is not a revocation and his issuer "%
+            ("PSK "%F.build%" is not a revocation and his issuer "%
              " has already published psk this epoch")
             psk
 
@@ -202,13 +213,13 @@ dlgVerifyPskHeavy pm richmen (CheckForCycle checkCycle) curEpoch psk = do
     -- psk.
     when (isRevokePsk psk && isNothing prevPsk) $
         throwError $ sformat
-            ("Revoke PSK "%build%" doesn't revoke anything")
+            ("Revoke PSK "%F.build%" doesn't revoke anything")
             psk
 
     -- Internal PSK epoch should match current tip epoch.
     unless (curEpoch == getHeavyDlgIndex (pskOmega psk)) $
         throwError $ sformat
-            ("PSK "%build%" has epoch which is different from the related epoch "%build)
+            ("PSK "%F.build%" has epoch which is different from the related epoch "%F.build)
             psk curEpoch
 
     -- No cycle is created. This check is optional because when
@@ -217,5 +228,5 @@ dlgVerifyPskHeavy pm richmen (CheckForCycle checkCycle) curEpoch psk = do
     when checkCycle $
         whenJustM (detectCycleOnAddition psk) $ \cyclePoint ->
             throwError $ sformat
-                ("Adding PSK "%build%" leads to cycle at point "%build)
+                ("Adding PSK "%F.build%" leads to cycle at point "%F.build)
                 psk cyclePoint

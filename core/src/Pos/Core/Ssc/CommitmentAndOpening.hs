@@ -7,7 +7,8 @@ import           Universum
 import qualified Crypto.Random as Rand
 import qualified Data.HashMap.Strict as HM
 import qualified Data.List.NonEmpty as NE
-import           Formatting (build, sformat, (%))
+import           Formatting (sformat, (%))
+import qualified Formatting as F
 
 import           Pos.Binary.Class (asBinary)
 import           Pos.Core.Ssc.Commitment (Commitment (..))
@@ -21,10 +22,10 @@ randCommitmentAndOpening
     => Threshold -> NonEmpty VssPublicKey -> m (Commitment, Opening)
 randCommitmentAndOpening t pks
     | t <= 1 = error $ sformat
-        ("randCommitmentAndOpening: threshold ("%build%") must be > 1") t
+        ("randCommitmentAndOpening: threshold ("%F.build%") must be > 1") t
     | t >= n - 1 = error $ sformat
-        ("randCommitmentAndOpening: threshold ("%build%") must be < n-1"%
-         " (n = "%build%")") t n
+        ("randCommitmentAndOpening: threshold ("%F.build%") must be < n-1"%
+         " (n = "%F.build%")") t n
     | otherwise = convertRes <$> genSharedSecret t pks
   where
     n = fromIntegral (length pks)

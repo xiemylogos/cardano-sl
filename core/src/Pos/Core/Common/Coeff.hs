@@ -6,7 +6,7 @@ import           Universum
 
 import           Data.Fixed (Fixed (..), Nano, showFixed)
 import           Data.SafeCopy (base, deriveSafeCopySimple)
-import qualified Data.Text.Buildable as Buildable
+import           Formatting.Buildable (Buildable (..))
 
 import           Pos.Binary.Class (Bi (..))
 

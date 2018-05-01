@@ -8,8 +8,9 @@ module Pos.Core.Delegation.HeavyDlgIndex
 import           Universum
 
 import           Data.SafeCopy (SafeCopy (..), contain, safeGet, safePut)
-import qualified Data.Text.Buildable
-import           Formatting (bprint, build)
+import           Formatting (bprint)
+import qualified Formatting as F
+import           Formatting.Buildable (Buildable (build))
 
 import           Pos.Binary.Class (Bi (..))
 import           Pos.Core.Slotting (EpochIndex)
@@ -27,7 +28,7 @@ instance NFData HeavyDlgIndex
 instance Hashable HeavyDlgIndex
 
 instance Buildable HeavyDlgIndex where
-    build (HeavyDlgIndex i) = bprint build i
+    build (HeavyDlgIndex i) = bprint F.build i
 
 instance Bi HeavyDlgIndex where
     encode = encode . getHeavyDlgIndex

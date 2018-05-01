@@ -8,11 +8,21 @@ import           Universum
 
 import           Data.Bits (Bits (..))
 import           Formatting (sformat, stext, (%))
+import           Formatting.Buildable (Buildable (build))
 import           Network.Info (IPv4 (..), getNetworkInterfaces, ipv4)
 import           Serokell.Util.Text (listBuilderJSON)
 
 import           Pos.Infra.Diffusion.Types (Diffusion (..))
 import           Pos.ReportServer.Report (ReportType (..))
+
+import           Data.Text.Lazy (toStrict)
+import           Data.Text.Lazy.Builder (toLazyText)
+----------------------------------------------------------------------------
+-- Compat shims
+----------------------------------------------------------------------------
+-- pretty used to be in Universum
+pretty :: Buildable a => a -> Text
+pretty = toStrict . toLazyText . build
 
 extendWithNodeInfo :: MonadIO m => Diffusion m -> ReportType -> m ReportType
 extendWithNodeInfo oq rt = flip extendRTDesc rt <$> getNodeInfo oq

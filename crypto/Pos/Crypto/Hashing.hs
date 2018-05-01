@@ -53,8 +53,10 @@ import qualified Data.ByteString.Lazy as LBS
 import           Data.Coerce (coerce)
 import           Data.Hashable (Hashable (hashWithSalt), hashPtrWithSalt)
 import           Data.Reflection (reifyNat)
+
 import           Data.SafeCopy (SafeCopy (..))
-import qualified Data.Text.Buildable as Buildable
+import           Formatting.Buildable (Buildable (build))
+
 import           Formatting (Format, bprint, fitLeft, later, sformat, (%.))
 import qualified Prelude
 import qualified Serokell.Util.Base16 as B16
@@ -77,8 +79,8 @@ data WithHash a = WithHash
 instance Hashable (WithHash a) where
     hashWithSalt s = hashWithSalt s . whHash
 
-instance Buildable.Buildable a => Buildable.Buildable (WithHash a) where
-    build = Buildable.build . whData
+instance Buildable a => Buildable (WithHash a) where
+    build = build . whData
 
 instance Eq a => Eq (WithHash a) where
     a == b = (whHash a == whHash b) && (whData a == whData b)
@@ -119,7 +121,7 @@ instance Hashable (AbstractHash algo a) where
       where
         !len = ByteArray.length h
 
-instance Buildable.Buildable (AbstractHash algo a) where
+instance Buildable (AbstractHash algo a) where
     build = bprint mediumHashF
 
 instance ToJSON (AbstractHash algo a) where
@@ -220,7 +222,7 @@ unsafeHash = unsafeAbstractHash
 
 -- | Specialized formatter for 'Hash'.
 hashHexF :: Format r (AbstractHash algo a -> r)
-hashHexF = later $ \(AbstractHash x) -> Buildable.build (show x :: Text)
+hashHexF = later $ \(AbstractHash x) -> build (show x :: Text)
 
 -- | Smart formatter for 'Hash' to show only first @16@ characters of 'Hash'.
 mediumHashF :: Format r (AbstractHash algo a -> r)

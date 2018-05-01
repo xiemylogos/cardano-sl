@@ -31,8 +31,10 @@ import           Control.Exception.Safe (Exception (..))
 import           Control.Lens (makeLenses)
 import           Control.Monad.Trans (MonadTrans)
 import qualified Data.Map.Strict as M (fromList, insert)
-import qualified Data.Text.Buildable
-import           Formatting (bprint, build, (%))
+import           Formatting (bprint, (%))
+import qualified Formatting as F
+import           Formatting.Buildable (Buildable (build))
+
 import           JsonLog (CanJsonLog (..))
 import           Mockable (CurrentTime, Mockable)
 import           Serokell.Util.Text (listJson)
@@ -63,6 +65,15 @@ import           Pos.Txp (MempoolExt, MonadTxpLocal, MonadTxpMem,
                      utxoGet, utxoToLookup, withTxpLocalData)
 import           Pos.Util (eitherToThrow, maybeThrow)
 import           Pos.Util.Util (HasLens')
+
+import           Data.Text.Lazy (toStrict)
+import           Data.Text.Lazy.Builder (toLazyText)
+----------------------------------------------------------------------------
+-- Compat shims
+----------------------------------------------------------------------------
+-- pretty used to be in Universum
+pretty :: Buildable a => a -> Text
+pretty = toStrict . toLazyText . build
 
 ----------------------------------------------------------------------
 -- Deduction of history
@@ -102,8 +113,8 @@ makeLenses ''TxHistoryEntry
 instance Buildable TxHistoryEntry where
     build THEntry {..} =
         bprint
-            ("{ id="%build%" inputs="%listJson%" outputs="%listJson
-             %" diff="%build%" time="%build%" }")
+            ("{ id="%F.build%" inputs="%listJson%" outputs="%listJson
+             %" diff="%F.build%" time="%F.build%" }")
             _thTxId
             _thInputs
             _thOutputAddrs

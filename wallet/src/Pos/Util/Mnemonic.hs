@@ -42,7 +42,8 @@ import           Data.ByteString (ByteString)
 import           Data.Default (Default (def))
 import           Data.Swagger (NamedSchema (..), ToSchema (..), maxItems,
                      minItems)
-import           Formatting (bprint, build, formatToString, (%))
+import           Formatting (bprint, formatToString, (%))
+import           Formatting.Buildable (Buildable (build))
 import           Pos.Binary (serialize')
 import           Pos.Crypto (AesKey (..))
 import           Pos.Infra.Util.LogSafe (SecureLog)
@@ -55,7 +56,7 @@ import qualified Basement.UArray as Basement
 import qualified Crypto.Encoding.BIP39.English as Dictionary
 import qualified Crypto.Random.Entropy as Crypto
 import qualified Data.ByteString.Char8 as B8
-import qualified Data.Text.Buildable
+import qualified Formatting as F
 
 
 --
@@ -296,7 +297,7 @@ instance Buildable (SecureLog (Mnemonic mw)) where
 instance Buildable MnemonicErr where
     build = \case
         MnemonicErrInvalidEntropyLength l ->
-            bprint ("Entropy must be a sequence of " % build % " bytes") l
+            bprint ("Entropy must be a sequence of " % F.build % " bytes") l
         MnemonicErrFailedToCreate ->
             bprint "Invalid Mnemonic words"
         MnemonicErrForbiddenMnemonic ->
@@ -351,7 +352,7 @@ instance
       where
         eitherToParser :: Either MnemonicErr (Mnemonic mw) -> Parser (Mnemonic mw)
         eitherToParser =
-            either (fail . formatToString build) pure
+            either (fail . formatToString F.build) pure
 
 
 instance ToJSON (Mnemonic mw) where

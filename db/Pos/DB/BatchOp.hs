@@ -12,9 +12,9 @@ module Pos.DB.BatchOp
 
 import           Universum
 
-import qualified Data.Text.Buildable
 import qualified Database.RocksDB as Rocks
 import           Formatting (bprint)
+import           Formatting.Buildable (Buildable (build))
 import           Serokell.Util.Text (listJson)
 
 import           Pos.DB.Class (DBTag, MonadDB (dbWriteBatch))
@@ -63,7 +63,7 @@ instance RocksBatchOp SomePrettyBatchOp where
     toBatchOp (SomePrettyBatchOp a) = toBatchOp a
 
 instance Buildable SomePrettyBatchOp where
-    build (SomePrettyBatchOp x) = Data.Text.Buildable.build x
+    build (SomePrettyBatchOp x) = build x
 
 -- instance (Foldable t, RocksBatchOp a) => RocksBatchOp (t a) where
 --     toBatchOp = concatMap toBatchOp -- overlapping instances, wtf ?????

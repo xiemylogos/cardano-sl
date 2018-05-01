@@ -7,8 +7,10 @@ module Pos.Core.Update.VoteId
 
 import           Universum
 
-import qualified Data.Text.Buildable as Buildable
-import           Formatting (bprint, build, (%))
+import qualified Formatting as F
+import           Formatting.Buildable (Buildable (build))
+
+import           Formatting (bprint, (%))
 
 import           Pos.Crypto (PublicKey)
 
@@ -19,7 +21,7 @@ type VoteId = (UpId, PublicKey, Bool)
 
 instance Buildable VoteId where
     build (upId, pk, dec) =
-      bprint ("Vote Id { voter: "%build%", proposal id: "%build%", voter's decision: "%build%" }")
+      bprint ("Vote Id { voter: "%F.build%", proposal id: "%F.build%", voter's decision: "%F.build%" }")
              pk upId dec
 
 mkVoteId :: UpdateVote -> VoteId

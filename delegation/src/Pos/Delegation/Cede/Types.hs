@@ -14,8 +14,9 @@ module Pos.Delegation.Cede.Types
        ) where
 
 import           Control.Lens (makeLenses)
-import qualified Data.Text.Buildable
-import           Formatting (bprint, build, (%))
+import           Formatting (bprint, (%))
+import qualified Formatting as F
+import           Formatting.Buildable (Buildable (build))
 import           Universum
 
 import           Pos.Core (ProxySKHeavy, StakeholderId, addressHash)
@@ -32,8 +33,8 @@ data DlgEdgeAction
 instance Hashable DlgEdgeAction
 
 instance Buildable DlgEdgeAction where
-    build (DlgEdgeAdd psk) = bprint ("DlgEdgeAdd: "%build) psk
-    build (DlgEdgeDel iPk) = bprint ("DlgEdgeDel: "%build) iPk
+    build (DlgEdgeAdd psk) = bprint ("DlgEdgeAdd: "%F.build) psk
+    build (DlgEdgeDel iPk) = bprint ("DlgEdgeDel: "%F.build) iPk
 
 -- | Converts heavy psk to the psk mapping action.
 pskToDlgEdgeAction :: ProxySKHeavy -> DlgEdgeAction

@@ -10,7 +10,8 @@ import           Control.Lens (_Wrapped)
 import           Data.Aeson (encode)
 import qualified Data.ByteString.Lazy as BSL
 import           Data.List (genericTake)
-import           Formatting (build, int, sformat, string, (%))
+import           Formatting (int, sformat, string, (%))
+import qualified Formatting as F
 import           System.Wlog (logInfo)
 
 import           Pos.Block.Logic (BypassSecurityCheck (..),
@@ -72,4 +73,4 @@ rollbackAndDump pm numToRollback outFile = withStateLock HighPriority ApplyBlock
     is0thGenesis _ = False
     printTipDifficulty = do
         tipDifficulty <- view difficultyL <$> DB.getTipHeader
-        logInfo $ sformat ("Our tip's difficulty is "%build) tipDifficulty
+        logInfo $ sformat ("Our tip's difficulty is "%F.build) tipDifficulty

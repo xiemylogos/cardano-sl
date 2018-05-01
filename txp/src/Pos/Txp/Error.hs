@@ -5,12 +5,15 @@ module Pos.Txp.Error
        ) where
 
 import           Control.Exception.Safe (Exception (..))
-import qualified Data.Text.Buildable
 import           Formatting (bprint, stext, (%))
+import           Formatting.Buildable (Buildable (build))
 import           Universum
 
 import           Pos.Exception (cardanoExceptionFromException,
                      cardanoExceptionToException)
+
+import           Data.Text.Lazy (toStrict)
+import           Data.Text.Lazy.Builder (toLazyText)
 
 data TxpError
     = TxpInternalError !Text
@@ -20,7 +23,7 @@ data TxpError
 instance Exception TxpError where
     toException = cardanoExceptionToException
     fromException = cardanoExceptionFromException
-    displayException = toString . pretty
+    displayException = toString . toStrict . toLazyText . build
 
 instance Buildable TxpError where
     build (TxpInternalError msg) =

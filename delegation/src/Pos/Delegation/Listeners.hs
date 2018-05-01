@@ -10,7 +10,9 @@ module Pos.Delegation.Listeners
 
 import           Universum
 
-import           Formatting (build, sformat, shown, (%))
+import           Formatting (sformat, shown, (%))
+import qualified Formatting as F
+
 import           Mockable (CurrentTime, Delay, Mockable)
 import           System.Wlog (WithLogger, logDebug, logWarning)
 import           UnliftIO (MonadUnliftIO)
@@ -53,9 +55,9 @@ type DlgListenerConstraint ctx m
 
 handlePsk :: (DlgListenerConstraint ctx m) => ProtocolMagic -> ProxySKHeavy -> m Bool
 handlePsk pm pSk = do
-    logDebug $ sformat ("Got request to handle heavyweight psk: "%build) pSk
+    logDebug $ sformat ("Got request to handle heavyweight psk: "%F.build) pSk
     verdict <- processProxySKHeavy pm pSk
-    logDebug $ sformat ("The verdict for cert "%build%" is: "%shown) pSk verdict
+    logDebug $ sformat ("The verdict for cert "%F.build%" is: "%shown) pSk verdict
     case verdict of
         PHTipMismatch -> do
             -- We're probably updating state over epoch, so

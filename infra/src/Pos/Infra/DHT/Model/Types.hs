@@ -21,9 +21,9 @@ import           Universum
 
 import qualified Data.ByteString as BS
 import           Data.Hashable (Hashable (..))
-import           Data.Text.Buildable (Buildable (..))
 import           Formatting (bprint, (%))
 import qualified Formatting as F
+import           Formatting.Buildable (Buildable (..))
 import           Network.Kademlia (fromBS)
 import           Network.Kademlia.HashNodeId (HashId (..), genNonce,
                      hashAddress)
@@ -37,6 +37,15 @@ import qualified Text.Parsec.Text as P
 import           Pos.Binary.Class (Bi (..))
 import           Pos.Crypto.Random (runSecureRandom)
 import           Pos.Infra.Util.TimeWarp (NetworkAddress, addrParser)
+
+import           Data.Text.Lazy (toStrict)
+import           Data.Text.Lazy.Builder (toLazyText)
+----------------------------------------------------------------------------
+-- Compat shims
+----------------------------------------------------------------------------
+-- pretty used to be in Universum
+pretty :: Buildable a => a -> Text
+pretty = toStrict . toLazyText . build
 
 -- | Data type for DHT exceptions.
 data DHTException = NodeDown | AllPeersUnavailable

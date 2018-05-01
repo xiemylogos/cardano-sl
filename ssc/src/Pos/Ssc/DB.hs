@@ -9,9 +9,10 @@ module Pos.Ssc.DB
 import           Universum
 
 import           Data.Default (def)
-import qualified Data.Text.Buildable
 import qualified Database.RocksDB as Rocks
-import           Formatting (bprint, build, (%))
+import           Formatting (bprint, (%))
+import qualified Formatting as F
+import           Formatting.Buildable (Buildable (build))
 
 import           Pos.Core (HasCoreConfiguration, genesisVssCerts)
 import           Pos.DB (MonadDB, MonadDBRead, RocksBatchOp (..))
@@ -43,7 +44,7 @@ data SscOp
     = PutGlobalState !SscGlobalState
 
 instance Buildable SscOp where
-    build (PutGlobalState gs) = bprint ("SscOp ("%build%")") gs
+    build (PutGlobalState gs) = bprint ("SscOp ("%F.build%")") gs
 
 instance (HasCoreConfiguration) => RocksBatchOp SscOp where
     toBatchOp (PutGlobalState gs) = [Rocks.Put sscKey (dbSerializeValue gs)]

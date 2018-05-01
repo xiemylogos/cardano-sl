@@ -12,7 +12,9 @@ import           Control.Monad.Except (runExceptT)
 import qualified Data.HashMap.Strict as HM
 import qualified Data.List.NonEmpty as NE
 import           Data.Time.Units (Microsecond, Millisecond, convertUnit)
-import           Formatting (build, ords, sformat, shown, (%))
+import           Formatting (ords, sformat, shown, (%))
+import qualified Formatting as F
+import           Formatting.Buildable (Buildable)
 import           Mockable (currentTime, delay)
 import           Serokell.Util.Exceptions ()
 import           Serokell.Util.Text (listJson)
@@ -280,7 +282,7 @@ sscProcessOurMessage action =
     logResult (Right _) = logDebugS "We have accepted our message"
     logResult (Left er) =
         logWarningS $
-        sformat ("We have rejected our message, reason: "%build) er
+        sformat ("We have rejected our message, reason: "%F.build) er
 
 sendOurData
     :: SscMode ctx m
@@ -295,9 +297,9 @@ sendOurData sendIt msgTag dt epoch slMultiplier = do
     -- in one invocation of onNewSlot we can't process more than one
     -- type of message.
     waitUntilSend msgTag epoch slMultiplier
-    logInfoS $ sformat ("Announcing our "%build) msgTag
+    logInfoS $ sformat ("Announcing our "%F.build) msgTag
     _ <- sendIt dt
-    logDebugS $ sformat ("Sent our " %build%" to neighbors") msgTag
+    logDebugS $ sformat ("Sent our " %F.build%" to neighbors") msgTag
 
 -- Generate new commitment and opening and use them for the current
 -- epoch. It is also saved in persistent storage.
@@ -337,7 +339,7 @@ generateAndSetNewSecret pm sk SlotId {..} = do
         let onLeft er =
                 Nothing <$
                 logWarningS
-                (here $ sformat ("Couldn't compute shares distribution, reason: "%build) er)
+                (here $ sformat ("Couldn't compute shares distribution, reason: "%F.build) er)
         mpcThreshold <- bvdMpcThd <$> gsAdoptedBVData
         distrET <- runExceptT (computeSharesDistrPure richmen mpcThreshold)
         flip (either onLeft) distrET $ \distr -> do
@@ -389,7 +391,7 @@ waitUntilSend msgTag epoch slMultiplier = do
             ttwMillisecond = convertUnit timeToWait
         logDebugS $
             sformat
-                ("Waiting for " %shown % " before sending " %build)
+                ("Waiting for " %shown % " before sending " %F.build)
                 ttwMillisecond
                 msgTag
         delay timeToWait

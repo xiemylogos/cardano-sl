@@ -33,13 +33,13 @@ import           Data.IP (IPv4)
 import qualified Data.Map.Strict as M
 import           Data.Maybe (fromJust, mapMaybe)
 import qualified Data.Yaml as Yaml
-import           Formatting (build, sformat, shown, (%))
+import           Formatting (sformat, shown, (%))
+import qualified Formatting as F
 import           Mockable.Concurrent ()
 import           Network.Broadcast.OutboundQueue (Alts, Peers, peersFromList)
 import qualified Network.DNS as DNS
 import qualified Network.Transport.TCP as TCP
 import qualified Options.Applicative as Opt
-import           Serokell.Util.OptParse (fromParsec)
 import           System.Wlog (LoggerNameBox, WithLogger, askLoggerName,
                      logError, logNotice, usingLoggerName)
 
@@ -56,6 +56,14 @@ import           Pos.Infra.Util.TimeWarp (NetworkAddress, addrParser,
 #ifdef POSIX
 import           Pos.Infra.Util.SigHandler (Signal (..), installHandler)
 #endif
+
+-- This used to be in serokell-util
+import           Options.Applicative (ReadM, eitherReader)
+import           Text.Parsec (Parsec, parse)
+
+fromParsec :: Parsec Text () a -> ReadM a
+fromParsec parser =
+    eitherReader $ first show . parse parser "<CLI options>" . toText
 
 ----------------------------------------------------------------------------
 -- Command line arguments
@@ -382,8 +390,8 @@ intNetworkConfigOpts cfg@NetworkConfigOpts{..} = do
         whenJust ((,) <$> kademliaExternal <*> ncoExternalAddress) $ \(kademliaEx::NetworkAddress,paramEx::NetworkAddress) ->
             when (kademliaEx /= paramEx) $
             throwM $ InconsistentParameters $
-            sformat ("Kademlia network address is "%build%
-                     " but external address passed in cli is "%build%
+            sformat ("Kademlia network address is "%F.build%
+                     " but external address passed in cli is "%F.build%
                      ". They must be the same")
                     kademliaEx
                     paramEx

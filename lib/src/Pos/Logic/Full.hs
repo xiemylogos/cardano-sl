@@ -11,8 +11,11 @@ import           Universum hiding (id)
 import           Control.Lens (at, to)
 import qualified Data.HashMap.Strict as HM
 import           Data.Tagged (Tagged (..), tagWith)
-import           Formatting (build, sformat, (%))
+import           Formatting (sformat, (%))
+import qualified Formatting as F
+import           Formatting.Buildable (Buildable)
 import           Pipes (Producer)
+
 import           System.Wlog (WithLogger, logDebug)
 
 import           Pos.Block.BlockWorkMode (BlockWorkMode)
@@ -222,13 +225,13 @@ logicFull pm ourStakeholderId securityParams jsonLogTx =
           where
             contentsProxy = (const Proxy :: (contents -> k) -> Proxy contents) contentsToKey
             ignoreFmt =
-                "Malicious emulation: data "%build%" for id "%build%" is ignored"
+                "Malicious emulation: data "%F.build%" for id "%F.build%" is ignored"
             handleDataDo dat id shouldIgnore
                 | shouldIgnore = False <$ logDebug (sformat ignoreFmt id dat)
                 | otherwise = sscProcessMessage processData dat
             sscProcessMessage sscProcessMessageDo dat =
                 sscProcessMessageDo dat >>= \case
-                    Left err -> False <$ logDebug (sformat ("Data is rejected, reason: "%build) err)
+                    Left err -> False <$ logDebug (sformat ("Data is rejected, reason: "%F.build) err)
                     Right () -> return True
 
     in Logic {..}

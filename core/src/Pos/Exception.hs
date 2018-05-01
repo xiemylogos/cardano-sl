@@ -13,13 +13,22 @@ module Pos.Exception
        ) where
 
 import           Control.Exception.Safe (Exception (..))
-import qualified Data.Text.Buildable
 import           Data.Typeable (cast)
 import           Formatting (bprint, stext, (%))
+import           Formatting.Buildable (Buildable (build))
 import           Serokell.Util (Color (Red), colorize)
 import           System.Wlog (WithLogger, logError)
 import qualified Text.Show
 import           Universum
+
+import           Data.Text.Lazy (toStrict)
+import           Data.Text.Lazy.Builder (toLazyText)
+----------------------------------------------------------------------------
+-- Compat shims
+----------------------------------------------------------------------------
+-- pretty used to be in Universum
+pretty :: Buildable a => a -> Text
+pretty = toStrict . toLazyText . build
 
 -- | Root of exceptions in cardano-sl.
 data CardanoException =
@@ -33,7 +42,7 @@ instance Show CardanoException where
 instance Exception CardanoException
 
 instance Buildable CardanoException where
-    build (CardanoException e) = Data.Text.Buildable.build e
+    build (CardanoException e) = build e
 
 -- | Helper to define sub-exception of CardanoException.
 cardanoExceptionToException :: (Buildable e, Exception e) => e -> SomeException

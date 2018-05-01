@@ -5,8 +5,9 @@ module Pos.Lrc.Error
 
 import           Universum
 
-import qualified Data.Text.Buildable
-import           Formatting (bprint, build, int, stext, (%))
+import           Formatting (bprint, int, stext, (%))
+import qualified Formatting as F
+import           Formatting.Buildable (Buildable (build))
 
 import           Pos.Core.Slotting (EpochIndex)
 
@@ -29,6 +30,6 @@ instance Buildable LrcError where
         bprint "there are no blocks for LRC computation"
     build (CanNotReuseSeedForLrc epoch) =
         bprint ("LRC attempted to reuse seed from previous epoch "%
-                "(i.e. epoch "%build%"), but the seed wasn't in the db") epoch
+                "(i.e. epoch "%F.build%"), but the seed wasn't in the db") epoch
     build LrcAfterGenesis =
         bprint "LRC was attempted after adoption of genesis block"

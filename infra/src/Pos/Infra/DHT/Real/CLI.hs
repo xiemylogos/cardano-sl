@@ -10,7 +10,8 @@ module Pos.Infra.DHT.Real.CLI
 import           Universum
 
 import           Control.Exception.Safe (throwString)
-import           Formatting (build, formatToString, shown, (%))
+import           Formatting (formatToString, shown, (%))
+import qualified Formatting as F
 import qualified Options.Applicative as Opt
 import           Pos.Util.OptParse (fromParsec)
 import           Text.Parsec (eof, parse)
@@ -64,6 +65,6 @@ readDhtPeersFile path = do
     let parseLine x = case parse (dhtNodeParser <* eof) "" x of
             Left err -> throwString $ formatToString
                 ("error when parsing peer "%shown%
-                 " from peers file "%build%": "%shown) x path err
+                 " from peers file "%F.build%": "%shown) x path err
             Right a -> return a
     mapM parseLine xs

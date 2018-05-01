@@ -38,8 +38,8 @@ module UTxO.Context (
 import qualified Data.HashMap.Strict as HM
 import qualified Data.List.NonEmpty as NE
 import qualified Data.Map.Strict as Map
-import qualified Data.Text.Buildable
-import           Formatting (bprint, build, sformat, (%))
+import           Formatting (bprint, sformat, (%))
+import           Formatting.Buildable (Buildable (build))
 import           Serokell.Util (listJson, mapJson, pairF)
 import           Serokell.Util.Base16 (base16F)
 import           Universum
@@ -488,7 +488,7 @@ initContext tcCardano = TransCtxt{..}
 resolveAddr :: Addr -> TransCtxt -> AddrInfo
 resolveAddr addr TransCtxt{..} =
     fromMaybe
-      (error $ sformat ("resolveAddr: " % build % " not found") addr)
+      (error $ sformat ("resolveAddr: " % F.build % " not found") addr)
       (Map.lookup addr addrMap)
   where
     AddrMap{..} = tcAddrMap
@@ -496,7 +496,7 @@ resolveAddr addr TransCtxt{..} =
 resolveAddress :: Address -> TransCtxt -> Addr
 resolveAddress addr TransCtxt{..} =
     fromMaybe
-      (error $ sformat ("resolveAddress: " % build % " not found") addr)
+      (error $ sformat ("resolveAddress: " % F.build % " not found") addr)
       (Map.lookup addr addrRevMap)
   where
     AddrMap{..} = tcAddrMap

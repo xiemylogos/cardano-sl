@@ -15,7 +15,8 @@ import           Universum
 import           Control.Monad.Error.Class (throwError)
 import qualified Data.List.NonEmpty as NE
 import           Data.Text (Text)
-import           Formatting (build, sformat)
+import           Formatting (sformat)
+import qualified Formatting as F
 
 import           Pos.Client.Txp.History (TxHistoryEntry (..))
 import           Pos.Core (Address, ChainDifficulty, decodeTextAddress,
@@ -40,7 +41,7 @@ import           Pos.Wallet.Web.ClientTypes.Types (AccountId (..), Addr, CCoin,
 -- will know it will probably change something for purescript.
 -- | Transform Address into CId
 addressToCId :: Address -> CId w
-addressToCId = CId . CHash . sformat build
+addressToCId = CId . CHash . sformat F.build
 
 cIdToAddress :: CId w -> Either Text Address
 cIdToAddress (CId (CHash h)) = decodeTextAddress h

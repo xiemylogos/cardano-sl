@@ -27,8 +27,10 @@ import qualified Control.Concurrent.STM as STM
 import           Control.Exception (throwIO)
 import qualified Data.HashMap.Strict as HM
 import qualified Data.List.NonEmpty as NE
-import qualified Data.Text.Buildable as B
-import           Formatting (bprint, build, sformat, (%))
+import qualified Formatting as F
+import           Formatting.Buildable (Buildable (build))
+
+import           Formatting (bprint, sformat, (%))
 import           Mockable (Async, Delay, Mockable, Mockables, SharedAtomic)
 import qualified Network.Broadcast.OutboundQueue as OQ
 import qualified Node as N
@@ -101,7 +103,7 @@ alternativeConversations logTrace nid ourVerInfo theirVerInfo convs
     fstArg :: (a -> b) -> Proxy a
     fstArg _ = Proxy
 
-    logOSNR (Right e@(OutSpecNotReported _ _)) = traceWith logTrace (Warning, sformat build e)
+    logOSNR (Right e@(OutSpecNotReported _ _)) = traceWith logTrace (Warning, sformat F.build e)
     logOSNR _                                  = pure ()
 
     checkingOutSpecs' nodeId peerInSpecs conv@(Conversation h) =
@@ -145,11 +147,11 @@ instance Exception SpecError
 instance Buildable SpecError where
     build (OutSpecNotReported outSpecs spec) =
         bprint
-          ("Sending "%build%": endpoint not reported to be used for sending. Our out specs: "%build)
+          ("Sending "%F.build%": endpoint not reported to be used for sending. Our out specs: "%F.build)
           spec outSpecs
     build (PeerInSpecNotReported inSpecs nodeId spec) =
         bprint
-          ("Attempting to send to "%build%": endpoint unsupported by peer "%build%". In specs: "%build)
+          ("Attempting to send to "%F.build%": endpoint unsupported by peer "%F.build%". In specs: "%F.build)
           spec nodeId inSpecs
 
 data MismatchedProtocolMagic
@@ -161,7 +163,7 @@ instance Exception MismatchedProtocolMagic
 instance Buildable MismatchedProtocolMagic where
     build (MismatchedProtocolMagic ourMagic theirMagic) =
         bprint
-          ("Mismatched protocolMagic, our: "%build%", their: "%build) ourMagic theirMagic
+          ("Mismatched protocolMagic, our: "%F.build%", their: "%F.build) ourMagic theirMagic
 
 
 type LocalOnNewSlotComm ctx m =
@@ -204,9 +206,9 @@ checkingInSpecs
     -> IO ()
 checkingInSpecs logTrace ourVerInfo peerVerInfo' spec nodeId action =
     if | spec `notInSpecs` vIInHandlers ourVerInfo ->
-              traceWith logTrace (Warning, sformat ("Endpoint is served, but not reported " % build) spec)
+              traceWith logTrace (Warning, sformat ("Endpoint is served, but not reported " % F.build) spec)
        | spec `notInSpecs` vIOutHandlers peerVerInfo' ->
-              traceWith logTrace (Warning, sformat ("Peer " % build % " attempting to use endpoint he didn't report to use " % build) nodeId spec)
+              traceWith logTrace (Warning, sformat ("Peer " % F.build % " attempting to use endpoint he didn't report to use " % F.build) nodeId spec)
        | otherwise -> action
 
 rcvProxy :: Proxy (ConversationActions snd rcv) -> Proxy rcv

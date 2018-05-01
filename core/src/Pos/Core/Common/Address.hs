@@ -62,8 +62,9 @@ import           Data.ByteString.Base58 (Alphabet (..), bitcoinAlphabet,
                      decodeBase58, encodeBase58)
 import           Data.Hashable (Hashable (..))
 import           Data.SafeCopy (base, deriveSafeCopySimple)
-import qualified Data.Text.Buildable as Buildable
-import           Formatting (Format, bprint, build, builder, later, (%))
+import           Formatting (Format, bprint, builder, later, (%))
+import qualified Formatting as F
+import           Formatting.Buildable (Buildable (build))
 import           Serokell.Data.Memory.Units (Byte)
 
 import           Pos.Binary.Class (Bi (..), Encoding, biSize,
@@ -138,7 +139,7 @@ makePrisms ''Address
 addressDetailedF :: Format r (Address -> r)
 addressDetailedF =
     later $ \Address {..} ->
-        bprint (builder%" address with root "%hashHexF%", attributes: "%build)
+        bprint (builder%" address with root "%hashHexF%", attributes: "%F.build)
             (formattedType addrType) addrRoot addrAttributes
   where
     formattedType =
@@ -146,7 +147,7 @@ addressDetailedF =
             ATPubKey      -> "PubKey"
             ATScript      -> "Script"
             ATRedeem      -> "Redeem"
-            ATUnknown tag -> "Unknown#" <> Buildable.build tag
+            ATUnknown tag -> "Unknown#" <> build tag
 
 -- | Currently we gonna use Bitcoin alphabet for representing addresses in
 -- base58
@@ -157,11 +158,11 @@ addrToBase58 :: Address -> ByteString
 addrToBase58 = encodeBase58 addrAlphabet . Bi.serialize'
 
 instance Buildable Address where
-    build = Buildable.build . decodeUtf8 @Text . addrToBase58
+    build = build . decodeUtf8 @Text . addrToBase58
 
 -- | Specialized formatter for 'Address'.
 addressF :: Format r (Address -> r)
-addressF = build
+addressF = F.build
 
 -- | A function which decodes base58-encoded 'Address'.
 decodeTextAddress :: Text -> Either Text Address

@@ -14,9 +14,10 @@ import qualified Prelude
 import           Universum
 
 import qualified Data.Text as T
-import qualified Data.Text.Buildable
 import           Data.Typeable
-import           Formatting (bprint, build, formatToString, sformat)
+import           Formatting (bprint, formatToString, sformat)
+import qualified Formatting as F
+import           Formatting.Buildable (Buildable (build))
 import qualified Generics.SOP as SOP
 import           GHC.TypeLits (KnownSymbol, symbolVal)
 import           Network.HTTP.Types (parseQueryText)
@@ -78,7 +79,7 @@ data SortOperation ix a
     deriving Eq
 
 instance (Buildable (SortOperation ix a)) => Show (SortOperation ix a) where
-    show = formatToString build
+    show = formatToString F.build
 
 instance (IndexToQueryParam a ix ~ sym , KnownSymbol sym) =>
     ToHttpApiData (SortOperation ix a) where
@@ -87,11 +88,11 @@ instance (IndexToQueryParam a ix ~ sym , KnownSymbol sym) =>
             let
                 ix = toText (symbolVal (Proxy @sym))
             in
-                mconcat [ sformat build dir , "[" , ix , "]" ]
+                mconcat [ sformat F.build dir , "[" , ix , "]" ]
 
 instance (ToHttpApiData (SortOperation ix a)) =>
     BuildableSafeGen (SortOperation ix a) where
-    buildSafeGen _ = bprint build . toQueryParam
+    buildSafeGen _ = bprint F.build . toQueryParam
 
 instance (BuildableSafeGen (SortOperation ix a)) =>
     Buildable (SortOperation ix a) where
@@ -124,15 +125,15 @@ instance Eq (SortOperations a) where
         False
 
 instance Show (SortOperations a) where
-    show = formatToString build
+    show = formatToString F.build
 
 instance BuildableSafeGen (SortOperations a) where
     buildSafeGen _ NoSorts =
         "-"
     buildSafeGen _ (SortOp op NoSorts) =
-        bprint build op
+        bprint F.build op
     buildSafeGen _ (SortOp op rest) =
-        bprint build op <> ", " <> bprint build rest
+        bprint F.build op <> ", " <> bprint F.build rest
 
 instance Buildable (SortOperations a) where
     build = buildSafeGen unsecure

@@ -11,7 +11,8 @@ import           Data.Constraint (Dict (..))
 import           Data.Default (def)
 import           Data.List ((!!))
 import qualified Data.Map as Map
-import           Formatting (build, int, sformat, stext, (%))
+import           Formatting (int, sformat, stext, (%))
+import qualified Formatting as F
 import           System.Wlog (CanLog, HasLoggerName, logError, logInfo,
                      logWarning)
 import qualified Text.JSON.Canonical as CanonicalJSON
@@ -446,7 +447,7 @@ createCommandProcs mpm hasAuxxMode printAction mDiffusion = rights . fix $ \comm
             addSecretKey $ noPassEncrypt primSk
         else do
             let ks = secret ^. usKeys
-            printAction $ sformat ("Adding "%build%" secret keys") (length ks)
+            printAction $ sformat ("Adding "%F.build%" secret keys") (length ks)
             mapM_ addSecretKey ks
         return ValueUnit
     , cpHelp = ""
@@ -482,17 +483,17 @@ createCommandProcs mpm hasAuxxMode printAction mDiffusion = rights . fix $ \comm
             addr <- makePubKeyAddressAuxx pk
             addrHD <- deriveHDAddressAuxx sk
             printAction $
-                sformat ("    #"%int%":   addr:      "%build%"\n"%
+                sformat ("    #"%int%":   addr:      "%F.build%"\n"%
                          "          pk:        "%fullPublicKeyF%"\n"%
                          "          pk hash:   "%hashHexF%"\n"%
-                         "          HD addr:   "%build)
+                         "          HD addr:   "%F.build)
                     i addr pk (addressHash pk) addrHD
         walletMB <- (^. usWallet) <$> (view userSecret >>= atomically . readTVar)
         whenJust walletMB $ \wallet -> do
             addrHD <- deriveHDAddressAuxx (_wusRootKey wallet)
             printAction $
                 sformat ("    Wallet address:\n"%
-                         "          HD addr:   "%build)
+                         "          HD addr:   "%F.build)
                     addrHD
         return ValueUnit
     , cpHelp = ""

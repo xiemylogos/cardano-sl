@@ -10,7 +10,8 @@ module Cardano.Wallet.API.Request (
   ) where
 
 
-import           Formatting (bprint, build, (%))
+import           Formatting (bprint, (%))
+import qualified Formatting as F
 import           Pos.Infra.Util.LogSafe (BuildableSafeGen (..),
                      deriveSafeBuildable)
 
@@ -27,4 +28,4 @@ data RequestParams = RequestParams
 deriveSafeBuildable ''RequestParams
 instance BuildableSafeGen RequestParams where
     buildSafeGen _sl RequestParams{..} =
-        bprint ("pagination: "%build) rpPaginationParams
+        bprint ("pagination: "%F.build) rpPaginationParams

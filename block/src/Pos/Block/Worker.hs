@@ -12,8 +12,9 @@ import           Universum
 import           Control.Lens (ix)
 import qualified Data.List.NonEmpty as NE
 import           Data.Time.Units (Microsecond, Second, fromMicroseconds)
-import           Formatting (Format, bprint, build, fixed, int, now, sformat,
-                     shown, (%))
+import           Formatting (Format, bprint, fixed, int, now, sformat, shown,
+                     (%))
+import qualified Formatting as F
 import           Mockable (delay)
 import           Serokell.Util (enumerate, listJson, pairF)
 import qualified System.Metrics.Label as Label
@@ -67,6 +68,16 @@ import           Pos.Infra.Util.TimeWarp (CanJsonLog (..))
 import qualified Pos.Lrc.DB as LrcDB (getLeadersForEpoch)
 import           Pos.Update.DB (getAdoptedBVData)
 
+import           Data.Text.Lazy (toStrict)
+import           Data.Text.Lazy.Builder (toLazyText)
+import           Formatting.Buildable (Buildable (build))
+----------------------------------------------------------------------------
+-- Compat shims
+----------------------------------------------------------------------------
+-- pretty used to be in Universum
+pretty :: Buildable a => a -> Text
+pretty = toStrict . toLazyText . build
+
 ----------------------------------------------------------------------------
 -- All workers
 ----------------------------------------------------------------------------
@@ -92,7 +103,7 @@ informerWorker =
         recoveryCommGuard "onNewSlot worker, informerWorker" $ do
             tipHeader <- DB.getTipHeader
             -- Printe tip header
-            logDebug $ sformat ("Our tip header: "%build) tipHeader
+            logDebug $ sformat ("Our tip header: "%F.build) tipHeader
             -- Print the difference between tip slot and current slot.
             logHowManySlotsBehind slotId tipHeader
             -- Compute and report metrics
@@ -134,7 +145,7 @@ blockCreator pm (slotId@SlotId {..}) diffusion = do
     -- First of all we create genesis block if necessary.
     mGenBlock <- createGenesisBlockAndApply pm siEpoch
     whenJust mGenBlock $ \createdBlk -> do
-        logInfo $ sformat ("Created genesis block:\n" %build) createdBlk
+        logInfo $ sformat ("Created genesis block:\n" %F.build) createdBlk
         jsonLog $ jlCreatedBlock (Left createdBlk)
 
     -- Then we get leaders for current epoch.
@@ -157,8 +168,8 @@ blockCreator pm (slotId@SlotId {..}) diffusion = do
     onKnownLeader leaders leader = do
         ourPk <- getOurPublicKey
         let ourPkHash = addressHash ourPk
-        logOnEpochFS $ sformat ("Our pk: "%build%", our pkHash: "%build) ourPk ourPkHash
-        logOnEpochF $ sformat ("Current slot leader: "%build) leader
+        logOnEpochFS $ sformat ("Our pk: "%F.build%", our pkHash: "%F.build) ourPk ourPkHash
+        logOnEpochF $ sformat ("Current slot leader: "%F.build) leader
 
 
         let -- position, how many to drop, list. This is to show some
@@ -181,7 +192,7 @@ blockCreator pm (slotId@SlotId {..}) diffusion = do
         if | weAreLeader && heavyWeAreIssuer ->
                  logInfoS $ sformat
                  ("Not creating the block (though we're leader) because it's "%
-                  "delegated by heavy psk: "%build)
+                  "delegated by heavy psk: "%F.build)
                  ourHeavyPsk
            | weAreLeader ->
                  onNewSlotWhenLeader pm slotId Nothing diffusion
@@ -204,7 +215,7 @@ onNewSlotWhenLeader pm slotId pske diffusion = do
                     slotId
         logLeader = "because i'm a leader"
         logCert (psk,_) =
-            sformat ("using heavyweight proxy signature key "%build%", will do it soon") psk
+            sformat ("using heavyweight proxy signature key "%F.build%", will do it soon") psk
     logInfoS $ logReason <> maybe logLeader logCert pske
     nextSlotStart <- getSlotStartEmpatically (succ slotId)
     currentTime <- currentTimeSlotting
@@ -223,7 +234,7 @@ onNewSlotWhenLeader pm slotId pske diffusion = do
         logInfoS "onNewSlotWhenLeader: done"
     whenCreated createdBlk = do
             logInfoS $
-                sformat ("Created a new block:\n" %build) createdBlk
+                sformat ("Created a new block:\n" %F.build) createdBlk
             jsonLog $ jlCreatedBlock (Right createdBlk)
             void $ Diffusion.announceBlockHeader diffusion $ createdBlk ^. gbHeader
     whenNotCreated = logWarningS . (mappend "I couldn't create a new block: ")
@@ -359,7 +370,7 @@ reportCrucialValues = do
     liftIO $ Label.set label crucialValuesText
   where
     crucialValuesFmt =
-        "slot duration: " %build % ", epoch duration: " %build % ", k: " %int
+        "slot duration: " %F.build % ", epoch duration: " %F.build % ", k: " %int
 
 ----------------------------------------------------------------------------
 -- -- Chain quality
@@ -434,7 +445,7 @@ cqFixedMetricMonitor ::
 cqFixedMetricMonitor = noReportMonitor convertCQ (Just debugFormat)
   where
     debugFormat =
-        "Chain quality for last "%now (bprint build fixedTimeCQSec)%
+        "Chain quality for last "%now (bprint F.build fixedTimeCQSec)%
         " is "%cqF
 
 -- Private chain quality formatter.

@@ -19,6 +19,17 @@ import           System.Wlog (WithLogger, logDebug, logError)
 
 import           Pos.Wallet.Web.State.State (WalletDB)
 
+import           Data.Text.Lazy (toStrict)
+import           Data.Text.Lazy.Builder (toLazyText)
+import           Formatting.Buildable (Buildable (build))
+----------------------------------------------------------------------------
+-- Compat shims
+----------------------------------------------------------------------------
+-- pretty used to be in Universum
+pretty :: Buildable a => a -> Text
+pretty = toStrict . toLazyText . build
+
+
 type MonadAcidCleanup ctx m =
     ( MonadIO m
     , MonadMask m

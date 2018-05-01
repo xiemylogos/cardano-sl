@@ -19,8 +19,9 @@ import           Control.Monad.Morph (hoist)
 import qualified Data.HashMap.Strict as HM
 import qualified Data.HashSet as HS
 import           Data.List ((\\))
-import qualified Data.Text.Buildable as B
-import           Formatting (bprint, build, sformat, (%))
+import           Formatting (bprint, sformat, (%))
+import qualified Formatting as F
+import           Formatting.Buildable (Buildable (build))
 import           Mockable (CurrentTime, Mockable)
 import           Serokell.Util (listJson, mapJson)
 import           System.Wlog (WithLogger, logDebug)
@@ -54,15 +55,23 @@ import           Pos.Lrc.Context (HasLrcContext)
 import           Pos.Lrc.Types (RichmenSet)
 import           Pos.Util (getKeys, _neHead)
 
+import           Data.Text.Lazy (toStrict)
+import           Data.Text.Lazy.Builder (toLazyText)
+----------------------------------------------------------------------------
+-- Compat shims
+----------------------------------------------------------------------------
+-- pretty used to be in Universum
+pretty :: Buildable a => a -> Text
+pretty = toStrict . toLazyText . build
 
 -- Copied from 'these' library.
 data These a b = This a | That b | These a b
     deriving (Eq, Show, Generic)
 
-instance (B.Buildable a, B.Buildable b) => B.Buildable (These a b) where
-    build (This a)    = bprint ("This {"%build%"}") a
-    build (That a)    = bprint ("That {"%build%"}") a
-    build (These a b) = bprint ("These {"%build%", "%build%"}") a b
+instance (Buildable a, Buildable b) => Buildable (These a b) where
+    build (This a)    = bprint ("This {"%F.build%"}") a
+    build (That a)    = bprint ("That {"%F.build%"}") a
+    build (These a b) = bprint ("These {"%F.build%", "%F.build%"}") a b
 
 -- u → (Maybe d₁, Maybe d₂): u changed delegate from d₁ (or didn't
 -- have one) to d₂ (or revoked delegation). These a b ≃ (Maybe a,
@@ -391,7 +400,7 @@ dlgVerifyBlocks pm blocks = do
                 cyclePoints <- catMaybes <$> mapM detectCycleOnAddition proxySKs
                 unless (null cyclePoints) $
                     throwError $
-                    sformat ("Block "%build%" leads to psk cycles, at "%
+                    sformat ("Block "%F.build%" leads to psk cycles, at "%
                              "least in these certs: "%listJson)
                             (headerHash blk)
                             (take 5 $ cyclePoints) -- should be enough

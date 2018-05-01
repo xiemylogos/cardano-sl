@@ -42,8 +42,8 @@ import           Control.Exception.Safe (onException, throwString)
 import           Control.Lens (makeLenses, to)
 import qualified Data.ByteString as BS
 import           Data.Default (Default (..))
-import qualified Data.Text.Buildable
-import           Formatting (Format, bprint, build, formatToString, later, (%))
+import           Formatting (Format, bprint, formatToString, later, (%))
+import           Formatting.Buildable (Buildable (build))
 import qualified Prelude
 import           Serokell.Util.Text (listJson)
 import           System.Directory (doesFileExist)
@@ -76,6 +76,8 @@ import qualified System.Posix.Files as PSX
 import qualified System.Posix.Types as PSX (FileMode)
 #endif
 
+import qualified Formatting as F
+
 -- Because of the Formatting import
 {-# ANN module ("HLint: ignore Use fewer imports" :: Text) #-}
 
@@ -97,7 +99,7 @@ makeLenses ''WalletUserSecret
 
 instance Buildable WalletUserSecret where
     build WalletUserSecret{..} =
-        bprint ("{ root = "%addressF%", set name = "%build%
+        bprint ("{ root = "%addressF%", set name = "%F.build%
                 ", wallets = "%pairsF%", accounts = "%pairsF%" }")
         (makeRootPubKeyAddress $ encToPublic _wusRootKey)
         _wusWalletName
@@ -105,7 +107,7 @@ instance Buildable WalletUserSecret where
         _wusAddrs
       where
         pairsF :: (Buildable a, Buildable b) => Format r ([(a, b)] -> r)
-        pairsF = later $ mconcat . map (uncurry $ bprint ("("%build%", "%build%")"))
+        pairsF = later $ mconcat . map (uncurry $ bprint ("("%F.build%", "%F.build%")"))
 
 deriveSimpleBi ''WalletUserSecret [
     Cons 'WalletUserSecret [
@@ -150,8 +152,8 @@ class HasUserSecret ctx where
 instance Bi Address => Show UserSecret where
     show UserSecret {..} =
         formatToString
-            ("UserSecret { _usKeys = "%listJson%", _usVss = "%build%
-             ", _usPath = "%build%", _usWallet = "%build%"}")
+            ("UserSecret { _usKeys = "%listJson%", _usVss = "%F.build%
+             ", _usPath = "%F.build%", _usWallet = "%F.build%"}")
             _usKeys
             _usVss
             _usPath
@@ -164,7 +166,7 @@ instance Exception UserSecretDecodingError
 
 instance Buildable UserSecretDecodingError where
     build (UserSecretDecodingError msg) =
-        "Failed to decode user secret: " <> bprint build msg
+        "Failed to decode user secret: " <> bprint F.build msg
 
 -- | Path of lock file for the provided path.
 lockFilePath :: FilePath -> FilePath
@@ -234,7 +236,7 @@ ensureModeIs600 path = do
     accessMode <- getAccessMode path
     unless (accessMode == mode600) $ do
         logWarning $
-            sformat ("Key file at "%build%" has access mode "%oct%" instead of 600. Fixing it automatically.")
+            sformat ("Key file at "%F.build%" has access mode "%oct%" instead of 600. Fixing it automatically.")
             path accessMode
         setMode600 path
 #else

@@ -38,6 +38,7 @@ library
 
   build-depends:       QuickCheck
                      , aeson
+                     , aeson-options
                      , base
                      , cardano-sl-binary
                      , cardano-sl-core
@@ -63,7 +64,7 @@ library
                      , safe-exceptions
                      , rocksdb-haskell-ng
                      , serokell-util
-                     , text-format
+                     , text
                      , time
                      , time-units
                      , transformers

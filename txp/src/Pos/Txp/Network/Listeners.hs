@@ -13,7 +13,8 @@ module Pos.Txp.Network.Listeners
        ) where
 
 import           Data.Tagged (Tagged (..))
-import           Formatting (build, sformat, (%))
+import           Formatting (sformat, (%))
+import qualified Formatting as F
 import           Node.Message.Class (Message)
 import           System.Wlog (WithLogger, logInfo)
 import           Universum
@@ -38,19 +39,19 @@ handleTxDo pm logTx txAux = do
     let txId = hash (taTx txAux)
     res <- txpProcessTx pm (txId, txAux)
     let json me = logTx $ JLTxReceived $ JLTxR
-            { jlrTxId     = sformat build txId
+            { jlrTxId     = sformat F.build txId
             , jlrError    = me
             }
     case res of
         Right _ -> do
             logInfo $
-                sformat ("Transaction has been added to storage: "%build) txId
+                sformat ("Transaction has been added to storage: "%F.build) txId
             json Nothing
             pure True
         Left er -> do
             logInfo $
-                sformat ("Transaction hasn't been added to storage: "%build%" , reason: "%build) txId er
-            json $ Just $ sformat build er
+                sformat ("Transaction hasn't been added to storage: "%F.build%" , reason: "%F.build) txId er
+            json $ Just $ sformat F.build er
             pure False
 
 ----------------------------------------------------------------------------

@@ -8,8 +8,9 @@ import           Universum
 
 import           Control.Monad.Except (MonadError)
 import           Data.SafeCopy (base, deriveSafeCopySimple)
-import qualified Data.Text.Buildable as Buildable
-import           Formatting (Format, bprint, build, (%))
+import           Formatting (Format, bprint, (%))
+import qualified Formatting as F
+import           Formatting.Buildable (Buildable (build))
 
 import           Pos.Binary.Class (Cons (..), Field (..), deriveSimpleBi)
 import           Pos.Core.Common (CoinPortion, checkCoinPortion)
@@ -37,12 +38,12 @@ instance NFData SoftforkRule
 
 instance Buildable SoftforkRule where
     build SoftforkRule {..} =
-        bprint ("(init = "%build%", min = "%build%", decrement = "%build%")")
+        bprint ("(init = "%F.build%", min = "%F.build%", decrement = "%F.build%")")
         srInitThd srMinThd srThdDecrement
 
 -- | 'SoftforkRule' formatter which restricts type.
 softforkRuleF :: Format r (SoftforkRule -> r)
-softforkRuleF = build
+softforkRuleF = F.build
 
 checkSoftforkRule
     :: (MonadError Text m)

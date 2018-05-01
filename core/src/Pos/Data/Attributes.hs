@@ -21,9 +21,10 @@ import qualified Data.Hashable as H
 import qualified Data.Map as M
 import           Data.SafeCopy (SafeCopy (..), base, contain,
                      deriveSafeCopySimple, safeGet, safePut)
-import           Data.Text.Buildable (Buildable)
-import qualified Data.Text.Buildable as Buildable
-import           Formatting (bprint, build, int, (%))
+import qualified Formatting as F
+import           Formatting.Buildable (Buildable (build))
+
+import           Formatting (bprint, int, (%))
 import qualified Prelude
 
 import           Pos.Binary.Class
@@ -66,8 +67,8 @@ instance Show h => Show (Attributes h) where
 instance {-# OVERLAPPABLE #-} Buildable h => Buildable (Attributes h) where
     build attr@Attributes {..} =
         if areAttributesKnown attr
-        then Buildable.build attrData
-        else bprint ("Attributes { data: "%build%", remain: <"%int%" bytes> }")
+        then build attrData
+        else bprint ("Attributes { data: "%F.build%", remain: <"%int%" bytes> }")
                attrData (unknownAttributesLength attr)
 
 instance Buildable (Attributes ()) where

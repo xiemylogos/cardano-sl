@@ -16,7 +16,8 @@ import           Universum
 import           Control.Exception.Safe (try)
 import           Data.List ((!!), (\\))
 import           Data.List.NonEmpty (fromList)
-import           Formatting (build, sformat, (%))
+import           Formatting (sformat, (%))
+import qualified Formatting as F
 import           Test.Hspec (Spec, describe, shouldBe)
 import           Test.Hspec.QuickCheck (modifyMaxSuccess)
 import           Test.QuickCheck (arbitrary, choose, generate)
@@ -56,6 +57,15 @@ import           Test.Pos.Wallet.Web.Util (deriveRandomAddress,
                      expectedAddrBalance, importSomeWallets,
                      mostlyEmptyPassphrases)
 
+import           Data.Text.Lazy (toStrict)
+import           Data.Text.Lazy.Builder (toLazyText)
+import           Formatting.Buildable (Buildable (build))
+----------------------------------------------------------------------------
+-- Compat shims
+----------------------------------------------------------------------------
+-- pretty used to be in Universum
+pretty :: Buildable a => a -> Text
+pretty = toStrict . toLazyText . build
 
 deriving instance Eq CTx
 
@@ -94,7 +104,7 @@ newPaymentFixture = do
     idx <- pick $ choose (0, l - 1)
     let walId = rootsWIds !! idx
     let pswd = passphrases !! idx
-    let noOneAccount = sformat ("There is no one account for wallet: "%build) walId
+    let noOneAccount = sformat ("There is no one account for wallet: "%F.build) walId
     srcAccount <- maybeStopProperty noOneAccount =<< (lift $ (fmap fst . uncons) <$> getAccounts (Just walId))
     srcAccId <- lift $ decodeCTypeOrFail (caId srcAccount)
 

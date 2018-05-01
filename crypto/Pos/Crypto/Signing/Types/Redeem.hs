@@ -18,15 +18,25 @@ import           Data.Hashable (Hashable)
 import           Data.SafeCopy (SafeCopy (..), base, contain,
                      deriveSafeCopySimple, safeGet, safePut)
 import qualified Data.Text as T
-import qualified Data.Text.Buildable as B
 import qualified Data.Text.Lazy.Builder as Builder (fromText)
 import           Formatting (Format, bprint, fitLeft, later, (%), (%.))
+import           Formatting.Buildable (Buildable (build))
 import           Serokell.Util.Base64 (formatBase64)
 import qualified Serokell.Util.Base64 as B64
 import           Universum
 
 import           Pos.Binary.Class (Bi)
 import           Pos.Crypto.Orphans ()
+
+import           Data.Text.Lazy (toStrict)
+import           Data.Text.Lazy.Builder (toLazyText)
+----------------------------------------------------------------------------
+-- Compat shims
+----------------------------------------------------------------------------
+-- pretty used to be in Universum
+pretty :: Buildable a => a -> Text
+pretty = toStrict . toLazyText . build
+
 
 ----------------------------------------------------------------------------
 -- PK/SK and formatters
@@ -58,7 +68,7 @@ redeemPkB64F =
 redeemPkB64UrlF :: Format r (RedeemPublicKey -> r)
 redeemPkB64UrlF =
     later $ \(RedeemPublicKey pk) ->
-        B.build $ B64.encodeUrl $ Ed25519.openPublicKey pk
+        build $ B64.encodeUrl $ Ed25519.openPublicKey pk
 
 redeemPkB64ShortF :: Format r (RedeemPublicKey -> r)
 redeemPkB64ShortF = fitLeft 8 %. redeemPkB64F
@@ -67,10 +77,10 @@ redeemPkB64ShortF = fitLeft 8 %. redeemPkB64F
 redeemToPublic :: RedeemSecretKey -> RedeemPublicKey
 redeemToPublic (RedeemSecretKey k) = RedeemPublicKey (Ed25519.secretToPublicKey k)
 
-instance B.Buildable RedeemPublicKey where
+instance Buildable RedeemPublicKey where
     build = bprint ("redeem_pk:"%redeemPkB64F)
 
-instance B.Buildable RedeemSecretKey where
+instance Buildable RedeemSecretKey where
     build = bprint ("redeem_sec_of_pk:"%redeemPkB64F) . redeemToPublic
 
 ----------------------------------------------------------------------------
@@ -81,7 +91,7 @@ instance B.Buildable RedeemSecretKey where
 newtype RedeemSignature a = RedeemSignature Ed25519.Signature
     deriving (Eq, Ord, Show, Generic, NFData, Hashable, Typeable)
 
-instance B.Buildable (RedeemSignature a) where
+instance Buildable (RedeemSignature a) where
     build _ = "<redeem signature>"
 
 deriveJSON defaultOptions ''RedeemSignature
@@ -103,7 +113,7 @@ instance Buildable AvvmPkError where
             "Address " <> Builder.fromText addrText <>
             " is not base64(url) format"
         ApeAddressLength len ->
-            "Address' length is " <> B.build len <>
+            "Address' length is " <> build len <>
             ", expected 32, can't be redeeming pk"
 
 instance Exception AvvmPkError where

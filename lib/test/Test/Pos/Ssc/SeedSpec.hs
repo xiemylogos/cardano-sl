@@ -11,7 +11,8 @@ import           Crypto.Random (MonadRandom)
 import qualified Data.HashMap.Strict as HM
 import           Data.List (lookup, unzip, (\\))
 import qualified Data.List.NonEmpty as NE
-import           Formatting (build, int, sformat, shown, (%))
+import           Formatting (int, sformat, shown, (%))
+import qualified Formatting as F
 import           Serokell.Util (listJson)
 import           Test.Hspec (Spec, describe, pending)
 import           Test.Hspec.QuickCheck (modifyMaxSize, modifyMaxSuccess, prop)
@@ -179,22 +180,22 @@ recoverSecretsProp n n_openings n_shares n_overlap = ioProperty $ do
         (True, Left ftsErr) ->
             let err = sformat ("calculateSeed didn't find the seed (but "%
                                "should've) and failed with error:\n"%
-                               "  "%build)
+                               "  "%F.build)
                               ftsErr
             in counterexample (toString err) failed
         -- we weren't supposed to find the seed
         (False, Left (NoSecretFound _)) ->
             property succeeded
         (False, Left ftsErr) ->
-            let err = sformat ("calculateSeed failed with error "%build%" "%
+            let err = sformat ("calculateSeed failed with error "%F.build%" "%
                                "instead of NoSecretFound")
                               ftsErr
             in counterexample (toString err) failed
         (False, Right sharedSeed) ->
             let err = sformat ("calculateSeed succeeded, "%
                                "even though it couldn't\n"%
-                               "  found seed: "%build%"\n"%
-                               "  right seed: "%build)
+                               "  found seed: "%F.build%"\n"%
+                               "  right seed: "%F.build)
                               sharedSeed expectedSharedSeed
             in counterexample (toString err <> "\n\n" <> show (n, threshold) <> "\n\n" <> show commitmentsMap <> "\n\n" <> show openingsMap <> "\n\n" <> show sharesMap) failed
 

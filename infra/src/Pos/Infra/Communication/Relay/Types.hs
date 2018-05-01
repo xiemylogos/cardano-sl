@@ -8,8 +8,10 @@ module Pos.Infra.Communication.Relay.Types
 import           Prelude (Show (..))
 import           Universum hiding (Show)
 
-import qualified Data.Text.Buildable as Buildable
-import           Formatting (bprint, build, (%))
+import qualified Formatting as F
+import           Formatting.Buildable (Buildable (build))
+
+import           Formatting (bprint, (%))
 import           Node (Message)
 
 import           Pos.Binary.Class (Bi)
@@ -45,6 +47,6 @@ data PropagationMsg where
 
 instance Buildable PropagationMsg where
     build (InvReqDataPM _ key _) =
-        bprint ("<data for key "%build%">") key
+        bprint ("<data for key "%F.build%">") key
     build (DataOnlyPM _ conts) =
-        Buildable.build conts
+        build conts

@@ -23,7 +23,8 @@ import qualified Data.HashMap.Strict as HM
 import qualified Data.HashSet as HS
 import           Data.List.Extra (nubOrdOn)
 import           Data.SafeCopy (base, deriveSafeCopySimple)
-import           Formatting (build, sformat, (%))
+import           Formatting (sformat, (%))
+import qualified Formatting as F
 import           Serokell.Util (allDistinct)
 
 import           Pos.Binary.Class (Bi (..), Decoder, Encoding)
@@ -110,7 +111,7 @@ validateVssCertificatesMap (UnsafeVssCertificatesMap certs) = do
         when (getCertId v /= k) $
             throwError $ sformat
                 ("wrong issuerPk set as key for delegation map: "%
-                 "issuer id = "%build%", cert id = "%build)
+                 "issuer id = "%F.build%", cert id = "%F.build)
                 k (getCertId v)
     unless (allDistinct (map vcVssKey (toList certs))) $
         throwError "two certs have the same VSS key"

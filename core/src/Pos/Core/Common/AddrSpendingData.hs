@@ -8,8 +8,9 @@ import           Universum
 
 import qualified Data.ByteString.Lazy as LBS
 import           Data.SafeCopy (base, deriveSafeCopySimple)
-import qualified Data.Text.Buildable as Buildable
-import           Formatting (bprint, build, int, (%))
+import           Formatting (bprint, int, (%))
+import qualified Formatting as F
+import           Formatting.Buildable (Buildable (build))
 
 import           Pos.Binary.Class (Bi, decode, encode)
 import qualified Pos.Binary.Class as Bi
@@ -38,9 +39,9 @@ data AddrSpendingData
 instance Buildable AddrSpendingData where
     build =
         \case
-            PubKeyASD pk -> bprint ("PubKeyASD " %build) pk
-            ScriptASD script -> bprint ("ScriptASD "%build) script
-            RedeemASD rpk -> bprint ("RedeemASD "%build) rpk
+            PubKeyASD pk -> bprint ("PubKeyASD " %F.build) pk
+            ScriptASD script -> bprint ("ScriptASD "%F.build) script
+            RedeemASD rpk -> bprint ("RedeemASD "%F.build) rpk
             UnknownASD tag _ -> bprint ("UnknownASD with tag "%int) tag
 
 instance NFData AddrSpendingData

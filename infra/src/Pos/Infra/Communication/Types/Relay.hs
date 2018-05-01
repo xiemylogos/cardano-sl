@@ -18,8 +18,10 @@ import           Universum hiding (id)
 import           Control.Lens (Wrapped (..), iso)
 import           Data.Aeson.TH (defaultOptions, deriveJSON)
 import           Data.Tagged (Tagged)
-import qualified Data.Text.Buildable as B
-import           Formatting (bprint, build, (%))
+import           Formatting (bprint, (%))
+import qualified Formatting as F
+import           Formatting.Buildable (Buildable (build))
+import           Universum
 
 import           Pos.Binary.Class (Bi (..))
 import qualified Pos.Core.Update as U
@@ -109,7 +111,7 @@ type ReqOrRes key = Either (ReqMsg key) (ResMsg key)
 
 instance (Buildable contents) =>
          Buildable (DataMsg contents) where
-    build (DataMsg contents) = bprint ("Data {" %build % "}") contents
+    build (DataMsg contents) = bprint ("Data {" %F.build % "}") contents
 
 instance Wrapped (DataMsg contents) where
     type Unwrapped (DataMsg contents) = contents

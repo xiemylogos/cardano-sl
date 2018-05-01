@@ -17,6 +17,17 @@ import           System.FilePath (takeDirectory, takeFileName, (</>))
 
 import           Pos.Util.Util (maybeThrow, templateHaskellError)
 
+import           Data.Text.Lazy (toStrict)
+import           Data.Text.Lazy.Builder (toLazyText)
+import           Formatting.Buildable (Buildable (build))
+----------------------------------------------------------------------------
+-- Compat shims
+----------------------------------------------------------------------------
+-- pretty used to be in Universum
+pretty :: Buildable a => a -> Text
+pretty = toStrict . toLazyText . build
+
+
 embedYamlObject :: Y.FromJSON r => FilePath -> FilePath -> (r -> TH.Q TH.Exp) -> TH.Q TH.Exp
 embedYamlObject name marker parser = do
     -- This code was stolen from file-embed ('makeRelativeToProject'). We

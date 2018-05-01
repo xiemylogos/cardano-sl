@@ -37,7 +37,8 @@ import           Crypto.Random (MonadRandom)
 import qualified Data.HashMap.Strict as HM
 import qualified Data.Set as S
 import           Data.Time.Clock.POSIX (getPOSIXTime)
-import           Formatting (build, sformat, (%))
+import           Formatting (sformat, (%))
+import qualified Formatting as F
 import           Servant.API.ContentTypes (NoContent (..))
 import           System.Wlog (WithLogger)
 
@@ -152,7 +153,7 @@ getAccountsIncludeUnready ws mps includeUnready mCAddr = do
     noWallet cAddr = RequestError $
         -- TODO No WALLET with id ...
         -- dunno whether I can fix and not break compatible w/ daedalus
-        sformat ("No account with id "%build%" found") cAddr
+        sformat ("No account with id "%F.build%" found") cAddr
 
 getAccounts
     :: MonadWalletLogicRead ctx m
@@ -183,7 +184,7 @@ getWalletIncludeUnready ws mps includeUnready cAddr = do
         pure . mkCCoin . unsafeIntegerToCoin . sumCoins $ coins
 
     noWallet = RequestError $
-        sformat ("getWalletIncludeUnready: No wallet with address "%build%" found") cAddr
+        sformat ("getWalletIncludeUnready: No wallet with address "%F.build%" found") cAddr
 
 getWallet :: MonadWalletLogicRead ctx m => CId Wal -> m CWallet
 getWallet wid = do
@@ -231,7 +232,7 @@ newAddress_ ws addGenSeed passphrase accId = do
     return cAccAddr
   where
     noAccount =
-        RequestError $ sformat ("No account with id "%build%" found") accId
+        RequestError $ sformat ("No account with id "%F.build%" found") accId
 
 newAddress
     :: MonadWalletLogic ctx m
@@ -303,7 +304,7 @@ markWalletReady cid isReady = do
     return NoContent
   where
     noWallet = RequestError $
-        sformat ("markWalletReady: No wallet with that id "%build%" found") cid
+        sformat ("markWalletReady: No wallet with that id "%F.build%" found") cid
 
 
 ----------------------------------------------------------------------------

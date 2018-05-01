@@ -35,6 +35,8 @@ import           Pos.Ssc.Message (MCCommitment (..), MCOpening (..),
                      MCShares (..), MCVssCertificate (..))
 import           Pos.Util.Trace (Severity, Trace)
 
+import           Formatting.Buildable (Buildable)
+
 sscListeners
     :: Trace IO (Severity, Text)
     -> Logic IO

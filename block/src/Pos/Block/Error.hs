@@ -9,13 +9,22 @@ module Pos.Block.Error
 import           Universum
 
 import           Control.Exception.Safe (Exception (..))
-import           Data.Text.Buildable (Buildable (..))
 import           Data.Text.Lazy.Builder (Builder, fromText)
 import           Formatting (bprint, stext, (%))
+import           Formatting.Buildable (Buildable (..))
 
 import           Pos.Core (HeaderHash)
 import           Pos.Crypto (shortHashF)
 
+
+import           Data.Text.Lazy (toStrict)
+import           Data.Text.Lazy.Builder (toLazyText)
+----------------------------------------------------------------------------
+-- Compat shims
+----------------------------------------------------------------------------
+-- pretty used to be in Universum
+pretty :: Buildable a => a -> Text
+pretty = toStrict . toLazyText . build
 
 -- | This function can be used to create a message when tip mismatch
 -- is detected (usually between tip stored in DB and some other tip

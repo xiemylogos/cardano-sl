@@ -8,7 +8,8 @@ module Pos.Update.Worker
 
 import           Universum
 
-import           Formatting (build, sformat, (%))
+import           Formatting (sformat, (%))
+import qualified Formatting as F
 import           Serokell.Util.Text (listJsonIndent)
 import           System.Wlog (logDebug, logInfo)
 
@@ -74,7 +75,7 @@ checkForUpdate = do
             sformat
                 ("There are new confirmed update proposals for our application: "
                  %listJsonIndent 2%
-                 "\n The newest one is: "%build%" and we want to download it")
+                 "\n The newest one is: "%F.build%" and we want to download it")
                 (cpsUpdateProposal <$> confirmedProposals)
                 (cpsUpdateProposal newestCPS)
         downloadUpdate newestCPS

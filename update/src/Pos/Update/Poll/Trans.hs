@@ -34,6 +34,16 @@ import           Pos.Update.Poll.Types (BlockVersionState (..),
 import qualified Pos.Util.Modifier as MM
 import           Pos.Util.Util (ether)
 
+import           Data.Text.Lazy (toStrict)
+import           Data.Text.Lazy.Builder (toLazyText)
+import           Formatting.Buildable (Buildable (build))
+----------------------------------------------------------------------------
+-- Compat shims
+----------------------------------------------------------------------------
+-- pretty used to be in Universum
+pretty :: Buildable a => a -> Text
+pretty = toStrict . toLazyText . build
+
 ----------------------------------------------------------------------------
 -- Tranformer
 ----------------------------------------------------------------------------

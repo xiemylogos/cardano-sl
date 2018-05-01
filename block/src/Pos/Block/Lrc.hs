@@ -19,7 +19,8 @@ import           Data.Coerce (coerce)
 import           Data.Conduit (ConduitT, runConduitRes, (.|))
 import qualified Data.HashMap.Strict as HM
 import qualified Data.HashSet as HS
-import           Formatting (build, ords, sformat, (%))
+import           Formatting (ords, sformat, (%))
+import qualified Formatting as F
 import           Mockable (forConcurrently)
 import qualified System.Metrics.Counter as Metrics
 import           System.Wlog (logDebug, logInfo, logWarning)
@@ -63,6 +64,15 @@ import           Pos.Update.Poll.Types (BlockVersionState (..))
 import           Pos.Util (maybeThrow)
 import           Pos.Util.Util (HasLens (..))
 
+import           Data.Text.Lazy (toStrict)
+import           Data.Text.Lazy.Builder (toLazyText)
+import           Formatting.Buildable (Buildable (build))
+----------------------------------------------------------------------------
+-- Compat shims
+----------------------------------------------------------------------------
+-- pretty used to be in Universum
+pretty :: Buildable a => a -> Text
+pretty = toStrict . toLazyText . build
 
 ----------------------------------------------------------------------------
 -- Single shot
@@ -92,7 +102,7 @@ lrcSingleShot pm epoch = do
     lock <- views (lensOf @LrcContext) lcLrcSync
     logDebug $ sformat
         ("lrcSingleShot is trying to acquire LRC lock, the epoch is "
-         %build) epoch
+         %F.build) epoch
     tryAcquireExclusiveLock epoch lock onAcquiredLock
   where
     consumers = allLrcConsumers @ctx @m
@@ -164,7 +174,7 @@ lrcDo pm epoch consumers = do
     seed <- sscCalculateSeed epoch >>= \case
         Right s -> do
             logInfo $ sformat
-                ("Calculated seed for epoch "%build%" successfully") epoch
+                ("Calculated seed for epoch "%F.build%" successfully") epoch
             return s
         Left _ -> do
             -- Critical error means that the system is in dangerous state.
@@ -218,7 +228,7 @@ issuersComputationDo epochId = do
     putIsStake :: IssuersStakes -> StakeholderId -> m IssuersStakes
     putIsStake hm id = GS.getRealStake id >>= \case
         Nothing ->
-           hm <$ (logWarning $ sformat ("Stake for issuer "%build% " not found") id)
+           hm <$ (logWarning $ sformat ("Stake for issuer "%F.build% " not found") id)
         Just stake -> pure $ HM.insert id stake hm
 
 leadersComputationDo :: LrcMode ctx m

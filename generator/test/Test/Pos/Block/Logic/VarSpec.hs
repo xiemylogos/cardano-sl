@@ -52,6 +52,16 @@ import           Test.Pos.Crypto.Dummy (dummyProtocolMagic)
 import           Test.Pos.Util.QuickCheck.Property (splitIntoChunks,
                      stopProperty)
 
+import           Data.Text.Lazy (toStrict)
+import           Data.Text.Lazy.Builder (toLazyText)
+import           Formatting.Buildable (Buildable (build))
+----------------------------------------------------------------------------
+-- Compat shims
+----------------------------------------------------------------------------
+-- pretty used to be in Universum
+pretty :: Buildable a => a -> Text
+pretty = toStrict . toLazyText . build
+
 -- stack test cardano-sl --fast --test-arguments "-m Test.Pos.Block.Logic.Var"
 spec :: Spec
 -- Unfortunatelly, blocks generation is quite slow nowdays.

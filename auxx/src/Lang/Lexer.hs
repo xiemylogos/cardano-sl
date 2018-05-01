@@ -37,7 +37,7 @@ import qualified Data.List.NonEmpty as NonEmpty
 import           Data.Loc (Loc, Span, loc, spanFromTo)
 import           Data.Scientific (Scientific)
 import qualified Data.Text as Text
-import qualified Data.Text.Buildable as Buildable
+
 import           Formatting (sformat)
 import           Test.QuickCheck.Arbitrary.Generic (Arbitrary (..),
                      genericArbitrary, genericShrink)
@@ -59,6 +59,16 @@ import           Pos.Crypto (AHash (..), PublicKey, decodeAbstractHash,
 import           Pos.Util.Util (toParsecError)
 
 import           Test.Pos.Core.Arbitrary ()
+
+import           Data.Text.Lazy (toStrict)
+import           Data.Text.Lazy.Builder (toLazyText)
+import           Formatting.Buildable (Buildable (build))
+----------------------------------------------------------------------------
+-- Compat shims
+----------------------------------------------------------------------------
+-- pretty used to be in Universum
+pretty :: Buildable a => a -> Text
+pretty = toStrict . toLazyText . build
 
 data BracketSide = BracketSideOpening | BracketSideClosing
     deriving (Eq, Ord, Show, Generic)

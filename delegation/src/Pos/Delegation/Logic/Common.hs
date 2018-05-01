@@ -18,8 +18,8 @@ module Pos.Delegation.Logic.Common
 import           Universum
 
 import           Control.Exception.Safe (Exception (..))
-import qualified Data.Text.Buildable as B
 import           Formatting (bprint, stext, (%))
+import           Formatting.Buildable (Buildable (build))
 import           UnliftIO (MonadUnliftIO)
 
 import           Pos.Core (ProxySKHeavy, StakeholderId)
@@ -30,6 +30,15 @@ import           Pos.Delegation.Class (DelegationWrap (..), MonadDelegation,
                      askDelegationState)
 import           Pos.Exception (cardanoExceptionFromException,
                      cardanoExceptionToException)
+
+import           Data.Text.Lazy (toStrict)
+import           Data.Text.Lazy.Builder (toLazyText)
+----------------------------------------------------------------------------
+-- Compat shims
+----------------------------------------------------------------------------
+-- pretty used to be in Universum
+pretty :: Buildable a => a -> Text
+pretty = toStrict . toLazyText . build
 
 ----------------------------------------------------------------------------
 -- Exceptions
@@ -45,7 +54,7 @@ instance Exception DelegationError where
     fromException = cardanoExceptionFromException
     displayException = toString . pretty
 
-instance B.Buildable DelegationError where
+instance Buildable DelegationError where
     build (DelegationCantApplyBlocks msg) =
         bprint ("can't apply in delegation module: "%stext) msg
 

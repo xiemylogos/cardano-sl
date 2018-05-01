@@ -3,7 +3,8 @@ module Main (main) where
 
 import           Universum
 
-import           Formatting (build, sformat)
+import           Formatting (sformat)
+import qualified Formatting as F
 import           Test.Hspec (Spec, describe, hspec)
 
 import           InputSelection.Evaluation (evalUsingGenData, evalUsingReplay)
@@ -49,11 +50,11 @@ main = do
 _showContext :: IO ()
 _showContext = do
     putStrLn $ runTranslateNoErrors $ withConfig $
-      sformat build <$> ask
+      sformat F.build <$> ask
     putStrLn $ runTranslateNoErrors $
       let bootstrapTransaction' :: TransCtxt -> Transaction GivenHash Addr
           bootstrapTransaction' = bootstrapTransaction
-      in sformat build . bootstrapTransaction' <$> ask
+      in sformat F.build . bootstrapTransaction' <$> ask
 
 {-------------------------------------------------------------------------------
   Tests proper

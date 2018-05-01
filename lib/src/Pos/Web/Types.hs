@@ -6,6 +6,7 @@ module Pos.Web.Types
        , CConfirmedProposalState (..)
        ) where
 
+import           Formatting.Buildable (Buildable)
 import           Universum
 
 -- | Stages of SSC.

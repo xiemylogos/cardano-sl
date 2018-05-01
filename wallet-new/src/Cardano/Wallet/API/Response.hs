@@ -13,20 +13,21 @@ module Cardano.Wallet.API.Response (
   ) where
 
 import           Prelude
-import           Universum (Buildable, decodeUtf8, toText, (<>))
+import           Universum (decodeUtf8, toText, (<>))
 
 import           Cardano.Wallet.API.Response.JSend (ResponseStatus (..))
 import           Control.Lens
 import           Data.Aeson
 import           Data.Aeson.Encode.Pretty (encodePretty)
+import qualified Data.Aeson.Options as Serokell
 import           Data.Aeson.TH
 import qualified Data.Char as Char
 import           Data.Swagger as S
-import qualified Data.Text.Buildable
 import           Data.Typeable
-import           Formatting (bprint, build, (%))
+import           Formatting (bprint, (%))
+import qualified Formatting as F
+import           Formatting.Buildable (Buildable (build))
 import           GHC.Generics (Generic)
-import qualified Serokell.Aeson.Options as Serokell
 import           Servant.API.ContentTypes (Accept (..), JSON, MimeRender (..),
                      MimeUnrender (..), OctetStream)
 import           Test.QuickCheck
@@ -62,7 +63,7 @@ instance ToSchema Metadata where
 
 instance Buildable Metadata where
   build Metadata{..} =
-    bprint ("{ pagination="%build%" }") metaPagination
+    bprint ("{ pagination="%F.build%" }") metaPagination
 
 -- | An `WalletResponse` models, unsurprisingly, a response (successful or not)
 -- produced by the wallet backend.
@@ -102,9 +103,9 @@ instance (ToSchema a, Typeable a) => ToSchema (WalletResponse a) where
 
 instance Buildable a => Buildable (WalletResponse a) where
     build WalletResponse{..} = bprint
-        ("\n\tstatus="%build
-        %"\n\tmeta="%build
-        %"\n\tdata="%build
+        ("\n\tstatus="%F.build
+        %"\n\tmeta="%F.build
+        %"\n\tdata="%F.build
         )
         wrStatus
         wrMeta

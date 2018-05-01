@@ -19,7 +19,8 @@ import           Universum
 import           Control.Lens (uses, (-=), (.=), _Wrapped)
 import           Control.Monad.Except (MonadError (throwError), runExceptT)
 import           Data.Default (Default (def))
-import           Formatting (build, fixed, ords, sformat, stext, (%))
+import           Formatting (fixed, ords, sformat, stext, (%))
+import qualified Formatting as F
 import           JsonLog (CanJsonLog (..))
 import           Serokell.Data.Memory.Units (Byte, memory)
 import           System.Wlog (WithLogger, logDebug)
@@ -72,6 +73,16 @@ import           Pos.Update.Logic (clearUSMemPool, usCanCreateBlock,
                      usPreparePayload)
 import           Pos.Util (_neHead)
 import           Pos.Util.Util (HasLens (..), HasLens')
+
+import           Data.Text.Lazy (toStrict)
+import           Data.Text.Lazy.Builder (toLazyText)
+import           Formatting.Buildable (Buildable (build))
+----------------------------------------------------------------------------
+-- Compat shims
+----------------------------------------------------------------------------
+-- pretty used to be in Universum
+pretty :: Buildable a => a -> Text
+pretty = toStrict . toLazyText . build
 
 -- | A set of constraints necessary to create a block from mempool.
 type MonadCreateBlock ctx m
@@ -175,7 +186,7 @@ createGenesisBlockDo pm epoch = do
             "After we took lock for genesis block creation, we noticed that we shouldn't create it"
     msgTryingFmt =
         "We are trying to create genesis block for " %ords %
-        " epoch, our tip header is\n" %build
+        " epoch, our tip header is\n" %F.build
 
 needCreateGenesisBlock ::
        ( MonadCreateBlock ctx m
@@ -258,7 +269,7 @@ createMainBlockInternal pm sId pske = do
         Left reason -> pure (Left reason)
         Right () -> runExceptT (createMainBlockFinish tipHeader)
   where
-    msgFmt = "We are trying to create main block, our tip header is\n"%build
+    msgFmt = "We are trying to create main block, our tip header is\n"%F.build
     createMainBlockFinish :: BlockHeader -> ExceptT Text m MainBlock
     createMainBlockFinish prevHeader = do
         rawPay <- lift $ getRawPayload (headerHash prevHeader) sId

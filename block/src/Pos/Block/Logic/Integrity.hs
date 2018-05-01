@@ -19,7 +19,9 @@ module Pos.Block.Logic.Integrity
 import           Universum
 
 import           Control.Lens (ix)
-import           Formatting (build, int, sformat, (%))
+import           Formatting (int, sformat, (%))
+import qualified Formatting as F
+
 import           Serokell.Data.Memory.Units (Byte, memory)
 import           Serokell.Util (VerificationRes (..), verifyGeneric)
 
@@ -103,7 +105,7 @@ verifyHeader pm VerifyHeaderParams {..} h =
     checkHash expectedHash actualHash =
         ( expectedHash == actualHash
         , sformat
-              ("inconsistent hash (expected "%build%", found "%build%")")
+              ("inconsistent hash (expected "%F.build%", found "%F.build%")")
               expectedHash
               actualHash)
     checkDifficulty expectedDifficulty actualDifficulty =
@@ -116,13 +118,13 @@ verifyHeader pm VerifyHeaderParams {..} h =
     checkSlot oldSlot newSlot =
         ( oldSlot < newSlot
         , sformat
-              ("slots are not monotonic ("%build%" >= "%build%")")
+              ("slots are not monotonic ("%F.build%" >= "%F.build%")")
               oldSlot newSlot
         )
     sameEpoch oldEpoch newEpoch =
         ( oldEpoch == newEpoch
         , sformat
-              ("two adjacent blocks are from different epochs ("%build%" != "%build%")")
+              ("two adjacent blocks are from different epochs ("%F.build%" != "%F.build%")")
               oldEpoch newEpoch
         )
     checkProtocolMagic =
@@ -170,7 +172,7 @@ verifyHeader pm VerifyHeaderParams {..} h =
             BlockHeaderMain bh   ->
                 [
                     ( (bh ^. headerSlotL) <= curSlotId
-                    , sformat ("block is from slot "%build%" which hasn't happened yet (current slot "%build%")") (bh ^. headerSlotL) curSlotId
+                    , sformat ("block is from slot "%F.build%" which hasn't happened yet (current slot "%F.build%")") (bh ^. headerSlotL) curSlotId
                     )
                 ]
 
@@ -189,12 +191,12 @@ verifyHeader pm VerifyHeaderParams {..} h =
     verifyNoUnknown (BlockHeaderGenesis genH) =
         let attrs = genH ^. gbhExtra . gehAttributes
         in  [ ( areAttributesKnown attrs
-              , sformat ("genesis header has unknown attributes: "%build) attrs)
+              , sformat ("genesis header has unknown attributes: "%F.build) attrs)
             ]
     verifyNoUnknown (BlockHeaderMain mainH) =
         let attrs = mainH ^. gbhExtra . mehAttributes
         in [ ( areAttributesKnown attrs
-             , sformat ("main header has unknown attributes: "%build) attrs)
+             , sformat ("main header has unknown attributes: "%F.build) attrs)
            ]
 
 -- | Verifies a set of block headers. Only basic consensus check and
@@ -278,13 +280,13 @@ verifyBlock pm VerifyBlockParams {..} blk = mconcat
         let attrs = genBlk ^. gbExtra . gebAttributes
         in verifyGeneric
                [ ( areAttributesKnown attrs
-                 , sformat ("genesis block has unknown attributes: "%build) attrs)
+                 , sformat ("genesis block has unknown attributes: "%F.build) attrs)
                ]
     verifyNoUnknown (Right mainBlk) =
         let attrs = mainBlk ^. gbExtra . mebAttributes
         in verifyGeneric
                [ ( areAttributesKnown attrs
-                 , sformat ("main block has unknown attributes: "%build) attrs)
+                 , sformat ("main block has unknown attributes: "%F.build) attrs)
                ]
 
 -- Type alias for the fold accumulator used inside 'verifyBlocks'

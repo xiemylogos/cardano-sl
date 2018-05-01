@@ -85,6 +85,7 @@ import           Data.Semigroup (Semigroup)
 
 import           Control.Lens (At, Index, IxValue, at, ix, makePrisms, to, (?~))
 import           Data.Aeson
+import qualified Data.Aeson.Options as Serokell
 import           Data.Aeson.TH as A
 import           Data.Aeson.Types (toJSONKeyText, typeMismatch)
 import qualified Data.Char as C
@@ -95,14 +96,14 @@ import           Data.Swagger.Internal.TypeShape (GenericHasSimpleShape,
                      GenericShape)
 import           Data.Text (Text, dropEnd, toLower)
 import qualified Data.Text as T
-import qualified Data.Text.Buildable
 import           Data.Version (Version)
-import           Formatting (bprint, build, fconst, int, sformat, (%))
+import           Formatting (bprint, fconst, int, sformat, (%))
+import qualified Formatting as F
+import           Formatting.Buildable (Buildable (build))
 import           GHC.Generics (Generic, Rep)
 import           Network.Transport (EndPointAddress (..))
 import           Node (NodeId (..))
 import qualified Prelude
-import qualified Serokell.Aeson.Options as Serokell
 import           Serokell.Util (listJson)
 import qualified Serokell.Util.Base16 as Base16
 import           Servant
@@ -240,13 +241,13 @@ instance Bounded a => Bounded (V1 a) where
     maxBound = V1 $ maxBound @a
 
 instance Buildable a => Buildable (V1 a) where
-    build (V1 x) = bprint build x
+    build (V1 x) = bprint F.build x
 
 instance Buildable (SecureLog a) => Buildable (SecureLog (V1 a)) where
-    build (SecureLog (V1 x)) = bprint build (SecureLog x)
+    build (SecureLog (V1 x)) = bprint F.build (SecureLog x)
 
 instance (Buildable a, Buildable b) => Buildable (a, b) where
-    build (a, b) = bprint ("("%build%", "%build%")") a b
+    build (a, b) = bprint ("("%F.build%", "%F.build%")") a b
 
 --
 -- Benign instances
@@ -345,7 +346,7 @@ instance FromHttpApiData (V1 Core.Address) where
     parseQueryParam = fmap (fmap V1) Core.decodeTextAddress
 
 instance ToHttpApiData (V1 Core.Address) where
-    toQueryParam (V1 a) = sformat build a
+    toQueryParam (V1 a) = sformat F.build a
 
 -- | Represents according to 'apiTimeFormat' format.
 instance ToJSON (V1 Core.Timestamp) where
@@ -444,7 +445,7 @@ instance Arbitrary WalletId where
 deriveSafeBuildable ''WalletId
 instance BuildableSafeGen WalletId where
     buildSafeGen sl (WalletId wid) =
-        bprint (plainOrSecureF sl build (fconst "<wallet id>")) wid
+        bprint (plainOrSecureF sl F.build (fconst "<wallet id>")) wid
 
 instance FromHttpApiData WalletId where
     parseQueryParam = Right . WalletId
@@ -594,7 +595,7 @@ instance ToSchema SyncPercentage where
 deriveSafeBuildable ''SyncPercentage
 instance BuildableSafeGen SyncPercentage where
     buildSafeGen _ (SyncPercentage (MeasuredIn w)) =
-        bprint (build%"%") w
+        bprint (F.build%"%") w
 
 
 newtype EstimatedCompletionTime = EstimatedCompletionTime (MeasuredIn 'Milliseconds Word)
@@ -696,7 +697,7 @@ instance ToSchema SyncProgress where
 deriveSafeBuildable ''SyncProgress
 -- Nothing secret to redact for a SyncProgress.
 instance BuildableSafeGen SyncProgress where
-    buildSafeGen _ sp = bprint build sp
+    buildSafeGen _ sp = bprint F.build sp
 
 instance Arbitrary SyncProgress where
   arbitrary = SyncProgress <$> arbitrary
@@ -829,7 +830,7 @@ instance Arbitrary AddressValidity where
 deriveSafeBuildable ''AddressValidity
 instance BuildableSafeGen AddressValidity where
     buildSafeGen _ AddressValidity{..} =
-        bprint ("{ valid="%build%" }") isValid
+        bprint ("{ valid="%F.build%" }") isValid
 
 --------------------------------------------------------------------------------
 -- Accounts
@@ -965,8 +966,8 @@ deriveSafeBuildable ''WalletAddress
 instance BuildableSafeGen WalletAddress where
     buildSafeGen sl WalletAddress{..} = bprint ("{"
         %" id="%buildSafe sl
-        %" used="%build
-        %" changeAddress="%build
+        %" used="%F.build
+        %" changeAddress="%F.build
         %" }")
         addrId
         addrUsed
@@ -1173,7 +1174,7 @@ instance BuildableSafeGen Payment where
     buildSafeGen sl (Payment{..}) = bprint ("{"
         %" source="%buildSafe sl
         %" destinations="%buildSafeList sl
-        %" groupingPolicty="%build
+        %" groupingPolicty="%F.build
         %" spendingPassword="%(buildSafeMaybe mempty sl)
         %" }")
         pmtSource
@@ -1387,7 +1388,7 @@ deriveSafeBuildable ''Transaction
 instance BuildableSafeGen Transaction where
     buildSafeGen sl Transaction{..} = bprint ("{"
         %" id="%buildSafe sl
-        %" confirmations="%build
+        %" confirmations="%F.build
         %" amount="%buildSafe sl
         %" inputs="%buildSafeList sl
         %" outputs="%buildSafeList sl
@@ -1432,9 +1433,9 @@ instance Arbitrary WalletSoftwareUpdate where
 deriveSafeBuildable ''WalletSoftwareUpdate
 instance BuildableSafeGen WalletSoftwareUpdate where
     buildSafeGen _ WalletSoftwareUpdate{..} = bprint("{"
-        %" softwareVersion="%build
-        %" blockchainVersion="%build
-        %" scriptVersion="%build
+        %" softwareVersion="%F.build
+        %" blockchainVersion="%F.build
+        %" scriptVersion="%F.build
         %" }")
         updSoftwareVersion
         updBlockchainVersion
@@ -1478,7 +1479,7 @@ instance ToSchema SlotDuration where
 deriveSafeBuildable ''SlotDuration
 instance BuildableSafeGen SlotDuration where
     buildSafeGen _ (SlotDuration (MeasuredIn w)) =
-        bprint (build%"ms") w
+        bprint (F.build%"ms") w
 
 
 -- | The @static@ settings for this wallet node. In particular, we could group
@@ -1556,10 +1557,10 @@ instance Arbitrary NodeSettings where
 deriveSafeBuildable ''NodeSettings
 instance BuildableSafeGen NodeSettings where
     buildSafeGen _ NodeSettings{..} = bprint ("{"
-        %" slotDuration="%build
-        %" softwareInfo="%build
-        %" projectRevision="%build
-        %" gitRevision="%build
+        %" slotDuration="%F.build
+        %" softwareInfo="%F.build
+        %" projectRevision="%F.build
+        %" gitRevision="%F.build
         %" }")
         setSlotDuration
         setSoftwareInfo
@@ -1604,7 +1605,7 @@ instance ToSchema LocalTimeDifference where
 deriveSafeBuildable ''LocalTimeDifference
 instance BuildableSafeGen LocalTimeDifference where
     buildSafeGen _ (LocalTimeDifference (MeasuredIn w)) =
-        bprint (build%"μs") w
+        bprint (F.build%"μs") w
 
 
 -- | The absolute or relative height of the blockchain, measured in number
@@ -1647,7 +1648,7 @@ instance ToSchema BlockchainHeight where
 deriveSafeBuildable ''BlockchainHeight
 instance BuildableSafeGen BlockchainHeight where
     buildSafeGen _ (BlockchainHeight (MeasuredIn w)) =
-        bprint (build%" blocks") w
+        bprint (F.build%" blocks") w
 
 newtype TimeInfo
     = TimeInfo
@@ -1667,7 +1668,7 @@ instance Arbitrary TimeInfo where
 deriveSafeBuildable ''TimeInfo
 instance BuildableSafeGen TimeInfo where
     buildSafeGen _ TimeInfo{..} = bprint ("{"
-        %" differenceFromNtpServer="%build
+        %" differenceFromNtpServer="%F.build
         %" }")
         timeDifferenceFromNtpServer
 
@@ -1755,10 +1756,10 @@ instance Arbitrary NodeInfo where
 deriveSafeBuildable ''NodeInfo
 instance BuildableSafeGen NodeInfo where
     buildSafeGen _ NodeInfo{..} = bprint ("{"
-        %" syncProgress="%build
-        %" blockchainHeight="%build
-        %" localBlockchainHeight="%build
-        %" localTimeDifference="%build
+        %" syncProgress="%F.build
+        %" blockchainHeight="%F.build
+        %" localBlockchainHeight="%F.build
+        %" localTimeDifference="%F.build
         %" subscriptionStatus="%listJson
         %" }")
         nfoSyncProgress

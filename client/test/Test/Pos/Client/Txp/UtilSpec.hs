@@ -13,7 +13,8 @@ import qualified Data.HashMap.Strict as HM
 import qualified Data.List.NonEmpty as NE
 import qualified Data.Map as M
 import qualified Data.Set as S
-import           Formatting (build, hex, left, sformat, shown, (%), (%.))
+import           Formatting (hex, left, sformat, shown, (%), (%.))
+import qualified Formatting as F
 import           Test.Hspec (Spec, describe)
 import           Test.Hspec.QuickCheck (prop)
 import           Test.QuickCheck (Discard (..), Gen, Testable, arbitrary,
@@ -42,6 +43,16 @@ import           Test.Pos.Configuration (withDefConfigurations)
 import           Test.Pos.Crypto.Dummy (dummyProtocolMagic)
 import           Test.Pos.Util.QuickCheck.Arbitrary (nonrepeating)
 import           Test.Pos.Util.QuickCheck.Property (stopProperty)
+
+import           Data.Text.Lazy (toStrict)
+import           Data.Text.Lazy.Builder (toLazyText)
+import           Formatting.Buildable (Buildable (build))
+----------------------------------------------------------------------------
+-- Compat shims
+----------------------------------------------------------------------------
+-- pretty used to be in Universum
+pretty :: Buildable a => a -> Text
+pretty = toStrict . toLazyText . build
 
 ----------------------------------------------------------------------------
 -- Tests
@@ -127,7 +138,7 @@ createMTxWorksWhenWeAreRichSpec inputSelectionPolicy =
     forAllM gen $ \txParams@CreateMTxParams{..} -> do
         txOrError <- testCreateMTx txParams
         case txOrError of
-            Left err -> stopProperty $ sformat ("Failed to create tx: "%build) err
+            Left err -> stopProperty $ sformat ("Failed to create tx: "%F.build) err
             Right tx -> ensureTxMakesSense tx cmpUtxo cmpOutputs
   where
     gen = makeManyAddressesToManyParams inputSelectionPolicy 1 1000000 1 1
@@ -264,7 +275,7 @@ feeForManyAddressesSpec inputSelectionPolicy manyAddrs =
             Left err ->
                 if isNotEnoughMoneyTxError err
                 then stop Discard
-                else stopProperty $ sformat ("On first attempt: "%build) err
+                else stopProperty $ sformat ("On first attempt: "%F.build) err
             Right (txAux, _) ->
                 return txAux
 
@@ -277,7 +288,7 @@ feeForManyAddressesSpec inputSelectionPolicy manyAddrs =
             params' = params { cmpUtxo = utxo' }
         txOrError' <- testCreateMTx params'
         case txOrError' of
-            Left err -> stopProperty $ sformat ("On second attempt: "%build) err
+            Left err -> stopProperty $ sformat ("On second attempt: "%F.build) err
             Right _  -> return ()
   where
     -- considering two corner cases of utxo outputs distribution
@@ -293,7 +304,7 @@ groupedPolicySpec =
         Right (txAux, _) ->
             let picked = length . _txInputs . taTx $ txAux
             in unless (picked == utxoNum) . stopProperty
-            $ sformat ("Only "%build%" inputs were used instead of all of the inputs") picked
+            $ sformat ("Only "%F.build%" inputs were used instead of all of the inputs") picked
   where
     utxoNum = 10
     gen = makeManyUtxoTo1Params OptimizeForSecurity (fromIntegral utxoNum) 1000000 1
@@ -305,7 +316,7 @@ ungroupedPolicySpec =
         Right (txAux, _) ->
             let picked = length . _txInputs . taTx $ txAux
             in unless (picked == 1) . stopProperty
-            $ sformat ("Only "%build%" inputs were used instead of just 1 input") picked
+            $ sformat ("Only "%F.build%" inputs were used instead of just 1 input") picked
   where
     gen = makeManyUtxoTo1Params OptimizeForHighThroughput 10 1000000 1
 

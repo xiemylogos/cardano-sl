@@ -9,14 +9,23 @@ import           Universum
 
 import           Control.Monad.Except (MonadError)
 import           Data.SafeCopy (base, deriveSafeCopySimple)
-import qualified Data.Text.Buildable as Buildable
 import           Formatting (bprint, int, stext, (%))
+import           Formatting.Buildable (Buildable (build))
 import qualified Prelude
 
 import           Pos.Util.Some (Some, liftLensSome)
 
 import           Pos.Binary.Class (Cons (..), Field (..), deriveSimpleBi)
 import           Pos.Core.Update.ApplicationName
+
+import           Data.Text.Lazy (toStrict)
+import           Data.Text.Lazy.Builder (toLazyText)
+----------------------------------------------------------------------------
+-- Compat shims
+----------------------------------------------------------------------------
+-- pretty used to be in Universum
+pretty :: Buildable a => a -> Text
+pretty = toStrict . toLazyText . build
 
 -- | Numeric software version associated with ApplicationName.
 type NumSoftwareVersion = Word32

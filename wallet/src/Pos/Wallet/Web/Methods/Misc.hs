@@ -33,9 +33,10 @@ import           Universum
 
 import           Data.Aeson (encode)
 import           Data.Aeson.TH (defaultOptions, deriveJSON)
-import qualified Data.Text.Buildable
 import           Data.Time.Units (Second, toMicroseconds)
-import           Formatting (bprint, build, sformat, (%))
+import           Formatting (bprint, sformat, (%))
+import qualified Formatting as F
+import           Formatting.Buildable (Buildable (build))
 import           Mockable (Delay, LowLevelAsync, Mockables, async, delay)
 import           Serokell.Util (listJson)
 import           Servant.API.ContentTypes (MimeRender (..), NoContent (..),
@@ -161,7 +162,7 @@ syncProgress = do
     _spPeers <- connectedPeers
     -- servant already logs this, but only to secret logs
     logInfoUnsafeP $
-        sformat ("Current sync progress: "%build%"/"%build)
+        sformat ("Current sync progress: "%F.build%"/"%F.build)
         _spLocalCD _spNetworkCD
     return SyncProgress{..}
 
@@ -236,8 +237,8 @@ deriveJSON defaultOptions ''PendingTxsSummary
 
 instance Buildable PendingTxsSummary where
     build PendingTxsSummary{..} =
-        bprint (  "  slotId: "%build%
-                "\n  status: "%build%
+        bprint (  "  slotId: "%F.build%
+                "\n  status: "%F.build%
                 "\n  inputs: "%listJson%
                 "\n  outputs: "%listJson%
                 "\n  id: "%hashHexF)

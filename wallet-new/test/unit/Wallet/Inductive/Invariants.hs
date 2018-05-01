@@ -19,8 +19,8 @@ import           Universum
 
 import qualified Data.Map as Map
 import qualified Data.Set as Set
-import qualified Data.Text.Buildable
-import           Formatting (bprint, build, (%))
+import           Formatting (bprint, (%))
+import           Formatting.Buildable (Buildable (build))
 import           Serokell.Util (listJson)
 
 import           Cardano.Wallet.Kernel.Util (disjoint)
@@ -356,8 +356,8 @@ instance (Hash h a, Buildable a) => Buildable (InvariantViolation h a) where
 instance Buildable InvariantViolationEvidence where
   build (NotEqual (labelX, x) (labelY, y)) = bprint
     ( "NotEqual "
-    % "{ " % build % ": " % build
-    % ", " % build % ": " % build
+    % "{ " % F.build % ": " % build
+    % ", " % F.build % ": " % build
     % "}"
     )
     labelX
@@ -366,9 +366,9 @@ instance Buildable InvariantViolationEvidence where
       y
   build (NotSubsetOf (labelXs, xs) (labelYs, ys)) = bprint
     ( "NotSubsetOf "
-    % "{ " % build % ": " % listJson
-    % ", " % build % ": " % listJson
-    % ", " % build % ": " % listJson
+    % "{ " % F.build % ": " % listJson
+    % ", " % F.build % ": " % listJson
+    % ", " % F.build % ": " % listJson
     % "}"
     )
     labelXs
@@ -379,9 +379,9 @@ instance Buildable InvariantViolationEvidence where
       (Set.toList $ xs Set.\\ ys)
   build (NotAllSatisfy (labelP, p) (labelXs, xs)) = bprint
     ( "NotAllSatisfy "
-    % "{ " % build % ": " % build
-    % ", " % build % ": " % listJson
-    % ", " % build % ": " % listJson
+    % "{ " % F.build % ": " % build
+    % ", " % F.build % ": " % listJson
+    % ", " % F.build % ": " % listJson
     % "}"
     )
     ("pred" :: Text)
@@ -392,9 +392,9 @@ instance Buildable InvariantViolationEvidence where
       (filter (not . p) xs)
   build (NotDisjoint (labelXs, xs) (labelYs, ys)) = bprint
     ( "NotSubsetOf "
-    % "{ " % build % ": " % listJson
-    % ", " % build % ": " % listJson
-    % ", " % build % ": " % listJson
+    % "{ " % F.build % ": " % listJson
+    % ", " % F.build % ": " % listJson
+    % ", " % F.build % ": " % listJson
     % "}"
     )
     labelXs

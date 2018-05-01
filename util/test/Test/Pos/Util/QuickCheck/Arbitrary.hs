@@ -18,7 +18,8 @@ import           Universum
 import           Data.ByteString (pack)
 import qualified Data.ByteString.Lazy as BL (ByteString, pack)
 import           Data.List.NonEmpty (NonEmpty ((:|)))
-import           Formatting (build, sformat, (%))
+import           Formatting (sformat, (%))
+import qualified Formatting as F
 import           Test.QuickCheck (Arbitrary (..), Gen, listOf, scale, shuffle,
                      vector)
 import           Test.QuickCheck.Gen (unGen)
@@ -56,8 +57,8 @@ sublistN :: Int -> [a] -> Gen [a]
 sublistN n xs = do
     let len = length xs
     if len < n then
-        error $ sformat ("sublistN: requested "%build%" elements, "%
-            "but list only contains "%build) n len
+        error $ sformat ("sublistN: requested "%F.build%" elements, "%
+            "but list only contains "%F.build) n len
     else
         take n <$> shuffle xs
 

@@ -14,8 +14,9 @@ module Cardano.Wallet.Kernel.Actions
 import           Control.Concurrent.Async (async, link)
 import           Control.Concurrent.Chan
 import           Control.Lens (makeLenses, (%=), (+=), (-=), (.=))
-import qualified Data.Text.Buildable
-import           Formatting (bprint, build, shown, (%))
+import           Formatting (bprint, shown, (%))
+import qualified Formatting as F
+import           Formatting.Buildable (Buildable (build))
 import           Universum
 
 import           Pos.Core.Chrono
@@ -183,4 +184,4 @@ instance Show b => Buildable (WalletAction b) where
 instance Show b => Buildable [WalletAction b] where
     build was = case was of
       []     -> bprint "[]"
-      (x:xs) -> bprint (build % ":" % build) x xs
+      (x:xs) -> bprint (F.build % ":" % F.build) x xs

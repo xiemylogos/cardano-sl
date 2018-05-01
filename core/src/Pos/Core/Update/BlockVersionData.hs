@@ -6,9 +6,10 @@ module Pos.Core.Update.BlockVersionData
 import           Universum
 
 import           Data.SafeCopy (base, deriveSafeCopySimple)
-import qualified Data.Text.Buildable as Buildable
 import           Data.Time.Units (Millisecond)
-import           Formatting (bprint, build, int, (%))
+import           Formatting (bprint, int, (%))
+import qualified Formatting as F
+import           Formatting.Buildable (Buildable (build))
 import           Serokell.Data.Memory.Units (Byte, memory)
 
 import           Pos.Core.Common (CoinPortion, ScriptVersion, TxFeePolicy)
@@ -41,20 +42,20 @@ instance NFData BlockVersionData where
 
 instance Buildable BlockVersionData where
     build BlockVersionData {..} =
-      bprint ("{ script version: "%build%
+      bprint ("{ script version: "%F.build%
               ", slot duration: "%int%" mcs"%
               ", block size limit: "%memory%
               ", header size limit: "%memory%
               ", tx size limit: "%memory%
               ", proposal size limit: "%memory%
-              ", mpc threshold: "%build%
-              ", heavyweight delegation threshold: "%build%
-              ", update vote threshold: "%build%
-              ", update proposal threshold: "%build%
+              ", mpc threshold: "%F.build%
+              ", heavyweight delegation threshold: "%F.build%
+              ", update vote threshold: "%F.build%
+              ", update proposal threshold: "%F.build%
               ", update implicit period: "%int%" slots"%
-              ", softfork rule: "%build%
-              ", tx fee policy: "%build%
-              ", unlock stake epoch: "%build%
+              ", softfork rule: "%F.build%
+              ", tx fee policy: "%F.build%
+              ", unlock stake epoch: "%F.build%
               " }")
         bvdScriptVersion
         bvdSlotDuration

@@ -31,7 +31,8 @@ import           Control.Lens (makeLensesFor)
 import qualified Data.HashMap.Strict as HM
 import qualified Data.List as List
 import qualified Data.Set as S
-import           Formatting (build, sformat, (%))
+import           Formatting (sformat, (%))
+import qualified Formatting as F
 
 import           Pos.Binary.Class (Bi (..), encodeListLen, enforceSize)
 import           Pos.Core (EpochIndex (..), EpochOrSlot (..), SlotId (..),
@@ -206,7 +207,7 @@ expireById contains id wExp vcd@VssCertData{..}
         (S.delete (expiry, id) whenExpire)
         (S.insert (wExp, (id, ins, cert)) expiredCerts)
      | contains =
-        error $ sformat ("Could not find expected certificate with id = "%build) id
+        error $ sformat ("Could not find expected certificate with id = "%F.build) id
      | otherwise = vcd
 
 -- | Remove elements from beginning of the set @expirySlot@

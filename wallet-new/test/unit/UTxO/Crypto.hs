@@ -16,8 +16,8 @@ module UTxO.Crypto (
   , DelegatedTo(..)
   ) where
 
-import qualified Data.Text.Buildable
-import           Formatting (bprint, build, (%))
+import           Formatting (bprint, (%))
+import           Formatting.Buildable (Buildable (build))
 import           Universum
 
 import           Pos.Core

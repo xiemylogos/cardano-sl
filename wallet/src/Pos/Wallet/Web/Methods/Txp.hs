@@ -16,8 +16,9 @@ module Pos.Wallet.Web.Methods.Txp
 import           Universum
 
 import qualified Data.List.NonEmpty as NE
-import           Formatting (build, sformat, stext, (%))
-
+import           Formatting (sformat, stext, (%))
+import qualified Formatting as F
+import           Formatting.Buildable (Buildable)
 import           Pos.Client.KeyStorage (MonadKeys)
 import           Pos.Client.Txp.Addresses (MonadAddresses (..))
 import           Pos.Client.Txp.Util (InputSelectionPolicy (..),
@@ -56,7 +57,7 @@ rewrapTxError prefix =
     rewrapToWalletError isCheckedTxError (RequestError . sbuild)
   where
     sbuild :: Buildable e => e -> Text
-    sbuild = sformat (stext%": "%build) prefix
+    sbuild = sformat (stext%": "%F.build) prefix
 
 coinDistrToOutputs
     :: MonadThrow m

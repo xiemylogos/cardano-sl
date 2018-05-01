@@ -39,10 +39,10 @@ import           Data.Aeson (FromJSON (..), FromJSONKey (..),
                      FromJSONKeyFunction (..), ToJSON (..), ToJSONKey (..),
                      ToJSONKeyFunction (..))
 import           Data.Aeson.Encoding (text)
+import           Data.Aeson.Options (defaultOptions)
 import           Data.Aeson.TH (deriveJSON)
 import qualified Data.HashMap.Strict as HM
 import           Formatting (sformat)
-import           Serokell.Aeson.Options (defaultOptions)
 
 import           Pos.Aeson.Core ()
 import           Pos.Core.Common (Address, Coin, StakeholderId, unsafeGetCoin)
@@ -59,6 +59,16 @@ import           Pos.Core.Ssc (VssCertificatesMap (..), getVssCertificatesMap,
                      validateVssCertificatesMap)
 import           Pos.Crypto (RedeemPublicKey, fromAvvmPk, redeemPkB64UrlF)
 import           Pos.Util.Util (toAesonError)
+
+import           Data.Text.Lazy (toStrict)
+import           Data.Text.Lazy.Builder (toLazyText)
+import           Formatting.Buildable (Buildable (build))
+----------------------------------------------------------------------------
+-- Compat shims
+----------------------------------------------------------------------------
+-- pretty used to be in Universum
+pretty :: Buildable a => a -> Text
+pretty = toStrict . toLazyText . build
 
 instance ToJSONKey RedeemPublicKey where
     toJSONKey = ToJSONKeyText render (text . render)

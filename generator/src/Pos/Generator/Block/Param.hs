@@ -11,8 +11,10 @@ import           Universum
 
 import           Control.Lens.TH (makeClassy)
 import           Data.Default (Default (..))
-import qualified Data.Text.Buildable
-import           Formatting (bprint, build, formatToString, int, (%))
+import           Formatting (bprint, formatToString, int, (%))
+import qualified Formatting as F
+import           Formatting.Buildable (Buildable (build))
+
 import qualified Prelude
 import           Serokell.Util (pairF)
 
@@ -42,7 +44,7 @@ instance Buildable TxGenParams where
             _tgpMaxOutputs
 
 instance Show TxGenParams where
-    show = formatToString build
+    show = formatToString F.build
 
 instance Default TxGenParams where
     def = TxGenParams { _tgpTxCountRange = (0,5)
@@ -74,9 +76,9 @@ makeClassy ''BlockGenParams
 instance Buildable BlockGenParams where
     build BlockGenParams {..} =
         bprint ("BlockGenParams {\n"%
-                "  secrets: "%build%"\n"%
+                "  secrets: "%F.build%"\n"%
                 "  number of blocks: "%int%"\n"%
-                "  tx gen params: "%build%"\n"%
+                "  tx gen params: "%F.build%"\n"%
                 "}\n")
             _bgpSecrets
             _bgpBlockCount
@@ -89,4 +91,4 @@ instance HasTxGenParams BlockGenParams where
     txGenParams = bgpTxGenParams
 
 instance Show BlockGenParams where
-    show = formatToString build
+    show = formatToString F.build

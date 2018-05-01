@@ -33,7 +33,8 @@ import           Crypto.Random (MonadRandom, getRandomBytes)
 import           Data.ByteArray (ScrubbedBytes)
 import qualified Data.ByteString as BS
 import           Data.Coerce (coerce)
-import           Formatting (build, sformat, (%))
+import           Formatting (sformat, (%))
+import qualified Formatting as F
 
 import           Pos.Binary.Class (Bi, Raw)
 import qualified Pos.Binary.Class as Bi
@@ -126,7 +127,7 @@ proxySign
 proxySign pm t sk@(SecretKey delegateSk) psk m
     | toPublic sk /= pskDelegatePk psk =
         error $ sformat ("proxySign called with irrelevant certificate "%
-                         "(psk delegatePk: "%build%", real delegate pk: "%build%")")
+                         "(psk delegatePk: "%F.build%", real delegate pk: "%F.build%")")
                         (pskDelegatePk psk) (toPublic sk)
     | otherwise =
         ProxySignature

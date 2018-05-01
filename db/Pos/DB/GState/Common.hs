@@ -27,9 +27,9 @@ module Pos.DB.GState.Common
 
 import           Universum
 
-import qualified Data.Text.Buildable
 import qualified Database.RocksDB as Rocks
 import           Formatting (bprint, int, sformat, stext, (%))
+import           Formatting.Buildable (Buildable (build))
 
 import           Pos.Binary.Class (Bi)
 import           Pos.Core (ChainDifficulty, HeaderHash)

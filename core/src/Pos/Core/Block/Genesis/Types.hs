@@ -14,8 +14,10 @@ import           Universum
 
 import           Data.SafeCopy (SafeCopy (..), base, contain,
                      deriveSafeCopySimple, safeGet, safePut)
-import qualified Data.Text.Buildable as Buildable
-import           Formatting (bprint, build, (%))
+
+import           Formatting (bprint, (%))
+import qualified Formatting as F
+import           Formatting.Buildable (Buildable (build))
 
 import           Pos.Binary.Class (Bi (..), Cons (..), Field (..),
                      deriveSimpleBi, encodeListLen, enforceSize)
@@ -33,7 +35,7 @@ data GenesisProof = GenesisProof
 instance NFData GenesisProof
 
 instance Buildable GenesisProof where
-    build (GenesisProof h) = Buildable.build h
+    build (GenesisProof h) = build h
 
 instance Bi GenesisProof where
     encode (GenesisProof h) = encode h
@@ -90,7 +92,7 @@ instance NFData GenesisExtraHeaderData
 instance Buildable GenesisExtraHeaderData where
     build (GenesisExtraHeaderData attrs)
         | areAttributesKnown attrs = "no extra data"
-        | otherwise = bprint ("extra data has attributes: "%build) attrs
+        | otherwise = bprint ("extra data has attributes: "%F.build) attrs
 
 -- | Body of genesis block consists of slot leaders for epoch
 -- associated with this block.
@@ -127,7 +129,7 @@ instance NFData GenesisExtraBodyData
 instance Buildable GenesisExtraBodyData where
     build (GenesisExtraBodyData attrs)
         | areAttributesKnown attrs = "no extra data"
-        | otherwise = bprint ("extra data has attributes: "%build) attrs
+        | otherwise = bprint ("extra data has attributes: "%F.build) attrs
 
 deriveSimpleBi ''GenesisExtraHeaderData [
     Cons 'GenesisExtraHeaderData [

@@ -24,8 +24,8 @@ import           Universum hiding (State)
 import           Control.Lens.TH
 import qualified Data.Map as Map
 import qualified Data.Set as Set
-import qualified Data.Text.Buildable
-import           Formatting (bprint, build, (%))
+import           Formatting (bprint, (%))
+import           Formatting.Buildable (Buildable (build))
 import           Serokell.Util (listJson)
 
 import           UTxO.DSL

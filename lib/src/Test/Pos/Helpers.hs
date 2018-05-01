@@ -19,6 +19,16 @@ import           Pos.Core.Genesis (SchemaError)
 import           Test.Pos.Binary.Helpers (IdTestingRequiredClassesAlmost,
                      identityTest)
 
+import           Data.Text.Lazy (toStrict)
+import           Data.Text.Lazy.Builder (toLazyText)
+import           Formatting.Buildable (Buildable (build))
+----------------------------------------------------------------------------
+-- Compat shims
+----------------------------------------------------------------------------
+-- pretty used to be in Universum
+pretty :: Buildable a => a -> Text
+pretty = toStrict . toLazyText . build
+
 ----------------------------------------------------------------------------
 -- From/to tests
 ----------------------------------------------------------------------------

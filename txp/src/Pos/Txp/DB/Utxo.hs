@@ -35,9 +35,10 @@ import           Data.Conduit (ConduitT, mapOutput, runConduitRes, (.|))
 import qualified Data.Conduit.List as CL
 import qualified Data.HashSet as HS
 import qualified Data.Map as M
-import qualified Data.Text.Buildable
 import qualified Database.RocksDB as Rocks
-import           Formatting (bprint, build, sformat, (%))
+import           Formatting (bprint, sformat, (%))
+import qualified Formatting as F
+import           Formatting.Buildable (Buildable (build))
 import           Serokell.Util (Color (Red), colorize)
 import           System.Wlog (WithLogger, logError)
 import           UnliftIO (MonadUnliftIO)
@@ -69,9 +70,9 @@ data UtxoOp
 
 instance Buildable UtxoOp where
     build (DelTxIn txIn)           =
-        bprint ("DelTxIn ("%build%")") txIn
+        bprint ("DelTxIn ("%F.build%")") txIn
     build (AddTxOut txIn txOutAux) =
-        bprint ("AddTxOut ("%build%", "%build%")")
+        bprint ("AddTxOut ("%F.build%", "%F.build%")")
         txIn txOutAux
 
 instance HasCoreConfiguration => RocksBatchOp UtxoOp where

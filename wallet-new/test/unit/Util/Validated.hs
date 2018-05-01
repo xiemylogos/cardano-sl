@@ -14,8 +14,8 @@ module Util.Validated (
   ) where
 
 import           Control.Monad.Except
-import qualified Data.Text.Buildable
-import           Formatting (bprint, build, (%))
+import           Formatting (bprint, (%))
+import           Formatting.Buildable (Buildable (build))
 import           Serokell.Util (listJson)
 import           Universum
 

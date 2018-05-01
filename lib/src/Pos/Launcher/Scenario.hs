@@ -12,7 +12,9 @@ module Pos.Launcher.Scenario
 import           Universum
 
 import qualified Data.HashMap.Strict as HM
-import           Formatting (bprint, build, int, sformat, shown, (%))
+import           Formatting (bprint, int, sformat, shown, (%))
+import qualified Formatting as F
+import           Formatting.Buildable (Buildable (build))
 import           Mockable (mapConcurrently)
 import           Serokell.Util (listJson)
 import           System.Wlog (WithLogger, askLoggerName, logInfo)
@@ -38,6 +40,15 @@ import           Pos.Util.CompileInfo (HasCompileInfo, compileInfo)
 import           Pos.Worker (allWorkers)
 import           Pos.WorkMode.Class (WorkMode)
 
+import           Data.Text.Lazy (toStrict)
+import           Data.Text.Lazy.Builder (toLazyText)
+----------------------------------------------------------------------------
+-- Compat shims
+----------------------------------------------------------------------------
+-- pretty used to be in Universum
+pretty :: Buildable a => a -> Text
+pretty = toStrict . toLazyText . build
+
 -- | Entry point of full node.
 -- Initialization, running of workers, running of plugins.
 runNode'
@@ -55,19 +66,19 @@ runNode' NodeResources {..} workers' plugins' = \diffusion -> do
     inAssertMode $ logInfo "Assert mode on"
     pk <- getOurPublicKey
     let pkHash = addressHash pk
-    logInfoS $ sformat ("My public key is: "%build%", pk hash: "%build)
+    logInfoS $ sformat ("My public key is: "%F.build%", pk hash: "%F.build)
         pk pkHash
 
     let genesisStakeholders = gdBootStakeholders genesisData
     logInfo $ sformat
-        ("Genesis stakeholders ("%int%" addresses, dust threshold "%build%"): "%build)
+        ("Genesis stakeholders ("%int%" addresses, dust threshold "%F.build%"): "%F.build)
         (length $ getGenesisWStakeholders genesisStakeholders)
         bootDustThreshold
         genesisStakeholders
 
     let genesisDelegation = gdHeavyDelegation genesisData
     let formatDlgPair (issuerId, delegateId) =
-            bprint (build%" -> "%build) issuerId delegateId
+            bprint (F.build%" -> "%F.build) issuerId delegateId
     logInfo $ sformat ("GenesisDelegation (stakeholder ids): "%listJson)
             $ map (formatDlgPair . second (addressHash . pskDelegatePk))
             $ HM.toList
@@ -75,12 +86,12 @@ runNode' NodeResources {..} workers' plugins' = \diffusion -> do
 
     firstGenesisHash <- GS.getFirstGenesisBlockHash
     logInfo $ sformat
-        ("First genesis block hash: "%build%", genesis seed is "%build)
+        ("First genesis block hash: "%F.build%", genesis seed is "%F.build)
         firstGenesisHash
         (gdFtsSeed genesisData)
 
     tipHeader <- DB.getTipHeader
-    logInfo $ sformat ("Current tip header: "%build) tipHeader
+    logInfo $ sformat ("Current tip header: "%F.build) tipHeader
 
     waitSystemStart
     let runWithReportHandler action =
@@ -120,8 +131,8 @@ runNode pm nr plugins = runNode' nr workers' plugins
 nodeStartMsg :: (HasUpdateConfiguration, WithLogger m) => m ()
 nodeStartMsg = logInfo msg
   where
-    msg = sformat ("Application: " %build% ", last known block version "
-                    %build% ", systemTag: " %build)
+    msg = sformat ("Application: " %F.build% ", last known block version "
+                    %F.build% ", systemTag: " %F.build)
                    curSoftwareVersion
                    lastKnownBlockVersion
                    ourSystemTag

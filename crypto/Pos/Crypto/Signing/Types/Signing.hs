@@ -43,10 +43,10 @@ import           Data.Aeson.TH (defaultOptions, deriveJSON)
 import           Data.Hashable (Hashable)
 import           Data.SafeCopy (SafeCopy (..), base, contain,
                      deriveSafeCopySimple, safeGet, safePut)
-import qualified Data.Text.Buildable as B
 import           Data.Text.Lazy.Builder (Builder)
-import           Formatting (Format, bprint, build, fitLeft, later, sformat,
-                     (%), (%.))
+import           Formatting (Format, bprint, fitLeft, later, sformat, (%), (%.))
+import qualified Formatting as F
+import           Formatting.Buildable (Buildable (build))
 import           Prelude (show)
 import qualified Serokell.Util.Base16 as B16
 import qualified Serokell.Util.Base64 as Base64 (decode, formatBase64)
@@ -106,10 +106,10 @@ instance Bi SecretKey => Eq SecretKey where
 instance Show SecretKey where
     show sk = "<secret of " ++ show (toPublic sk) ++ ">"
 
-instance B.Buildable PublicKey where
+instance Buildable PublicKey where
     build = bprint ("pub:"%shortPublicKeyHexF)
 
-instance B.Buildable SecretKey where
+instance Buildable SecretKey where
     build = bprint ("sec:"%shortPublicKeyHexF) . toPublic
 
 encodeXPrv :: CC.XPrv -> E.Encoding
@@ -153,7 +153,7 @@ parseFullPublicKey s = do
 newtype Signature a = Signature CC.XSignature
     deriving (Eq, Ord, Show, Generic, NFData, Hashable, Typeable)
 
-instance B.Buildable (Signature a) where
+instance Buildable (Signature a) where
     build _ = "<signature>"
 
 instance FromJSON (Signature w) where
@@ -218,7 +218,7 @@ instance Bi a => SafeCopy (Signed a) where
 newtype ProxyCert w = ProxyCert { unProxyCert :: CC.XSignature }
     deriving (Eq, Ord, Show, Generic, NFData, Hashable)
 
-instance B.Buildable (ProxyCert w) where
+instance Buildable (ProxyCert w) where
     build _ = "<proxy_cert>"
 
 instance ToJSON (ProxyCert w) where
@@ -258,9 +258,9 @@ data ProxySecretKey w = UnsafeProxySecretKey
 instance NFData w => NFData (ProxySecretKey w)
 instance Hashable w => Hashable (ProxySecretKey w)
 
-instance (B.Buildable w) => B.Buildable (ProxySecretKey w) where
+instance (Buildable w) => Buildable (ProxySecretKey w) where
     build (UnsafeProxySecretKey w iPk dPk _) =
-        bprint ("ProxySk { w = "%build%", iPk = "%build%", dPk = "%build%" }") w iPk dPk
+        bprint ("ProxySk { w = "%F.build%", iPk = "%F.build%", dPk = "%F.build%" }") w iPk dPk
 
 deriveJSON defaultOptions ''ProxySecretKey
 
@@ -294,8 +294,8 @@ data ProxySignature w a = ProxySignature
 instance NFData w => NFData (ProxySignature w a)
 instance Hashable w => Hashable (ProxySignature w a)
 
-instance (B.Buildable w) => B.Buildable (ProxySignature w a) where
-    build ProxySignature{..} = bprint ("Proxy signature { psk = "%build%" }") psigPsk
+instance (Buildable w) => Buildable (ProxySignature w a) where
+    build ProxySignature{..} = bprint ("Proxy signature { psk = "%F.build%" }") psigPsk
 
 instance (Typeable a, Bi w) =>
          Bi (ProxySignature w a) where

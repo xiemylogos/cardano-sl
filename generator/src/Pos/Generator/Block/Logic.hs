@@ -13,7 +13,9 @@ import           Universum
 import           Control.Lens (at, ix, _Wrapped)
 import           Control.Monad.Random.Strict (RandT, mapRandT)
 import           Data.Default (Default)
-import           Formatting (build, sformat, (%))
+import           Formatting (sformat, (%))
+import qualified Formatting as F
+
 import           System.Random (RandomGen (..))
 import           System.Wlog (logWarning)
 
@@ -127,7 +129,7 @@ genBlock pm eos = do
             case (maybeLeader, canSkip) of
                 (Nothing,True)     -> do
                     lift $ logWarning $
-                        sformat ("Skipping block creation for leader "%build%
+                        sformat ("Skipping block creation for leader "%F.build%
                                  " as no related key was found")
                                 leader
                     pure Nothing

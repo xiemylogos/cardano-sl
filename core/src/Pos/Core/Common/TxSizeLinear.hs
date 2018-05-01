@@ -8,8 +8,9 @@ import           Universum
 
 import           Data.Fixed (Nano)
 import           Data.SafeCopy (base, deriveSafeCopySimple)
-import qualified Data.Text.Buildable as Buildable
-import           Formatting (bprint, build, (%))
+import           Formatting (bprint, (%))
+import qualified Formatting as F
+import           Formatting.Buildable (Buildable (build))
 import           Serokell.Data.Memory.Units (Byte, toBytes)
 
 import           Pos.Binary.Class (Bi (..), encodeListLen, enforceSize)
@@ -25,7 +26,7 @@ instance NFData TxSizeLinear
 
 instance Buildable TxSizeLinear where
     build (TxSizeLinear a b) =
-        bprint (build%" + "%build%"*s") a b
+        bprint (F.build%" + "%F.build%"*s") a b
 
 instance Bi TxSizeLinear where
     encode (TxSizeLinear a b) = encodeListLen 2 <> encode a <> encode b

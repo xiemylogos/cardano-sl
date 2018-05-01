@@ -7,8 +7,9 @@ import           Universum
 import qualified Data.ByteString.Lazy as LBS
 import           Data.Hashable (Hashable)
 import           Data.SafeCopy (base, deriveSafeCopySimple)
-import qualified Data.Text.Buildable as Buildable
-import           Formatting (bprint, build, shown, (%))
+import           Formatting (bprint, shown, (%))
+import qualified Formatting as F
+import           Formatting.Buildable (Buildable (build))
 
 import           Pos.Binary.Class (Bi (..), decodeKnownCborDataItem,
                      decodeUnknownCborDataItem, encodeKnownCborDataItem,
@@ -39,9 +40,9 @@ instance NFData TxFeePolicy
 
 instance Buildable TxFeePolicy where
     build (TxFeePolicyTxSizeLinear tsp) =
-        bprint ("policy(tx-size-linear): "%build) tsp
+        bprint ("policy(tx-size-linear): "%F.build) tsp
     build (TxFeePolicyUnknown v bs) =
-        bprint ("policy(unknown:"%build%"): "%shown) v bs
+        bprint ("policy(unknown:"%F.build%"): "%shown) v bs
 
 instance Bi TxFeePolicy where
     encode policy = case policy of

@@ -30,7 +30,9 @@ module Pos.Script.Examples
        ) where
 
 import qualified Data.ByteString as BS
-import           Formatting (build, sformat, (%))
+import           Formatting (sformat, (%))
+import qualified Formatting as F
+
 import           NeatInterpolation (text)
 import           Serokell.Util.Base16 (base16F)
 import           Universum
@@ -137,7 +139,7 @@ multisigValidator protocolMagic n ids = fromE $ parseValidator [text|
     |]
   where
     shownN = show n
-    mkCons h s = sformat ("(Cons #"%hashHexF%" "%build%")") h s
+    mkCons h s = sformat ("(Cons #"%hashHexF%" "%F.build%")") h s
     shownIds = foldr mkCons "Nil" ids
     shownTag = sformat ("#"%base16F) (signTag protocolMagic SignTx)
 
@@ -147,10 +149,10 @@ multisigRedeemer protocolMagic txSigData sks = fromE $ parseRedeemer [text|
         redeemer = success ${shownSigs} }
     |]
   where
-    mkCons Nothing          s = sformat ("(Cons Nothing "%build%")") s
+    mkCons Nothing          s = sformat ("(Cons Nothing "%F.build%")") s
     mkCons (Just (pk, sig)) s = sformat
         ("(Cons (Just (MkPair #"%fullPublicKeyHexF%" #"%fullSignatureHexF%")) "
-                %build%")") pk sig s
+                %F.build%")") pk sig s
     sigs = map (fmap (\k -> (safeToPublic k, safeSign protocolMagic SignTx k txSigData))) sks
     shownSigs = foldr mkCons "Nil" sigs
 

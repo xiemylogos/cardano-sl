@@ -77,7 +77,6 @@ library
                       , servant-generic
                       , stm
                       , text
-                      , text-format
                       , time
                       , time-units
                       , transformers

@@ -6,8 +6,8 @@ module Pos.Core.Update.BlockVersion
 import           Universum
 
 import           Data.SafeCopy (base, deriveSafeCopySimple)
-import qualified Data.Text.Buildable as Buildable
 import           Formatting (bprint, shown)
+import           Formatting.Buildable (Buildable (build))
 import qualified Prelude
 
 import           Pos.Binary.Class (Cons (..), Field (..), deriveSimpleBi)

@@ -68,9 +68,10 @@ import           Control.Monad.Trans (MonadTrans)
 import           Data.Foldable (Foldable, length, null)
 import           Data.List (isSuffixOf)
 import           Data.Reflection (Reifies (..), reify)
-import qualified Data.Text.Buildable
 import           Data.Text.Lazy.Builder (Builder)
-import           Formatting (bprint, build, fconst, later, mapf, (%))
+import           Formatting (bprint, fconst, later, mapf, (%))
+import qualified Formatting as F
+import           Formatting.Buildable (Buildable (build))
 import           Formatting.Internal (Format (..))
 import qualified Language.Haskell.TH as TH
 import           Serokell.Util (listJson)
@@ -188,7 +189,7 @@ unsecure :: LogSecurityLevel
 unsecure = SecretLogLevel
 
 buildUnsecure :: Buildable a => SecureLog a -> Builder
-buildUnsecure (SecureLog a) = bprint build a
+buildUnsecure (SecureLog a) = bprint F.build a
 
 type BuildableSafe a = (Buildable a, Buildable (SecureLog a))
 
@@ -208,13 +209,13 @@ plainOrSecureF SecretLogLevel fmt _ = fmt
 plainOrSecureF PublicLogLevel _ fmt = fmt
 
 buildSafe :: BuildableSafe a => LogSecurityLevel -> Format r (a -> r)
-buildSafe sl = plainOrSecureF sl build (secureF build)
+buildSafe sl = plainOrSecureF sl F.build (secureF F.build)
 
 buildSafeMaybe :: BuildableSafe a => a -> LogSecurityLevel -> Format r (Maybe a -> r)
-buildSafeMaybe def sl = plainOrSecureF sl build (secureMaybeF def build)
+buildSafeMaybe def sl = plainOrSecureF sl F.build (secureMaybeF def F.build)
 
 buildSafeList :: BuildableSafe a => LogSecurityLevel -> Format r ([a] -> r)
-buildSafeList sl = secureListF sl (secureF build)
+buildSafeList sl = secureListF sl (secureF F.build)
 
 -- | Negates single-parameter formatter for public logs.
 secretOnlyF :: LogSecurityLevel -> Format r (a -> r) -> Format r (a -> r)
@@ -233,7 +234,7 @@ secureListF sl fmt = plainOrSecureF sl fmt lengthFmt
     lengthFmt = later $ \l ->
         if Data.Foldable.null l
         then "[]"
-        else bprint ("[... ("%build%" item(s))]") $ Data.Foldable.length l
+        else bprint ("[... ("%F.build%" item(s))]") $ Data.Foldable.length l
 
 {-
 This is helper in generating @instance Buildable a@ and

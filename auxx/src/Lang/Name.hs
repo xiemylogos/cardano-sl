@@ -12,9 +12,19 @@ import           Data.Char (isAlpha)
 import           Data.Coerce (coerce)
 import qualified Data.List.NonEmpty as NonEmpty
 import           Data.List.Split (splitWhen)
-import qualified Data.Text.Buildable as Buildable
+
 import           Test.QuickCheck.Arbitrary.Generic (Arbitrary (..))
 import           Test.QuickCheck.Gen (Gen, listOf, suchThat)
+
+import           Data.Text.Lazy (toStrict)
+import           Data.Text.Lazy.Builder (toLazyText)
+import           Formatting.Buildable (Buildable (build))
+----------------------------------------------------------------------------
+-- Compat shims
+----------------------------------------------------------------------------
+-- pretty used to be in Universum
+pretty :: Buildable a => a -> Text
+pretty = toStrict . toLazyText . build
 
 -- | Invariant: @isAlpha . getLetter = const True@
 newtype Letter = Letter { getLetter :: Char }

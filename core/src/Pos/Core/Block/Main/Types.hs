@@ -14,9 +14,11 @@ import           Universum
 
 import           Data.SafeCopy (SafeCopy (..), base, contain,
                      deriveSafeCopySimple, safeGet, safePut)
-import qualified Data.Text.Buildable as Buildable
+import qualified Formatting as F
+import           Formatting.Buildable (Buildable (build))
+
 import           Fmt (genericF)
-import           Formatting (bprint, build, builder, (%))
+import           Formatting (bprint, builder, (%))
 
 import           Pos.Binary.Class (Bi (..), Cons (..), Field (..),
                      deriveSimpleBi, encodeListLen, enforceSize)
@@ -88,8 +90,8 @@ instance NFData MainExtraHeaderData
 
 instance Buildable MainExtraHeaderData where
     build MainExtraHeaderData {..} =
-      bprint ( "    block: v"%build%"\n"
-             % "    software: "%build%"\n"
+      bprint ( "    block: v"%F.build%"\n"
+             % "    software: "%F.build%"\n"
              % builder
              )
             _mehBlockVersion
@@ -98,7 +100,7 @@ instance Buildable MainExtraHeaderData where
       where
         formattedExtra
             | areAttributesKnown _mehAttributes = mempty
-            | otherwise = bprint ("    attributes: "%build%"\n") _mehAttributes
+            | otherwise = bprint ("    attributes: "%F.build%"\n") _mehAttributes
 
 -- | In our cryptocurrency, body consists of payloads of all block
 -- components.
@@ -155,7 +157,7 @@ newtype MainExtraBodyData = MainExtraBodyData
 instance Buildable MainExtraBodyData where
     build (MainExtraBodyData attrs)
         | areAttributesKnown attrs = "no extra data"
-        | otherwise = bprint ("extra data has attributes: "%build) attrs
+        | otherwise = bprint ("extra data has attributes: "%F.build) attrs
 
 deriveSimpleBi ''MainExtraHeaderData [
     Cons 'MainExtraHeaderData [

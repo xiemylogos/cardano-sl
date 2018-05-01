@@ -110,6 +110,16 @@ import           System.Wlog (LoggerName, WithLogger, logDebug, logError,
                      logInfo, usingLoggerName)
 import qualified Text.Megaparsec as P
 
+import           Data.Text.Lazy (toStrict)
+import           Data.Text.Lazy.Builder (toLazyText)
+import           Formatting.Buildable (Buildable (build))
+----------------------------------------------------------------------------
+-- Compat shims
+----------------------------------------------------------------------------
+-- pretty used to be in Universum
+pretty :: Buildable a => a -> Text
+pretty = toStrict . toLazyText . build
+
 ----------------------------------------------------------------------------
 -- Cool stuff
 ----------------------------------------------------------------------------

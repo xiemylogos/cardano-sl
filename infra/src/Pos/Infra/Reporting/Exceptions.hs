@@ -9,11 +9,15 @@ module Pos.Infra.Reporting.Exceptions
 import           Universum
 
 import           Control.Exception.Safe (Exception (..))
-import qualified Data.Text.Buildable
 import           Formatting (bprint, shown, stext, string, (%))
+import           Formatting.Buildable (Buildable (build))
 
 import           Pos.Exception (cardanoExceptionFromException,
                      cardanoExceptionToException)
+
+
+import           Data.Text.Lazy (toStrict)
+import           Data.Text.Lazy.Builder (toLazyText)
 
 data ReportingError
     = CantRetrieveLogs FilePath
@@ -25,7 +29,7 @@ data ReportingError
 instance Exception ReportingError where
     toException = cardanoExceptionToException
     fromException = cardanoExceptionFromException
-    displayException = toString . pretty
+    displayException = toString . toStrict . toLazyText . build
 
 instance Buildable ReportingError where
     build =

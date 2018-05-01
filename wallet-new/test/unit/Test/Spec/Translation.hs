@@ -5,8 +5,8 @@ module Test.Spec.Translation (
 import           Universum
 
 import qualified Data.Set as Set
-import qualified Data.Text.Buildable
-import           Formatting (bprint, build, shown, (%))
+import           Formatting (bprint, shown, (%))
+import           Formatting.Buildable (Buildable (build))
 import           Pos.Core.Chrono
 import           Serokell.Util (mapJson)
 import           Test.Hspec.QuickCheck

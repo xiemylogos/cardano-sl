@@ -6,8 +6,9 @@ import           Universum
 
 import qualified Data.ByteString.Lazy as LBS
 import           Data.SafeCopy (base, deriveSafeCopySimple)
-import qualified Data.Text.Buildable as Buildable
-import           Formatting (bprint, build, builder, (%))
+import           Formatting (bprint, (%))
+import qualified Formatting as F
+import           Formatting.Buildable (Buildable (build))
 
 import           Pos.Binary.Class (Bi, decode, encode)
 import qualified Pos.Binary.Class as Bi
@@ -28,8 +29,8 @@ data AddrAttributes = AddrAttributes
 instance Buildable AddrAttributes where
     build (AddrAttributes {..}) =
         bprint
-            ("AddrAttributes { stake distribution: "%build%
-             ", derivation path: "%builder%" }")
+            ("AddrAttributes { stake distribution: "%F.build%
+             ", derivation path: "%F.builder%" }")
             aaStakeDistribution
             derivationPathBuilder
       where

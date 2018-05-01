@@ -5,8 +5,9 @@ module Pos.Core.Txp.TxOutAux
 import           Universum
 
 import           Data.SafeCopy (base, deriveSafeCopySimple)
-import qualified Data.Text.Buildable as Buildable
-import           Formatting (bprint, build, (%))
+import           Formatting (bprint, (%))
+import qualified Formatting as F
+import           Formatting.Buildable (Buildable (build))
 
 import           Pos.Binary.Class (Cons (..), Field (..), deriveSimpleBi)
 import           Pos.Core.Txp.Tx (TxOut)
@@ -19,7 +20,7 @@ data TxOutAux = TxOutAux
     } deriving (Generic, Show, Eq, Ord)
 
 instance Buildable TxOutAux where
-    build (TxOutAux out) = bprint ("{txout = "%build%"}") out
+    build (TxOutAux out) = bprint ("{txout = "%F.build%"}") out
 
 instance NFData TxOutAux
 

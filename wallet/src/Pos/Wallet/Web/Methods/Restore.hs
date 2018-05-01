@@ -18,7 +18,8 @@ import           Universum
 import qualified Control.Exception.Safe as E
 import           Control.Lens (each, ix, traversed)
 import           Data.Default (Default (def))
-import           Formatting (build, sformat, (%))
+import           Formatting (sformat, (%))
+import qualified Formatting as F
 import           System.IO.Error (isDoesNotExistError)
 import           System.Wlog (logDebug)
 
@@ -179,7 +180,7 @@ importWallet passphrase (CFilePath (toString -> fp)) = do
   where
     noWalletSecret = RequestError "This key doesn't contain HD wallet info"
     noFile _ = RequestError "File doesn't exist"
-    decodeFailed = RequestError . sformat ("Invalid secret file ("%build%")")
+    decodeFailed = RequestError . sformat ("Invalid secret file ("%F.build%")")
 
 -- Do the all concrete logic of importing here.
 importWalletDo
@@ -240,6 +241,6 @@ addInitialRichAccount keyId =
                 & wusWalletName .~ "Precreated wallet full of money"
                 & wusAccounts . traversed . _2 .~ "Initial account"
   where
-    noKey = InternalError $ sformat ("No genesis key #" %build) keyId
+    noKey = InternalError $ sformat ("No genesis key #" %F.build) keyId
     wSetExistsHandler =
-        logDebug . sformat ("Creation of initial wallet was skipped (" %build % ")")
+        logDebug . sformat ("Creation of initial wallet was skipped (" %F.build % ")")

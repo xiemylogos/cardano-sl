@@ -46,9 +46,10 @@ import           Universum
 
 import           Control.Lens (lens, makeClassy, makeLensesWith)
 import qualified Data.Map as Map
-import qualified Data.Text.Buildable
 import           Data.Time.Units (TimeUnit (..))
-import           Formatting (bprint, build, formatToString, shown, (%))
+import           Formatting (bprint, formatToString, shown, (%))
+import qualified Formatting as F
+import           Formatting.Buildable (Buildable (build))
 import           Mockable (Production, currentTime, runProduction)
 import qualified Prelude
 import           System.Wlog (HasLoggerName (..), LoggerName)
@@ -138,13 +139,13 @@ instance Buildable TestParams where
     build TestParams {..} =
         bprint ("TestParams {\n"%
                 "  start time: "%shown%"\n"%
-                "  initializer: "%build%"\n"%
+                "  initializer: "%F.build%"\n"%
                 "}\n")
             _tpStartTime
             _tpGenesisInitializer
 
 instance Show TestParams where
-    show = formatToString build
+    show = formatToString F.build
 
 instance Arbitrary TestParams where
     arbitrary = do

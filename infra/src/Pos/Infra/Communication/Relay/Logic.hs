@@ -32,11 +32,13 @@ import           Data.Aeson.TH (defaultOptions, deriveJSON)
 import           Data.Proxy (asProxyTypeOf)
 import           Data.Tagged (Tagged, tagWith)
 import           Data.Typeable (typeRep)
-import           Formatting (build, sformat, shown, stext, (%))
+import           Formatting (sformat, shown, stext, (%))
 import qualified Network.Broadcast.OutboundQueue as OQ
 import           Node.Message.Class (Message)
 import           Universum
 
+import qualified Formatting as F
+import           Formatting.Buildable (Buildable)
 import           Pos.Binary.Class (Bi (..))
 import           Pos.Binary.Limit (Limit, mlEither)
 import           Pos.Infra.Communication.Limits.Instances (mlDataMsg, mlInvMsg,
@@ -94,10 +96,10 @@ handleReqL logTrace oq handleReq = listenerConv logTrace oq $ \__ourVerInfo node
     constructDataMsg :: contents -> InvOrData key contents
     constructDataMsg = Right . DataMsg
     logNoData rmKey = traceWith logTrace (Debug, sformat
-        ("We don't have data for key "%build)
+        ("We don't have data for key "%F.build)
         rmKey)
     logHaveData rmKey= traceWith logTrace (Debug, sformat
-        ("We have data for key "%build)
+        ("We have data for key "%F.build)
         rmKey)
 
 handleMempoolL
@@ -153,7 +155,7 @@ handleDataOnlyL logTrace oq enqueue mkMsg mkLimit handleData = listenerConv logT
     in handlingLoop
   where
     logUseless dmContents = traceWith logTrace (Warning, sformat
-        ("Ignoring data "%build) dmContents)
+        ("Ignoring data "%F.build) dmContents)
 
 handleDataDo
     :: forall key contents.
@@ -181,7 +183,7 @@ handleDataDo logTrace provenance mkMsg enqueue contentsToKey handleData dmConten
         -- enqueueMsg can do that: simply don't force the values in
         -- the resulting map.
         (ResMsg dmKey True <$ propagateData logTrace enqueue (InvReqDataPM (mkMsg (OriginForward provenance)) dmKey dmContents))
-        (ResMsg dmKey False <$ (traceWith logTrace (Debug, sformat ("Ignoring data "%build%" for key "%build) dmContents dmKey)))
+        (ResMsg dmKey False <$ (traceWith logTrace (Debug, sformat ("Ignoring data "%F.build%" for key "%F.build) dmContents dmKey)))
 
 -- | Synchronously propagate data.
 relayMsg
@@ -202,12 +204,12 @@ propagateData
 propagateData logTrace enqueue pm = waitForDequeues <$> case pm of
     InvReqDataPM msg key contents -> do
         traceWith logTrace (Debug, sformat
-            ("Propagation data with key: "%build) key)
+            ("Propagation data with key: "%F.build) key)
         enqueue msg $ \peer _ ->
             pure $ Conversation $ (void <$> invReqDataFlowDo logTrace "propagation" key contents peer)
     DataOnlyPM msg contents -> do
         traceWith logTrace (Debug, sformat
-            ("Propagation data: "%build) contents)
+            ("Propagation data: "%F.build) contents)
         enqueue msg $ \__node _ ->
             pure $ Conversation $ doHandler contents
 
@@ -233,10 +235,10 @@ handleInvDo logTrace handleInv imKey =
         (Nothing <$ logUseless)
   where
     logUseless = traceWith logTrace (Debug, sformat
-        ("Ignoring inv for key "%build%", because it's useless")
+        ("Ignoring inv for key "%F.build%", because it's useless")
         imKey)
     logUseful = traceWith logTrace (Debug, sformat
-        ("We'll request data for key "%build%", because it's useful")
+        ("We'll request data for key "%F.build%", because it's useful")
         imKey)
 
 relayListenersOne
@@ -362,7 +364,7 @@ invReqDataFlowDo logTrace what key dt peer conv = do
     handleD = do
         traceWith logTrace (Error,
             sformat ("InvReqDataFlow ("%stext%"): "%shown %" closed conversation on \
-                     \Inv key = "%build)
+                     \Inv key = "%F.build)
                     what peer key)
         throwIO UnexpectedEnd
 
@@ -387,7 +389,7 @@ dataFlow logTrace what enqueue msg dt = handleAny handleE $ do
     -- Fortunatelly, it's used only in auxx, so I don't care much.
     -- @gromak
     handleE e =
-        traceWith logTrace (Warning, sformat ("Error sending "%stext%", data = "%build%": "%shown) what dt e)
+        traceWith logTrace (Warning, sformat ("Error sending "%stext%", data = "%F.build%": "%shown) what dt e)
 
 ----------------------------------------------------------------------------
 -- Helpers for Communication.Methods
@@ -466,6 +468,6 @@ invReqDataFlow logTrace what enqueue msg key dt = handleAny handleE $ do
     -- @gromak
     handleE e = do
         traceWith logTrace (Warning,
-            sformat ("Error sending "%stext%", key = "%build%": "%shown)
+            sformat ("Error sending "%stext%", key = "%F.build%": "%shown)
                 what key e)
         throwIO e

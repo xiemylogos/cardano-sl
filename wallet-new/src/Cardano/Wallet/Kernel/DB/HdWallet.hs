@@ -67,8 +67,9 @@ import           Control.Lens.TH (makeLenses)
 import qualified Data.IxSet.Typed as IxSet
 import           Data.SafeCopy (base, deriveSafeCopy)
 
-import qualified Data.Text.Buildable
-import           Formatting (bprint, build, (%))
+import           Formatting (bprint, (%))
+import qualified Formatting as F
+import           Formatting.Buildable (Buildable (build))
 
 import qualified Pos.Core as Core
 import qualified Pos.Crypto as Core
@@ -437,26 +438,26 @@ assumeHdAccountExists _id = return ()
 
 instance Buildable HdRootId where
     build (HdRootId keyInDb)
-        = bprint ("HdRootId: "%build) (_fromDb keyInDb)
+        = bprint ("HdRootId: "%F.build) (_fromDb keyInDb)
 
 instance Buildable HdAccountIx where
     build (HdAccountIx ix)
-        = bprint ("HdAccountIx: "%build) ix
+        = bprint ("HdAccountIx: "%F.build) ix
 
 instance Buildable HdAccountId where
     build (HdAccountId parentId accountIx)
-        = bprint ("HdAccountId: "%build%", "%build) parentId accountIx
+        = bprint ("HdAccountId: "%F.build%", "%F.build) parentId accountIx
 
 instance Buildable HdAddressIx where
     build (HdAddressIx ix)
-        = bprint ("HdAddressIx: "%build) ix
+        = bprint ("HdAddressIx: "%F.build) ix
 
 instance Buildable HdAddressId where
     build (HdAddressId parentId addressIx)
-        = bprint ("HdAddressId: "%build%", "%build) parentId addressIx
+        = bprint ("HdAddressId: "%F.build%", "%F.build) parentId addressIx
 
 instance Buildable UnknownHdAccount where
     build (UnknownHdAccountRoot rootId)
-        = bprint ("UnknownHdAccountRoot: "%build) rootId
+        = bprint ("UnknownHdAccountRoot: "%F.build) rootId
     build (UnknownHdAccount accountId)
-        = bprint ("UnknownHdAccount accountId: "%build) accountId
+        = bprint ("UnknownHdAccount accountId: "%F.build) accountId

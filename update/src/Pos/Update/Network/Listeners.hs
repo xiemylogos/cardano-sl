@@ -11,7 +11,8 @@ module Pos.Update.Network.Listeners
 
 import           Universum
 
-import           Formatting (build, sformat, (%))
+import           Formatting (sformat, (%))
+import qualified Formatting as F
 import           System.Wlog (WithLogger, logNotice, logWarning)
 
 import           Pos.Core (ProtocolMagic)
@@ -33,19 +34,19 @@ handleProposal pm (proposal, votes) = do
     processVoteLog :: UpdateVote -> m ()
     processVoteLog vote = processVote pm vote >>= logVote vote
     logVote vote (Left cause) =
-        logWarning $ sformat ("Proposal is accepted but vote "%build%
-                              " is rejected, the reason is: "%build)
+        logWarning $ sformat ("Proposal is accepted but vote "%F.build%
+                              " is rejected, the reason is: "%F.build)
                      vote cause
     logVote vote (Right _) = logVoteAccepted vote
 
     logProp prop (Left cause) =
-        logWarning $ sformat ("Processing of proposal "%build%
-                              " failed, the reason is: "%build)
+        logWarning $ sformat ("Processing of proposal "%F.build%
+                              " failed, the reason is: "%F.build)
               prop cause
     -- Update proposals are accepted rarely (at least before Shelley),
     -- so it deserves 'Notice' severity.
     logProp prop (Right _) =
-        logNotice $ sformat ("Processing of proposal "%build%" is successful")
+        logNotice $ sformat ("Processing of proposal "%F.build%" is successful")
               prop
 
 ----------------------------------------------------------------------------
@@ -63,8 +64,8 @@ handleVote pm uv = do
     pure $ isRight res
   where
     logProcess vote (Left cause) =
-        logWarning $ sformat ("Processing of vote "%build%
-                              "failed, the reason is: "%build)
+        logWarning $ sformat ("Processing of vote "%F.build%
+                              "failed, the reason is: "%F.build)
                      vote cause
     logProcess vote (Right _) = logVoteAccepted vote
 
@@ -76,4 +77,4 @@ handleVote pm uv = do
 -- it deserves 'Notice' severity.
 logVoteAccepted :: WithLogger m => UpdateVote -> m ()
 logVoteAccepted =
-    logNotice . sformat ("Processing of vote "%build%"is successfull")
+    logNotice . sformat ("Processing of vote "%F.build%"is successfull")

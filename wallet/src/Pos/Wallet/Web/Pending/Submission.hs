@@ -17,7 +17,10 @@ import           Universum
 
 import           Control.Exception.Safe (Handler (..), catches, onException)
 import           Data.Time.Units (fromMicroseconds)
-import           Formatting (build, sformat, shown, stext, (%))
+import           Formatting (sformat, shown, stext, (%))
+import qualified Formatting as F
+import           Formatting.Buildable (Buildable)
+
 import           System.Wlog (WithLogger, logDebug, logInfo)
 
 import           Pos.Client.Txp.History (saveTx, thTimestamp)
@@ -83,22 +86,22 @@ ptxResubmissionHandler db PendingTx{..} =
         :: (Buildable e)
         => PtxPoolInfo -> e -> m ()
     cancelPtx poolInfo e = do
-        let newCond = PtxWontApply (sformat build e) poolInfo
+        let newCond = PtxWontApply (sformat F.build e) poolInfo
         void $ casPtxCondition db _ptxWallet _ptxTxId _ptxCond newCond
         reportCanceled
 
     reportPeerAppliedEarlier =
         logInfoSP $ \sl ->
-        sformat ("Some peer applied tx #"%secretOnlyF sl build%" earlier - continuing \
+        sformat ("Some peer applied tx #"%secretOnlyF sl F.build%" earlier - continuing \
             \tracking")
             _ptxTxId
     reportCanceled =
         logInfoSP $ \sl ->
-        sformat ("Pending transaction #"%secretOnlyF sl build%" was canceled")
+        sformat ("Pending transaction #"%secretOnlyF sl F.build%" was canceled")
             _ptxTxId
     reportBadCondition =
         logWarningSP $ \sl ->
-        sformat ("Processing failure of "%secretOnlyF sl build%" resubmission, but \
+        sformat ("Processing failure of "%secretOnlyF sl F.build%" resubmission, but \
             \this transaction has unexpected condition "%buildSafe sl)
             _ptxTxId _ptxCond
 
@@ -127,7 +130,7 @@ submitAndSavePtx pm db submitTx PtxSubmissionHandlers{..} ptx@PendingTx{..} = do
            let newCond = PtxWontApply "1h limit exceeded" poolInfo
            void $ casPtxCondition db _ptxWallet _ptxTxId _ptxCond newCond
            logInfo $
-             sformat ("Pending transaction #"%build%" discarded becauce \
+             sformat ("Pending transaction #"%F.build%" discarded becauce \
                       \the 1h time limit was exceeded")
                       _ptxTxId
        | otherwise -> do
@@ -162,7 +165,7 @@ submitAndSavePtx pm db submitTx PtxSubmissionHandlers{..} ptx@PendingTx{..} = do
 
     reportError desc e outcome =
         logInfoSP $ \sl ->
-        sformat ("Transaction #"%secretOnlyF sl build%" application failed ("%shown%" - "
+        sformat ("Transaction #"%secretOnlyF sl F.build%" application failed ("%shown%" - "
                 %stext%")"%stext) _ptxTxId e desc outcome
 
     creationFailedHandler =
@@ -176,4 +179,4 @@ submitAndSavePtx pm db submitTx PtxSubmissionHandlers{..} ptx@PendingTx{..} = do
     reportSubmitted ack =
         logDebug $
         sformat ("submitAndSavePtx: transaction submitted with confirmation?: "
-                %build) ack
+                %F.build) ack

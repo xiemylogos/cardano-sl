@@ -47,7 +47,7 @@ library
                      , safe-exceptions
                      , serokell-util
                      , stm
-                     , text-format
+                     , text
                      , transformers
                      , universum
                      , unordered-containers
@@ -116,6 +116,7 @@ test-suite cardano-client-test
                      , formatting
                      , hspec
                      , QuickCheck
+                     , text
                      , universum >= 0.1.11
                      , unordered-containers
 

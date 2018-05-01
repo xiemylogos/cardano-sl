@@ -9,8 +9,9 @@ import           Universum
 
 import qualified Data.ByteString.Lazy as LBS
 import           Data.SafeCopy (base, deriveSafeCopySimple)
-import qualified Data.Text.Buildable as Buildable
-import           Formatting (bprint, build, (%))
+import           Formatting (bprint, (%))
+import qualified Formatting as F
+import           Formatting.Buildable (Buildable (build))
 import           Serokell.Util.Base16 (base16F)
 
 import           Pos.Binary.Class (Bi (..), decodeKnownCborDataItem,
@@ -43,16 +44,16 @@ instance Hashable TxInWitness
 
 instance Buildable TxInWitness where
     build (PkWitness key sig) =
-        bprint ("PkWitness: key = "%build%", key hash = "%shortHashF%
-                ", sig = "%build) key (addressHash key) sig
+        bprint ("PkWitness: key = "%F.build%", key hash = "%shortHashF%
+                ", sig = "%F.build) key (addressHash key) sig
     build (ScriptWitness val red) =
         bprint ("ScriptWitness: "%
                 "validator hash = "%shortHashF%", "%
                 "redeemer hash = "%shortHashF) (hash val) (hash red)
     build (RedeemWitness key sig) =
-        bprint ("PkWitness: key = "%build%", sig = "%build) key sig
+        bprint ("PkWitness: key = "%F.build%", sig = "%F.build) key sig
     build (UnknownWitnessType t bs) =
-        bprint ("UnknownWitnessType "%build%" "%base16F) t bs
+        bprint ("UnknownWitnessType "%F.build%" "%base16F) t bs
 
 instance Bi TxInWitness where
     encode input = case input of

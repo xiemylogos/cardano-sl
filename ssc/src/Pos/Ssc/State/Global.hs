@@ -14,7 +14,8 @@ module Pos.Ssc.State.Global
        , sscGetGlobalState
        ) where
 
-import           Formatting (build, sformat, (%))
+import           Formatting (sformat, (%))
+import qualified Formatting as F
 import           System.Wlog (WithLogger, logDebug, logInfo)
 import           Universum
 
@@ -57,7 +58,7 @@ sscLoadGlobalState :: (MonadDBRead m, WithLogger m) => m SscGlobalState
 sscLoadGlobalState = do
     logDebug "Loading SSC global state"
     gs <- DB.getSscGlobalState
-    gs <$ logInfo (sformat ("Loaded SSC state: " %build) gs)
+    gs <$ logInfo (sformat ("Loaded SSC state: " %F.build) gs)
 
 sscGetGlobalState
     :: (MonadSscMem ctx m, MonadIO m)

@@ -13,7 +13,9 @@ import           Data.Aeson (FromJSON (..), ToJSON (..), Value (..), object,
                      withArray, withObject, withText, (.:), (.=))
 import qualified Data.HashMap.Strict as HM
 import qualified Data.SemVer as V
-import           Formatting (build, sformat, (%))
+import           Formatting (sformat, (%))
+import qualified Formatting as F
+
 import qualified Serokell.Util.Base64 as B64
 
 import qualified Pos.Binary as Bi
@@ -51,7 +53,7 @@ checkIfCurrentVersion version
     | version == currentBackupFormatVersion = Right ()
     | otherwise =
           Left $ sformat
-          ("Unsupported backup format version "%build%", expected "%build)
+          ("Unsupported backup format version "%F.build%", expected "%F.build)
           (V.toBuilder version) (V.toBuilder currentBackupFormatVersion)
 
 

@@ -6,6 +6,8 @@ module Pos.Core.Update.ApplicationName
 
 import           Universum
 
+import           Formatting.Buildable (Buildable)
+
 import           Control.Monad.Except (MonadError (throwError))
 import           Data.Char (isAscii)
 import           Data.SafeCopy (base, deriveSafeCopySimple)

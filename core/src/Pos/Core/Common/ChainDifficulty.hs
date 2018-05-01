@@ -7,6 +7,7 @@ module Pos.Core.Common.ChainDifficulty
 import           Universum
 
 import           Data.SafeCopy (base, deriveSafeCopySimple)
+import           Formatting.Buildable (Buildable)
 
 import           Pos.Binary.Class (Cons (..), Field (..), deriveSimpleBi)
 import           Pos.Core.Common.BlockCount

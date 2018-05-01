@@ -33,6 +33,16 @@ import qualified Lang
 import           Mode (MonadAuxxMode)
 import           Repl (PrintAction, WithCommandAction (..))
 
+import           Data.Text.Lazy (toStrict)
+import           Data.Text.Lazy.Builder (toLazyText)
+import           Formatting.Buildable (Buildable (build))
+----------------------------------------------------------------------------
+-- Compat shims
+----------------------------------------------------------------------------
+-- pretty used to be in Universum
+pretty :: Buildable a => a -> Text
+pretty = toStrict . toLazyText . build
+
 ----------------------------------------------------------------------------
 -- Plugin implementation
 ----------------------------------------------------------------------------

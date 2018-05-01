@@ -6,9 +6,11 @@ module Pos.Core.Genesis.Initializer
 
 import           Universum
 
-import qualified Data.Text.Buildable as Buildable
+import qualified Formatting as F
+import           Formatting.Buildable (Buildable (build))
+
 import           Fmt (genericF)
-import           Formatting (bprint, build, fixed, int, (%))
+import           Formatting (bprint, fixed, int, (%))
 
 import           Pos.Core.Common (CoinPortion)
 
@@ -34,10 +36,10 @@ data GenesisInitializer = GenesisInitializer
 instance Buildable GenesisInitializer where
     build GenesisInitializer {..} = bprint
         ("GenesisInitializer {\n"%
-            "  "%build%"\n"%
-            "  "%build%"\n"%
-            "  avvm balance factor: "%build%"\n"%
-            "  heavyDlg: "%build%"\n"%
+            "  "%F.build%"\n"%
+            "  "%F.build%"\n"%
+            "  avvm balance factor: "%F.build%"\n"%
+            "  heavyDlg: "%F.build%"\n"%
             "  seed: "%int%"\n"%
             "}\n"
         )
@@ -68,7 +70,7 @@ instance Buildable TestnetBalanceOptions where
              int%" rich guys , "%
              "total balance is "%int%
              ", richmen share is "%fixed 3%
-             " and useHDAddresses flag is " %build)
+             " and useHDAddresses flag is " %F.build)
 
             tboPoors
             tboRichmen

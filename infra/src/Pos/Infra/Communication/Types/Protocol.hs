@@ -52,10 +52,11 @@ import           Data.Aeson (FromJSON (..), ToJSON (..), Value)
 import           Data.Aeson.Types (Parser)
 import qualified Data.ByteString.Base64 as B64 (decode, encode)
 import qualified Data.HashMap.Strict as HM
-import qualified Data.Text.Buildable as B
 import qualified Data.Text.Encoding as Text (decodeUtf8, encodeUtf8)
 import qualified Data.Text.Internal.Builder as B
-import           Formatting (bprint, build, hex, sformat, shown, (%))
+import           Formatting (bprint, hex, sformat, shown, (%))
+import qualified Formatting as F
+import           Formatting.Buildable (Buildable (build))
 import qualified Network.Broadcast.OutboundQueue as OQ
 import           Network.Transport (EndPointAddress (..))
 import qualified Node as N
@@ -196,7 +197,7 @@ instance Buildable HandlerSpec where
         bprint ("UnknownHandler "%hex%" "%base16F) htype hcontent
 
 instance Buildable (MessageCode, HandlerSpec) where
-    build (rcvType, h) = bprint (hex % " -> " % build) rcvType h
+    build (rcvType, h) = bprint (hex % " -> " % F.build) rcvType h
 
 type HandlerSpecs = HashMap MessageCode HandlerSpec
 
@@ -216,7 +217,7 @@ data VerInfo = VerInfo
 
 instance Buildable VerInfo where
     build VerInfo {..} = bprint ("VerInfo { magic="%hex%", blockVersion="
-                                %build%", inSpecs="%mapJson%", outSpecs="
+                                %F.build%", inSpecs="%mapJson%", outSpecs="
                                 %mapJson%"}")
                                 vIMagic
                                 vIBlockVersion
@@ -255,7 +256,7 @@ instance Semigroup InSpecs where
       where
         merger name h1 h2 =
           error $ sformat
-              ("Conflicting key in input spec: "%build%" "%build)
+              ("Conflicting key in input spec: "%F.build%" "%F.build)
               (name, h1) (name, h2)
 
 instance Monoid InSpecs where
@@ -270,7 +271,7 @@ instance Semigroup OutSpecs where
           if h1 == h2
              then h1
              else error $ sformat
-                    ("Conflicting key output spec: "%build%" "%build)
+                    ("Conflicting key output spec: "%F.build%" "%F.build)
                     (name, h1) (name, h2)
 
 instance Monoid OutSpecs where
@@ -282,7 +283,7 @@ toOutSpecs = OutSpecs . merge . fmap (uncurry HM.singleton)
   where
     merge = foldr (HM.unionWithKey merger) mempty
     merger name h1 h2 = error $ sformat
-        ("Conflicting key output spec in toOutSpecs: "%build%" at "%build%" "%build)
+        ("Conflicting key output spec in toOutSpecs: "%F.build%" at "%F.build%" "%F.build)
         name h1 h2
 
 -- | Data type to represent listeners, provided upon our version info and peerData

@@ -7,7 +7,7 @@ module Test.Pos.Core.AddressSpec
 import           Universum
 
 import qualified Data.ByteString as BS
-import           Formatting (formatToString, int, (%))
+import           Formatting (asInt, formatToString, (%))
 import           Serokell.Data.Memory.Units (Byte, memory)
 import           Test.Hspec (Spec, describe, it, shouldBe)
 import           Test.Hspec.QuickCheck (modifyMaxSuccess, prop)
@@ -91,5 +91,5 @@ largestAddressProp addressDescription genAddress largestAddress expectedLargestS
                 forAll (genAddress sk) $ \address ->
                     let generatedSize = biSize address
                     in counterexample
-                           (formatToString (int % " > " %int) generatedSize expectedLargestSize)
+                           (formatToString (asInt % " > " % asInt) generatedSize expectedLargestSize)
                            (generatedSize <= expectedLargestSize)

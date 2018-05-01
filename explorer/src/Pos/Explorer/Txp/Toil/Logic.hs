@@ -16,7 +16,9 @@ import qualified Data.HashMap.Strict as HM
 import qualified Data.HashSet as HS
 import           Data.List (delete)
 import qualified Data.List.NonEmpty as NE
-import           Formatting (build, sformat, (%))
+import           Formatting (sformat, (%))
+import qualified Formatting as F
+
 import           System.Wlog (logError)
 
 import           Pos.Core (Address, BlockVersionData, Coin, EpochIndex,
@@ -205,14 +207,14 @@ updateAddrBalances (combineBalanceUpdates -> updates) = mapM_ updater updates
         case maybeBalance of
             Nothing ->
                 logError $
-                    sformat ("updateAddrBalances: attempted to subtract "%build%
-                             " from unknown address "%build)
+                    sformat ("updateAddrBalances: attempted to subtract "%F.build%
+                             " from unknown address "%F.build)
                     coin addr
             Just currentBalance
                 | currentBalance < coin ->
                     logError $
-                        sformat ("updateAddrBalances: attempted to subtract "%build%
-                                 " from address "%build%" which only has "%build)
+                        sformat ("updateAddrBalances: attempted to subtract "%F.build%
+                                 " from address "%F.build%" which only has "%F.build)
                         coin addr currentBalance
                 | otherwise -> do
                     let newBalance = unsafeSubCoin currentBalance coin

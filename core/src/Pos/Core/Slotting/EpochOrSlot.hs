@@ -27,7 +27,8 @@ import           Universum
 import           Control.Lens (Getter, lens, to)
 import           Data.Bifunctor (bimap)
 import           Data.SafeCopy (base, deriveSafeCopySimple)
-import qualified Data.Text.Buildable as Buildable
+import           Formatting.Buildable (Buildable (build))
+
 import           Pos.Util.Some (Some, applySome)
 
 import           Pos.Binary.Class (Bi (..))
@@ -58,7 +59,7 @@ instance Ord EpochOrSlot where
             | otherwise -> siEpoch s1 `compare` siEpoch s2
 
 instance Buildable EpochOrSlot where
-    build = either Buildable.build Buildable.build . unEpochOrSlot
+    build = either build build . unEpochOrSlot
 
 instance Bi EpochOrSlot where
     encode (EpochOrSlot e) = encode e

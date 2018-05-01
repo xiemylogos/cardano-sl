@@ -7,8 +7,9 @@ module Pos.Update.Poll.Failure
 
 import           Universum hiding (id, last)
 
-import qualified Data.Text.Buildable
-import           Formatting (bprint, build, int, sformat, stext, (%))
+import           Formatting (asInt, bprint, int, sformat, stext, (%))
+import qualified Formatting as F
+import           Formatting.Buildable (Buildable (build))
 import           Serokell.Data.Memory.Units (Byte, memory)
 
 import           Pos.Core (ApplicationName, BlockVersion, BlockVersionData,
@@ -17,6 +18,15 @@ import           Pos.Core (ApplicationName, BlockVersion, BlockVersionData,
 import           Pos.Core.Update (BlockVersionModifier, UpAttributes, UpId)
 import           Pos.Crypto (shortHashF)
 import           Pos.Infra.Reporting (MonadReporting, reportError)
+
+import           Data.Text.Lazy (toStrict)
+import           Data.Text.Lazy.Builder (toLazyText)
+----------------------------------------------------------------------------
+-- Compat shims
+----------------------------------------------------------------------------
+-- pretty used to be in Universum
+pretty :: Buildable a => a -> Text
+pretty = toStrict . toLazyText . build
 
 -- | PollVerFailure represents all possible errors which can
 -- appear in Poll data verification.
@@ -94,13 +104,13 @@ instance Buildable PollVerFailure where
         bprint ("proposal "%shortHashF%" contains block version"%
                 " which is already competing and its"%
                 " BlockVersionModifier is different"%
-                " (expected "%build%", proposed "%build%")")
+                " (expected "%F.build%", proposed "%F.build%")")
         pibUpId pibExpected pibFound
     build (PollAlreadyAdoptedDiffers {..}) =
         bprint ("proposal "%shortHashF%" contains block version"%
                 " which is already adopted and its"%
                 " BlockVersionModifier doesn't correspond to the adopted"%
-                " BlockVersionData (adopted "%build%", proposed "%build%")")
+                " BlockVersionData (adopted "%F.build%", proposed "%F.build%")")
         paadUpId paadAdopted paadProposed
     build (PollWrongScriptVersion {..}) =
         bprint ("proposal "%shortHashF%" contains script version"%
@@ -109,70 +119,70 @@ instance Buildable PollVerFailure where
                 ", proposed one is "%int%")")
         pwsvUpId pwsvAdopted pwsvProposed
     build (PollLargeMaxBlockSize maxPossible found upId) =
-        bprint ("proposal "%build%" tried to increase max block size"%
+        bprint ("proposal "%F.build%" tried to increase max block size"%
                 " beyond what is allowed"%
                 " (expected max. "%memory%", found "%memory%")")
         upId maxPossible found
     build (PollBootstrapEraInvalidChange last adopted proposed upId) =
-        bprint ("proposal "%build%" tried to change the end of the bootstrap"%
-                " era to epoch"%build%", but the bootstrap era has ended with"%
-                " unlock stakes epoch "%build%", and now the epoch is "%
-                build%".")
+        bprint ("proposal "%F.build%" tried to change the end of the bootstrap"%
+                " era to epoch"%F.build%", but the bootstrap era has ended with"%
+                " unlock stakes epoch "%F.build%", and now the epoch is "%
+               F.build%".")
         upId proposed adopted last
     build (PollProposalAlreadyActive upId) =
-        bprint ("proposal "%build%" was already proposed") upId
+        bprint ("proposal "%F.build%" was already proposed") upId
     build (PollNotFoundScriptVersion pv) =
-        bprint ("not found script version for protocol version "%build) pv
+        bprint ("not found script version for protocol version "%F.build) pv
     build (PollSmallProposalStake threshold actual upId) =
-        bprint ("proposal "%build%
+        bprint ("proposal "%F.build%
                 " doesn't have enough stake from positive votes "%
                 "(threshold is "%coinF%", proposal has "%coinF%")")
         upId threshold actual
     build (PollNotRichman id threshold stake) =
-        bprint ("voter "%build%" is not richman (his stake is "%stext%", but"%
+        bprint ("voter "%F.build%" is not richman (his stake is "%stext%", but"%
                 " threshold is "%coinF%")")
         id (maybe "negligible" (sformat coinF) stake) threshold
     build (PollUnknownProposal stakeholder proposal) =
-        bprint (build%" has voted for unkown proposal "%build)
+        bprint (F.build%" has voted for unkown proposal "%F.build)
         stakeholder proposal
     build (PollUnknownStakes epoch) =
-        bprint ("stake distribution for epoch "%build%" is unknown") epoch
+        bprint ("stake distribution for epoch "%F.build%" is unknown") epoch
     build (PollWrongSoftwareVersion {..}) =
-        bprint ("proposal "%build%" has wrong software version for app "%
-                build%" (last known is "%stext%", proposal contains "%int%")")
+        bprint ("proposal "%F.build%" has wrong software version for app "%
+               F.build%" (last known is "%stext%", proposal contains "%int%")")
         pwsvUpId pwsvApp (maybe "unknown" pretty pwsvStored) pwsvGiven
     build (PollProposalIsDecided {..}) =
-        bprint ("proposal "%build%" is in decided state, but stakeholder "%
-                build%" has voted for it")
+        bprint ("proposal "%F.build%" is in decided state, but stakeholder "%
+               F.build%" has voted for it")
         ppidUpId ppidStakeholder
     build (PollExtraRevote {..}) =
-        bprint ("stakeholder "%build%" vote "%stext%" proposal "
-                %build%" more than once")
+        bprint ("stakeholder "%F.build%" vote "%stext%" proposal "
+                %F.build%" more than once")
         perStakeholder (bool "against" "for" perDecision) perUpId
     build (PollWrongHeaderBlockVersion {..}) =
         bprint ("wrong protocol version has been seen in header: "%
-                build%" (current adopted is "%build%"), "%
+               F.build%" (current adopted is "%F.build%"), "%
                 "this version is smaller than last adopted "%
                 "or is not confirmed")
         pwhpvGiven pwhpvAdopted
     build (PollBadBlockVersion {..}) =
-        bprint ("proposal "%build%" has bad protocol version: "%
-                build%" (current adopted is "%build%")")
+        bprint ("proposal "%F.build%" has bad protocol version: "%
+               F.build%" (current adopted is "%F.build%")")
         pbpvUpId pbpvGiven pbpvAdopted
     build (PollTooLargeProposal {..}) =
         bprint ("update proposal "%shortHashF%" exceeds maximal size ("%
-                int%" > "%int%")")
+                asInt%" > "%asInt%")")
         ptlpUpId ptlpSize ptlpLimit
     build (PollMoreThanOneProposalPerEpoch {..}) =
         bprint ("stakeholder "%shortHashF%
                 " proposed second proposal "%shortHashF%" in epoch")
         ptopFrom ptopUpId
     build (PollUnknownAttributesInProposal {..}) =
-        bprint ("proposal "%shortHashF%" has unknown attributes "%build)
+        bprint ("proposal "%shortHashF%" has unknown attributes "%F.build)
         puapUpId puapAttrs
     build (PollTipMismatch {..}) =
         bprint ("tip we store in US mem-state ("%shortHashF%
-                ") differs from the tip we store in DB ("%build%")")
+                ") differs from the tip we store in DB ("%F.build%")")
         ptmTipMemory ptmTipDB
     build (PollInvalidUpdatePayload msg) =
         bprint ("invalid update payload: "%stext) msg

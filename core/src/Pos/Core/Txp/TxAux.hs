@@ -7,8 +7,9 @@ module Pos.Core.Txp.TxAux
 import           Universum
 
 import           Control.Monad.Except (MonadError)
-import qualified Data.Text.Buildable as Buildable
-import           Formatting (Format, bprint, build, later, (%))
+import           Formatting (Format, bprint, later, (%))
+import qualified Formatting as F
+import           Formatting.Buildable (Buildable (build))
 import           Serokell.Util.Text (listJsonIndent)
 
 import           Pos.Binary.Class (Cons (..), Field (..), deriveSimpleBi)
@@ -27,7 +28,7 @@ instance NFData TxAux
 -- | Specialized formatter for 'TxAux'.
 txaF :: Format r (TxAux -> r)
 txaF = later $ \(TxAux tx w) ->
-    bprint (build%"\n"%"witnesses: "%listJsonIndent 4) tx w
+    bprint (F.build%"\n"%"witnesses: "%listJsonIndent 4) tx w
 
 instance Buildable TxAux where
     build = bprint txaF

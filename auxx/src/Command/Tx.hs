@@ -27,7 +27,8 @@ import qualified Data.Map as M
 import qualified Data.Text as T
 import qualified Data.Text.IO as T
 import           Data.Time.Units (Microsecond, fromMicroseconds, toMicroseconds)
-import           Formatting (build, int, sformat, shown, stext, (%))
+import           Formatting (int, sformat, shown, stext, (%))
+import qualified Formatting as F
 import           Mockable (Mockable, SharedAtomic, SharedAtomicT, concurrently,
                      currentTime, delay, forConcurrently, modifySharedAtomic,
                      newSharedAtomic)
@@ -123,7 +124,7 @@ sendToAllGenesis pm diffusion (SendToAllGenesisParams genesisTxsPerThread txsPer
                 utxo <- getOwnUtxoForPk $ safeToPublic signer
                 etx <- createTx pm mempty utxo signer txOuts publicKey
                 case etx of
-                    Left err -> logError (sformat ("Error: "%build%" while trying to contruct tx") err)
+                    Left err -> logError (sformat ("Error: "%F.build%" while trying to contruct tx") err)
                     Right (tx, _) -> do
                         atomically $ writeTQueue txQueue tx
                         atomically $ writeTQueue txPreparationQueue (tx, txOut1, secretKey)
@@ -145,7 +146,7 @@ sendToAllGenesis pm diffusion (SendToAllGenesisParams genesisTxsPerThread txsPer
                         -- included in the UTxO by the time this transaction will actually be sent.
                         etx' <- createTx pm mempty utxo' (fakeSigner senderKey) txOuts2 (toPublic senderKey)
                         case etx' of
-                            Left err -> logError (sformat ("Error: "%build%" while trying to contruct tx") err)
+                            Left err -> logError (sformat ("Error: "%F.build%" while trying to contruct tx") err)
                             Right (tx', _) -> do
                                 atomically $ writeTQueue txQueue tx'
                                 -- add to preparation queue one more time data

@@ -35,7 +35,9 @@ import           Universum
 import           Control.Lens (makeLenses)
 import           Control.Monad.Except (MonadError (throwError))
 import           Data.SafeCopy (SafeCopy (..), contain, safeGet, safePut)
-import           Formatting (build, sformat, (%))
+import           Formatting (sformat, (%))
+import qualified Formatting as F
+import           Formatting.Buildable (Buildable)
 
 import           Pos.Binary.Class (Bi (..), encodeListLen, enforceSize)
 import           Pos.Crypto (ProtocolMagic (..))
@@ -80,8 +82,8 @@ class Blockchain p where
         let calculatedProof = mkBodyProof @p body
         let errMsg =
                 sformat ("Incorrect proof of body. "%
-                         "Proof in header: "%build%
-                         ", calculated proof: "%build)
+                         "Proof in header: "%F.build%
+                         ", calculated proof: "%F.build)
                 proof calculatedProof
         unless (calculatedProof == proof) $ throwError errMsg
 

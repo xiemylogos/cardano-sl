@@ -11,8 +11,9 @@ module Pos.Txp.Toil.Failure
 
 import           Universum
 
-import qualified Data.Text.Buildable
-import           Formatting (bprint, build, int, ords, shown, stext, (%))
+import           Formatting (bprint, int, ords, shown, stext, (%))
+import qualified Formatting as F
+import           Formatting.Buildable (Buildable (build))
 import           GHC.TypeLits (TypeError)
 import           Serokell.Data.Memory.Units (Byte, memory)
 import           Serokell.Util (listJson)
@@ -71,14 +72,14 @@ instance Buildable ToilVerFailure where
         "transaction already is in the mem pool"
     build (ToilTipsMismatch dbTip localTip) =
         bprint ("Something is bad with this node, tips mismatch, "%
-                "tip from DB is "%build%", local tip is "%build)
+                "tip from DB is "%F.build%", local tip is "%F.build)
         dbTip localTip
     build ToilSlotUnknown =
         "can't process, current slot is unknown"
     build (ToilOverwhelmed limit) =
         bprint ("max size of the mem pool is reached which is "%shown) limit
     build (ToilNotUnspent txId) =
-        bprint ("input is not a known unspent input: "%build) txId
+        bprint ("input is not a known unspent input: "%F.build) txId
     build (ToilOutGreaterThanIn tInputSum tOutputSum) =
         bprint ("sum of outputs is greater than sum of inputs ("%int%" < "%int%")")
         tInputSum tOutputSum
@@ -86,33 +87,33 @@ instance Buildable ToilVerFailure where
         bprint ("TxAux is inconsistent: "%stext) msg
     build (ToilInvalidOutput n reason) =
         bprint (ords%" output is invalid:\n'"%
-                " reason: "%build)
+                " reason: "%F.build)
             n reason
     build (ToilWitnessDoesntMatch i txIn txOut@TxOut {..} witness) =
         bprint ("input #"%int%"'s witness doesn't match address "%
                 "of corresponding output:\n"%
-                "  input: "%build%"\n"%
-                "  output spent by this input: "%build%"\n"%
+                "  input: "%F.build%"\n"%
+                "  output spent by this input: "%F.build%"\n"%
                 "  address details: "%addressDetailedF%"\n"%
-                "  witness: "%build)
+                "  witness: "%F.build)
             i txIn txOut txOutAddress witness
     build (ToilInvalidWitness i witness reason) =
         bprint ("input #"%int%"'s witness doesn't pass verification:\n"%
-                "  witness: "%build%"\n"%
-                "  reason: "%build)
+                "  witness: "%F.build%"\n"%
+                "  reason: "%F.build)
             i witness reason
     build (ToilTooLargeTx ttltSize ttltLimit) =
         bprint ("transaction's size exceeds limit "%
                 "("%memory%" > "%memory%")") ttltSize ttltLimit
     build (ToilInvalidMinFee timfPolicy timfReason timfSize) =
-        bprint (build%" generates invalid minimal fee on a "%
+        bprint (F.build%" generates invalid minimal fee on a "%
                 "transaction of size "%memory%", reason: "%stext)
             timfPolicy
             timfSize
             timfReason
     build (ToilInsufficientFee tifPolicy tifFee tifMinFee tifSize) =
         bprint ("transaction of size "%memory%" does not adhere to "%
-                build%"; it has fee "%build%" but needs "%build)
+               F.build%"; it has fee "%F.build%" but needs "%F.build)
             tifSize
             tifPolicy
             tifFee
@@ -125,7 +126,7 @@ instance Buildable ToilVerFailure where
     build ToilRepeatedInput =
         "transaction tries to spend an unspent input more than once"
     build (ToilUnknownInput inpId txIn) =
-       bprint ("vtcVerifyAllIsKnown is True, but the input #"%int%" "%build%" is unknown") inpId txIn
+       bprint ("vtcVerifyAllIsKnown is True, but the input #"%int%" "%F.build%" is unknown") inpId txIn
 
     build ToilEmptyAfterFilter =
        "transaction list is empty after filtering out asset-locked source addresses"
@@ -154,13 +155,13 @@ instance Buildable WitnessVerFailure where
         bprint "the signature in the witness doesn't pass validation"
     build (WitnessScriptVerMismatch val red) =
         bprint ("validator and redeemer script versions don't match: "%
-                "validator version = "%build%", script version = "%build) val red
+                "validator version = "%F.build%", script version = "%F.build) val red
     build (WitnessUnknownScriptVer ver) =
-        bprint ("unknown/unhandleable script version: "%build) ver
+        bprint ("unknown/unhandleable script version: "%F.build) ver
     build (WitnessScriptError err) =
-        bprint ("error when executing scripts: "%build) err
+        bprint ("error when executing scripts: "%F.build) err
     build (WitnessUnknownType t) =
-        bprint ("unknown witness type: "%build) t
+        bprint ("unknown witness type: "%F.build) t
 
 ----------------------------------------------------------------------------
 -- TxOutVerFailure

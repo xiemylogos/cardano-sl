@@ -6,8 +6,9 @@ module Pos.Core.Ssc.SharesDistribution
 
 import           Universum hiding (id)
 
-import qualified Data.Text.Buildable as Buildable
-import           Formatting (bprint, build, (%))
+import           Formatting (bprint, (%))
+import qualified Formatting as F
+import           Formatting.Buildable (Buildable (build))
 
 import           Pos.Core.Common (StakeholderId)
 
@@ -16,4 +17,4 @@ import           Pos.Core.Common (StakeholderId)
 type SharesDistribution = HashMap StakeholderId Word16
 
 instance Buildable (StakeholderId, Word16) where
-    build (id, c) = bprint ("("%build%": "%build%" shares)") id c
+    build (id, c) = bprint ("("%F.build%": "%F.build%" shares)") id c

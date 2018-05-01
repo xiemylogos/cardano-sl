@@ -22,8 +22,9 @@ import           Control.Lens (makeLenses, makePrisms)
 import           Control.Monad.Except (MonadError (throwError))
 import qualified Data.ByteString.Lazy as LBS
 import           Data.SafeCopy (base, deriveSafeCopySimple)
-import qualified Data.Text.Buildable as Buildable
-import           Formatting (Format, bprint, build, builder, int, sformat, (%))
+import           Formatting (Format, bprint, builder, int, sformat, (%))
+import qualified Formatting as F
+import           Formatting.Buildable (Buildable (build))
 import           Serokell.Util.Base16 (base16F)
 import           Serokell.Util.Text (listJson)
 import           Serokell.Util.Verify (VerificationRes (..), verResSingleF,
@@ -55,13 +56,13 @@ instance Hashable Tx
 instance Buildable Tx where
     build tx@(UnsafeTx{..}) =
         bprint
-            ("Tx "%build%
+            ("Tx "%F.build%
              " with inputs "%listJson%", outputs: "%listJson % builder)
             (hash tx) _txInputs _txOutputs attrsBuilder
       where
         attrs = _txAttributes
         attrsBuilder | areAttributesKnown attrs = mempty
-                     | otherwise = bprint (", attributes: "%build) attrs
+                     | otherwise = bprint (", attributes: "%F.build) attrs
 
 instance Bi Tx where
     encode tx = encodeListLen 3
@@ -76,7 +77,7 @@ instance NFData Tx
 
 -- | Specialized formatter for 'Tx'.
 txF :: Format r (Tx -> r)
-txF = build
+txF = F.build
 
 -- | Verify inputs and outputs are non empty; have enough coins.
 checkTx
@@ -176,7 +177,7 @@ instance Hashable TxOut
 
 instance Buildable TxOut where
     build TxOut {..} =
-        bprint ("TxOut "%coinF%" -> "%build) txOutValue txOutAddress
+        bprint ("TxOut "%coinF%" -> "%F.build) txOutValue txOutAddress
 
 instance NFData TxOut
 

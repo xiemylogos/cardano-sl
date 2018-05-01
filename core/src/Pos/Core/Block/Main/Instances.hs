@@ -8,8 +8,10 @@ module Pos.Core.Block.Main.Instances
 
 import           Universum
 
-import qualified Data.Text.Buildable as Buildable
-import           Formatting (bprint, build, int, stext, (%))
+import qualified Formatting as F
+import           Formatting.Buildable (Buildable (build))
+
+import           Formatting (bprint, int, stext, (%))
 import           Serokell.Util (Color (Magenta), colorize, listJson)
 
 import           Pos.Core.Block.Blockchain (GenericBlock (..),
@@ -42,9 +44,9 @@ instance Buildable MainBlockHeader where
              "    previous block: "%hashHexF%"\n"%
              "    slot: "%slotIdF%"\n"%
              "    difficulty: "%int%"\n"%
-             "    leader: "%build%"\n"%
-             "    signature: "%build%"\n"%
-             build
+             "    leader: "%F.build%"\n"%
+             "    signature: "%F.build%"\n"%
+             F.build
             )
             gbhHeaderHash
             _gbhPrevBlock
@@ -62,12 +64,12 @@ instance Buildable MainBlock where
     build UnsafeGenericBlock {..} =
         bprint
             (stext%":\n"%
-             "  "%build%
+             "  "%F.build%
              "  transactions ("%int%" items): "%listJson%"\n"%
-             "  "%build%"\n"%
-             "  "%build%"\n"%
-             "  update payload: "%build%"\n"%
-             "  "%build
+             "  "%F.build%"\n"%
+             "  "%F.build%"\n"%
+             "  update payload: "%F.build%"\n"%
+             "  "%F.build
             )
             (colorize Magenta "MainBlock")
             _gbHeader

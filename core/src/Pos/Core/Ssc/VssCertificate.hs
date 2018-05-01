@@ -19,8 +19,10 @@ import           Control.Lens (makeLensesFor)
 import           Control.Monad.Except (MonadError (throwError))
 import           Data.Hashable (Hashable (..))
 import           Data.SafeCopy (base, deriveSafeCopySimple)
-import qualified Data.Text.Buildable as Buildable
-import           Formatting (bprint, build, int, (%))
+import qualified Formatting as F
+import           Formatting.Buildable (Buildable (build))
+
+import           Formatting (bprint, int, (%))
 import           Pos.Core.Common (StakeholderId, addressHash)
 
 import           Pos.Binary.Class (AsBinary, Bi (..), encodeListLen,
@@ -68,7 +70,7 @@ instance Ord VssCertificate where
 
 instance Buildable VssCertificate where
     build UnsafeVssCertificate {..} = bprint
-        ("vssCert:"%build%":"%int) vcSigningKey vcExpiryEpoch
+        ("vssCert:"%F.build%":"%int) vcSigningKey vcExpiryEpoch
 
 instance Hashable VssCertificate where
     hashWithSalt s UnsafeVssCertificate{..} =

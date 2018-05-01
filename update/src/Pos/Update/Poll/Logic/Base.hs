@@ -35,7 +35,8 @@ import qualified Data.HashMap.Strict as HM
 import qualified Data.Set as S
 import           Data.Tagged (Tagged, untag)
 import           Data.Time.Units (convertUnit)
-import           Formatting (build, int, sformat, (%))
+import           Formatting (int, sformat, (%))
+import qualified Formatting as F
 import           System.Wlog (WithLogger, logDebug, logNotice)
 
 import           Pos.Core (BlockVersion (..), Coin, CoinPortion (..),
@@ -192,7 +193,7 @@ adoptBlockVersion winningBlk bv = do
     processConfirmed cps
         | cpsBlockVersion cps /= bv = pass
         | otherwise = addConfirmedProposal cps {cpsAdopted = Just winningBlk}
-    logFmt = "BlockVersion is adopted: "%build%"; winning block was "%shortHashF
+    logFmt = "BlockVersion is adopted: "%F.build%"; winning block was "%shortHashF
 
 -- | Update slotting data stored in poll. First argument is epoch for
 -- which currently adopted 'BlockVersion' can be applied. Here we update the
@@ -385,10 +386,10 @@ voteToUProposalState voter stake decision ups@UndecidedProposalState {..} = do
     let oldNegative = maybe False (not . isPositiveVote) oldVote
     let combinedMaybe = decision `combineVotes` oldVote
     logDebug $ sformat (
-        "New vote: upId = "%build%",\
-        \voter = "%build%",\
-        \vote = "%build%",\
-        \voter stake = "%build)
+        "New vote: upId = "%F.build%",\
+        \voter = "%F.build%",\
+        \vote = "%F.build%",\
+        \voter stake = "%F.build)
         upId voter combinedMaybe stake
     combined <-
         note
@@ -416,9 +417,9 @@ voteToUProposalState voter stake decision ups@UndecidedProposalState {..} = do
     -- We add a new vote with update state to set of votes.
     let newVotes = HM.insert voter combined upsVotes
     logDebug $
-        sformat ("Stakes of proposal "%build%" after vote: \
-                 \positive "%build%",\
-                 \negative: "%build)
+        sformat ("Stakes of proposal "%F.build%" after vote: \
+                 \positive "%F.build%",\
+                 \negative: "%F.build)
                 upId posStakeFinal negStakeFinal
     return
         ups

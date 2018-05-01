@@ -20,9 +20,10 @@ module Pos.GState.BlockExtra
 
 import           Universum hiding (init)
 
-import qualified Data.Text.Buildable
 import qualified Database.RocksDB as Rocks
-import           Formatting (bprint, build, (%))
+import           Formatting (bprint, (%))
+import qualified Formatting as F
+import           Formatting.Buildable (Buildable (build))
 import           Pipes (Producer, yield)
 import           Serokell.Util.Text (listJson)
 
@@ -93,7 +94,7 @@ instance HasProtocolConstants => Buildable BlockExtraOp where
     build (RemoveForwardLink from) =
         bprint ("RemoveForwardLink from "%shortHashF) from
     build (SetInMainChain flag h) =
-        bprint ("SetInMainChain for "%shortHashF%": "%build) h flag
+        bprint ("SetInMainChain for "%shortHashF%": "%F.build) h flag
     build (SetLastSlots slots) =
         bprint ("SetLastSlots: "%listJson)
         (map (bprint slotIdF . unflattenSlotId) slots)

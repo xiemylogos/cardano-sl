@@ -21,8 +21,9 @@ import           Control.Exception (IOException)
 import           Control.Exception.Safe (Exception (..))
 import qualified Data.List.NonEmpty as NE
 import qualified Data.Map.Strict as M
-import qualified Data.Text.Buildable as B
-import           Formatting (bprint, build, sformat, shown, stext, (%))
+import           Formatting (bprint, sformat, shown, stext, (%))
+import qualified Formatting as F
+import           Formatting.Buildable (Buildable (build))
 import           Mockable (forConcurrently)
 import           Serokell.Util.Text (listJson)
 import qualified System.Metrics.Gauge as Metrics
@@ -60,6 +61,15 @@ import           Pos.Util (buildListBounds, multilineBounds, _neLast)
 import           Pos.Util.AssertMode (inAssertMode)
 import           Pos.Util.Util (lensOf)
 
+import           Data.Text.Lazy (toStrict)
+import           Data.Text.Lazy.Builder (toLazyText)
+----------------------------------------------------------------------------
+-- Compat shims
+----------------------------------------------------------------------------
+-- pretty used to be in Universum
+pretty :: Buildable a => a -> Text
+pretty = toStrict . toLazyText . build
+
 ----------------------------------------------------------------------------
 -- Exceptions
 ----------------------------------------------------------------------------
@@ -76,7 +86,7 @@ data BlockNetLogicException
       -- logic error.
     deriving (Show)
 
-instance B.Buildable BlockNetLogicException where
+instance Buildable BlockNetLogicException where
     build e = bprint ("BlockNetLogicException: "%shown) e
 
 instance Exception BlockNetLogicException where
@@ -140,7 +150,7 @@ handleUnsolicitedHeader
 handleUnsolicitedHeader pm header nodeId = do
     logDebug $ sformat
         ("handleUnsolicitedHeader: single header was propagated, processing:\n"
-         %build) header
+         %F.build) header
     classificationRes <- classifyNewHeader pm header
     -- TODO: should we set 'To' hash to hash of header or leave it unlimited?
     case classificationRes of
@@ -189,10 +199,10 @@ addHeaderToBlockRequestQueue nodeId header continues = do
         addTaskToBlockRequestQueue nodeId queue $
             BlockRetrievalTask { brtHeader = header, brtContinues = continues }
     if added
-    then logDebug $ sformat ("Added headers to block request queue: nodeId="%build%
-                             ", header="%build)
+    then logDebug $ sformat ("Added headers to block request queue: nodeId="%F.build%
+                             ", header="%F.build)
                             nodeId hHash
-    else logWarning $ sformat ("Failed to add headers from "%build%
+    else logWarning $ sformat ("Failed to add headers from "%F.build%
                                " to block retrieval queue: queue is full")
                               nodeId
 

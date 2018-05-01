@@ -8,7 +8,7 @@ module Rendering
       ) where
 
 import qualified Data.Text as T
-import           Formatting hiding (bytes)
+import           Formatting hiding (build, bytes)
 import           Options (CLIOptions (..), PrintMode (..), UOM (..))
 import           Pos.Binary.Class (biSize)
 import           Pos.Block.Types (Undo)
@@ -24,6 +24,16 @@ import           Text.Tabl (Alignment (..), Decoration (..),
 import           Types (DBFolderStat, prevBlock)
 
 import           Universum
+
+import           Data.Text.Lazy (toStrict)
+import           Data.Text.Lazy.Builder (toLazyText)
+import           Formatting.Buildable (Buildable (build))
+----------------------------------------------------------------------------
+-- Compat shims
+----------------------------------------------------------------------------
+-- pretty used to be in Universum
+pretty :: Buildable a => a -> Text
+pretty = toStrict . toLazyText . build
 
 -- Not using `Serokell.Data.Memory.Units` here, as it will automatically "promote" each
 -- unit to the next multiplier. Example:

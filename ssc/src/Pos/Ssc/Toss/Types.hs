@@ -13,7 +13,8 @@ module Pos.Ssc.Toss.Types
        ) where
 
 import           Control.Lens (makeLenses)
-import qualified Data.Text.Buildable as Buildable
+import           Formatting.Buildable (Buildable (build))
+
 import           Universum
 
 import           Pos.Binary.Class (Cons (..), Field (..), deriveSimpleBi,

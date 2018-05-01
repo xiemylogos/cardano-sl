@@ -50,6 +50,7 @@ module Pos.Communication.Limits
        , mlMsgStream
        ) where
 
+import           GHC.Float (log)
 import           Universum
 
 import qualified Crypto.SCRAPE as Scrape

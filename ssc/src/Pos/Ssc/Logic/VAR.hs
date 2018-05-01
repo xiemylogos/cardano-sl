@@ -15,7 +15,8 @@ import           Control.Monad.Except (MonadError (throwError), runExceptT)
 import           Control.Monad.Morph (hoist)
 import qualified Crypto.Random as Rand
 import qualified Data.HashMap.Strict as HM
-import           Formatting (build, int, sformat, (%))
+import           Formatting (int, sformat, (%))
+import qualified Formatting as F
 import           Serokell.Util (listJson)
 import           System.Wlog (WithLogger, logDebug)
 import           Universum
@@ -101,7 +102,7 @@ sscVerifyBlocks pm blocks = do
     case res of
         Left e
             | sscIsCriticalVerifyError e ->
-                reportError $ sformat ("Critical error in ssc: "%build) e
+                reportError $ sformat ("Critical error in ssc: "%F.build) e
         _ -> pass
     return res
 
@@ -135,7 +136,7 @@ sscApplyBlocksFinish gs = do
     sscRunGlobalUpdate (put gs)
     inAssertMode $
         logDebug $
-        sformat ("After applying blocks SSC global state is:\n"%build) gs
+        sformat ("After applying blocks SSC global state is:\n"%F.build) gs
     pure $ sscGlobalStateToBatch gs
 
 sscVerifyValidBlocks
@@ -168,7 +169,7 @@ onVerifyFailedInApply
 onVerifyFailedInApply hashes e = assertionFailed msg
   where
     fmt =
-        "sscApplyBlocks: verification of blocks "%listJson%" failed: "%build
+        "sscApplyBlocks: verification of blocks "%listJson%" failed: "%F.build
     msg = sformat fmt hashes e
 
 ----------------------------------------------------------------------------

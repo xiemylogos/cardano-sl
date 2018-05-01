@@ -13,7 +13,9 @@ module Pos.Client.Txp.Network
 
 import           Universum
 
-import           Formatting (build, sformat, (%))
+import           Formatting (sformat, (%))
+import qualified Formatting as F
+
 import           Mockable (MonadMockable)
 import           System.Wlog (logInfo)
 
@@ -87,7 +89,7 @@ submitTxRaw
 submitTxRaw diffusion txAux@TxAux {..} = do
     let txId = hash taTx
     logInfo $ sformat ("Submitting transaction: "%txaF) txAux
-    logInfo $ sformat ("Transaction id: "%build) txId
+    logInfo $ sformat ("Transaction id: "%F.build) txId
     sendTx diffusion txAux
 
 sendTxOuts :: OutSpecs

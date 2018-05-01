@@ -12,8 +12,8 @@ module Wallet.Inductive.Interpreter (
 
 import           Universum
 
-import qualified Data.Text.Buildable
-import           Formatting (bprint, build, (%))
+import           Formatting (bprint, (%))
+import           Formatting.Buildable (Buildable (build))
 import           Pos.Core.Chrono
 import           Serokell.Util (listJson)
 
@@ -160,4 +160,4 @@ instance (Hash h a, Buildable a) => Buildable (History h a) where
       go (History s n)  = bprint ("state: " % listJson % build) s (go' n)
 
       go' Nothing       = "}"
-      go' (Just (e, h)) = bprint (", action: " % build % ", " % build) e (go h)
+      go' (Just (e, h)) = bprint (", action: " % F.build % ", " % build) e (go h)

@@ -29,8 +29,9 @@ import           Universum
 import           Control.Monad.Except (MonadError (throwError))
 import           Data.Data (Data)
 import           Data.SafeCopy (base, deriveSafeCopySimple)
-import qualified Data.Text.Buildable
-import           Formatting (Format, bprint, build, int, (%))
+import           Formatting (Format, bprint, int, (%))
+import qualified Formatting as F
+import           Formatting.Buildable (Buildable (build))
 
 import           Pos.Binary.Class (Bi (..))
 import           Pos.Util.Util (leftToPanic)
@@ -70,7 +71,7 @@ checkCoin (Coin c)
 
 -- | Coin formatter which restricts type.
 coinF :: Format r (Coin -> r)
-coinF = build
+coinF = F.build
 
 -- | Unwraps 'Coin'. It's called “unsafe” so that people wouldn't use it
 -- willy-nilly if they want to sum coins or something. It's actually safe.

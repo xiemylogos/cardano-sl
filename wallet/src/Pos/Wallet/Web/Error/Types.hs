@@ -10,8 +10,8 @@ module Pos.Wallet.Web.Error.Types
 import           Universum
 
 import           Control.Lens (makePrisms)
-import qualified Data.Text.Buildable
 import           Formatting (bprint, stext, (%))
+import           Formatting.Buildable (Buildable (build))
 
 data WalletError
     -- | Reasonable error for given request

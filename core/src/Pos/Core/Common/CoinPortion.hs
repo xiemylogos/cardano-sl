@@ -12,8 +12,8 @@ import           Universum
 
 import           Control.Monad.Except (MonadError (throwError))
 import           Data.SafeCopy (base, deriveSafeCopySimple)
-import qualified Data.Text.Buildable as Buildable
 import           Formatting (bprint, float, int, sformat, (%))
+import           Formatting.Buildable (Buildable (build))
 
 import           Pos.Binary.Class (Bi, decode, encode)
 

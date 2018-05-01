@@ -85,8 +85,8 @@ import           Data.Map.Strict (Map)
 import qualified Data.Map.Strict as Map
 import           Data.Set (Set)
 import qualified Data.Set as Set
-import qualified Data.Text.Buildable
-import           Formatting (bprint, build, sformat, (%))
+import           Formatting (bprint, sformat, (%))
+import           Formatting.Buildable (Buildable (build))
 import           Pos.Core.Chrono (NewestFirst (NewestFirst),
                      OldestFirst (getOldestFirst))
 import           Prelude (Show (..))
@@ -605,7 +605,7 @@ instance (Ord a, Buildable a) => Hash IdentityAsHash a where
   hash = IdentityAsHash
 
 instance (Ord a, Buildable a) => Buildable (IdentityAsHash (Transaction IdentityAsHash a)) where
-  build (IdentityAsHash t) = bprint build t
+  build (IdentityAsHash t) = bprint F.build t
 
 {-------------------------------------------------------------------------------
   Use the specified hash instead
@@ -615,7 +615,7 @@ newtype GivenHash a = GivenHash Int
   deriving (Eq, Ord)
 
 instance Buildable (GivenHash a) where
-  build (GivenHash i) = bprint build i
+  build (GivenHash i) = bprint F.build i
 
 instance Hash GivenHash a where
   hash = GivenHash . trHash
@@ -690,7 +690,7 @@ instance (Buildable a, Hash h a, Foldable f) => Buildable (OldestFirst f (Transa
   build ts = bprint ("OldestFirst " % listJson) (toList ts)
 
 instance (Buildable a, Hash h a) => Buildable (Ledger h a) where
-  build (Ledger l) = bprint build l
+  build (Ledger l) = bprint F.build l
 
 instance (Buildable a, Hash h a) => Buildable (Utxo h a) where
   build (Utxo utxo) = bprint ("Utxo " % mapJson) utxo

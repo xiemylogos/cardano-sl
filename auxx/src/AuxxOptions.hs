@@ -17,9 +17,8 @@ import qualified NeatInterpolation as N
 import           Options.Applicative (CommandFields, Mod, Parser, command,
                      execParser, footerDoc, fullDesc, header, help, helper,
                      info, infoOption, long, maybeReader, metavar, option,
-                     progDesc, subparser, value)
+                     progDesc, str, subparser, value)
 import           Pos.Communication (NodeId)
-import           Serokell.Util.OptParse (strOption)
 import           Text.PrettyPrint.ANSI.Leijen (Doc)
 
 import           Paths_cardano_sl (version)
@@ -64,9 +63,9 @@ replParser = command "repl" $ info (pure Repl) $
 
 cmdParser :: Mod CommandFields AuxxAction
 cmdParser = command "cmd" $ info opts desc
-  where opts = Cmd <$> strOption (long "commands"
-                               <> metavar "CMD"
-                               <> help "Commands to execute, comma-separated.")
+  where opts = Cmd <$> option str (long "commands"
+                                   <> metavar "CMD"
+                                   <> help "Commands to execute, comma-separated.")
         desc = progDesc "Execute a list of predefined commands."
 
 ----------------------------------------------------------------------------

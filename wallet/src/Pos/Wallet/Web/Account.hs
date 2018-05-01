@@ -21,7 +21,9 @@ module Pos.Wallet.Web.Account
 import           Universum
 
 import           Control.Monad.Except (MonadError (throwError), runExceptT)
-import           Formatting (build, sformat, (%))
+import           Formatting (sformat, (%))
+import qualified Formatting as F
+
 import           System.Random (randomRIO)
 import           System.Wlog (WithLogger)
 
@@ -68,7 +70,7 @@ getSKByIdPure (AllUserSecrets secrets) wid =
     maybe (throwError notFound) pure (find (\k -> encToCId k == wid) secrets)
   where
     notFound =
-        RequestError $ sformat ("No wallet with address "%build%" found") wid
+        RequestError $ sformat ("No wallet with address "%F.build%" found") wid
 
 getSKByAddress
     :: AccountMode ctx m
@@ -121,7 +123,7 @@ generateUnique
 generateUnique desc RandomSeed generator isDuplicate = loop (100 :: Int)
   where
     loop 0 = throwM . RequestError $
-             sformat (build%": generation of unique item seems too difficult, \
+             sformat (F.build%": generation of unique item seems too difficult, \
                       \you are approaching the limit") desc
     loop i = do
         rand  <- liftIO $ randomRIO (firstHardened, maxBound)
@@ -134,7 +136,7 @@ generateUnique desc (DeterminedSeed seed) generator notFit = do
     value <- generator (fromIntegral seed)
     when (notFit seed value) $
         throwM . InternalError $
-        sformat (build%": this index is already taken")
+        sformat (F.build%": this index is already taken")
         desc
     return value
 

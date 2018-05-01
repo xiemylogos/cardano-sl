@@ -35,6 +35,7 @@ import qualified Data.HashMap.Strict as HM
 import qualified Data.Map as M (lookup, member, toList)
 import           Data.Text.Lazy.Builder (Builder)
 import           Formatting (Format, later)
+import           Formatting.Buildable (Buildable)
 import           Serokell.Util.Text (mapBuilderJson)
 
 import           Pos.Core (Address, Coin, StakeholderId, unsafeAddCoin,

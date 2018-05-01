@@ -51,11 +51,13 @@ import           Data.Default (Default (..))
 import           Data.Hashable (Hashable)
 import qualified Data.HashMap.Strict as HM
 import qualified Data.Text as T
-import qualified Data.Text.Buildable as Buildable
+import qualified Formatting as F
+import           Formatting.Buildable (Buildable (build))
+
 import           Data.Text.Lazy.Builder (Builder)
 import           Data.Time.Units (Millisecond)
-import           Formatting (Format, bprint, build, builder, int, later, shown,
-                     stext, (%))
+import           Formatting (Format, bprint, builder, int, later, shown, stext,
+                     (%))
 import           Instances.TH.Lift ()
 import           Language.Haskell.TH.Syntax (Lift)
 import qualified Prelude
@@ -164,7 +166,7 @@ instance NFData SoftforkRule
 
 instance Buildable SoftforkRule where
     build SoftforkRule {..} =
-        bprint ("(init = "%build%", min = "%build%", decrement = "%build%")")
+        bprint ("(init = "%F.build%", min = "%F.build%", decrement = "%F.build%")")
         srInitThd srMinThd srThdDecrement
 
 -- | Data which is associated with 'BlockVersion'.
@@ -189,20 +191,20 @@ instance NFData BlockVersionData where
 
 instance Buildable BlockVersionData where
     build BlockVersionData {..} =
-      bprint ("{ script version: "%build%
+      bprint ("{ script version: "%F.build%
               ", slot duration: "%int%" mcs"%
               ", block size limit: "%memory%
               ", header size limit: "%memory%
               ", tx size limit: "%memory%
               ", proposal size limit: "%memory%
-              ", mpc threshold: "%build%
-              ", heavyweight delegation threshold: "%build%
-              ", update vote threshold: "%build%
-              ", update proposal threshold: "%build%
+              ", mpc threshold: "%F.build%
+              ", heavyweight delegation threshold: "%F.build%
+              ", update vote threshold: "%F.build%
+              ", update proposal threshold: "%F.build%
               ", update implicit period: "%int%" slots"%
-              ", softfork rule: "%build%
-              ", tx fee policy: "%build%
-              ", unlock stake epoch: "%build%
+              ", softfork rule: "%F.build%
+              ", tx fee policy: "%F.build%
+              ", unlock stake epoch: "%F.build%
               " }")
         bvdScriptVersion
         bvdSlotDuration
@@ -260,20 +262,20 @@ instance Default BlockVersionModifier where
 
 instance Buildable BlockVersionModifier where
     build BlockVersionModifier {..} =
-      bprint ("{ script version: "%bmodifier build%
+      bprint ("{ script version: "%bmodifier F.build%
               ", slot duration (mcs): "%bmodifier int%
               ", block size limit: "%bmodifier memory%
               ", header size limit: "%bmodifier memory%
               ", tx size limit: "%bmodifier memory%
               ", proposal size limit: "%bmodifier memory%
-              ", mpc threshold: "%bmodifier build%
-              ", heavyweight delegation threshold: "%bmodifier build%
-              ", update vote threshold: "%bmodifier build%
-              ", update proposal threshold: "%bmodifier build%
+              ", mpc threshold: "%bmodifier F.build%
+              ", heavyweight delegation threshold: "%bmodifier F.build%
+              ", update vote threshold: "%bmodifier F.build%
+              ", update proposal threshold: "%bmodifier F.build%
               ", update implicit period (slots): "%bmodifier int%
-              ", softfork rule: "%bmodifier build%
-              ", tx fee policy: "%bmodifier build%
-              ", unlock stake epoch: "%bmodifier build%
+              ", softfork rule: "%bmodifier F.build%
+              ", tx fee policy: "%bmodifier F.build%
+              ", unlock stake epoch: "%bmodifier F.build%
               " }")
         bvmScriptVersion
         bvmSlotDuration
@@ -379,12 +381,12 @@ instance Buildable (UpdateProposal, [UpdateVote]) where
 
 instance Buildable UpdateProposal where
     build up@UnsafeUpdateProposal {..} =
-      bprint (build%
-              " { block v"%build%
-              ", UpId: "%build%
-              ", "%build%
+      bprint (F.build%
+              " { block v"%F.build%
+              ", UpId: "%F.build%
+              ", "%F.build%
               ", tags: "%listJson%
-              ", "%builder%
+              ", "%F.builder%
               " }")
         upSoftwareVersion
         upBlockVersion
@@ -396,7 +398,7 @@ instance Buildable UpdateProposal where
         attrs = upAttributes
         attrsBuilder
             | areAttributesKnown upAttributes = "no attributes"
-            | otherwise = bprint ("attributes: " %build) attrs
+            | otherwise = bprint ("attributes: " %F.build) attrs
 
 -- | Data which describes update. It is specific for each system.
 data UpdateData = UpdateData
@@ -427,10 +429,10 @@ instance Hashable UpdateData
 
 instance Buildable UpdateData where
     build UpdateData {..} =
-      bprint ("{ appDiff: "%build%
-              ", pkg: "%build%
-              ", updater: "%build%
-              ", metadata: "%build%
+      bprint ("{ appDiff: "%F.build%
+              ", pkg: "%F.build%
+              ", updater: "%F.build%
+              ", metadata: "%F.build%
               " }")
         udAppDiffHash
         udPkgHash
@@ -463,7 +465,7 @@ instance NFData UpdateVote
 
 instance Buildable UpdateVote where
     build UnsafeUpdateVote {..} =
-      bprint ("Update Vote { voter: "%build%", proposal id: "%build%", voter's decision: "%build%" }")
+      bprint ("Update Vote { voter: "%F.build%", proposal id: "%F.build%", voter's decision: "%F.build%" }")
              (addressHash uvKey) uvProposalId uvDecision
 
 instance Bi UpdateVote where
@@ -482,7 +484,7 @@ instance Bi UpdateVote where
 
 instance Buildable VoteId where
     build (upId, pk, dec) =
-      bprint ("Vote Id { voter: "%build%", proposal id: "%build%", voter's decision: "%build%" }")
+      bprint ("Vote Id { voter: "%F.build%", proposal id: "%F.build%", voter's decision: "%F.build%" }")
              pk upId dec
 
 -- | A safe constructor for 'UnsafeVote'.
@@ -512,7 +514,7 @@ mkUpdateVoteSafe pm sk uvProposalId uvDecision =
 -- | Format 'UpdateVote' compactly.
 formatVoteShort :: UpdateVote -> Builder
 formatVoteShort UnsafeUpdateVote {..} =
-    bprint ("("%shortHashF%" "%builder%" "%shortHashF%")")
+    bprint ("("%shortHashF%" "%F.builder%" "%shortHashF%")")
         (addressHash uvKey)
         (bool "against" "for" uvDecision)
         uvProposalId
@@ -544,7 +546,7 @@ instance Buildable UpdatePayload where
                 (map formatVoteShort upVotes)
 
 formatMaybeProposal :: Maybe UpdateProposal -> Builder
-formatMaybeProposal = maybe "no proposal" Buildable.build
+formatMaybeProposal = maybe "no proposal" Bbuild
 
 instance Default UpdatePayload where
     def = UpdatePayload Nothing []

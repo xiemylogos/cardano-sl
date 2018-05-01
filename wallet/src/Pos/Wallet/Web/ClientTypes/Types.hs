@@ -75,7 +75,9 @@ import           Data.Hashable (Hashable (..))
 import           Data.Time.Clock.POSIX (POSIXTime)
 import           Data.Typeable (Typeable)
 import           Data.Version (Version)
-import           Formatting (bprint, build, builder, later, shown, (%))
+import           Formatting (bprint, later, shown, (%))
+import qualified Formatting as F
+import           Formatting.Buildable (Buildable (build))
 import           Pos.Client.Txp.Util (InputSelectionPolicy)
 import           Pos.Core (BlockVersion, ChainDifficulty, Coin, ScriptVersion,
                      SoftwareVersion, unsafeGetCoin)
@@ -87,7 +89,6 @@ import           Pos.Util.Servant (HasTruncateLogPolicy, WithTruncatedLog (..))
 import           Serokell.Util (listJsonIndent, mapBuilder)
 import           Servant.Multipart (FileData, Mem)
 
-import qualified Data.Text.Buildable
 import qualified Prelude
 
 data SyncProgress = SyncProgress
@@ -100,7 +101,7 @@ makeLenses ''SyncProgress
 
 instance Buildable SyncProgress where
     build SyncProgress{..} =
-        bprint ("progress="%build%"/"%build%" peers="%build)
+        bprint ("progress="%F.build%"/"%F.build%" peers="%F.build)
                _spLocalCD _spNetworkCD _spPeers
 
 instance Default SyncProgress where
@@ -182,7 +183,7 @@ instance Hashable AccountId
 
 instance Buildable AccountId where
     build AccountId{..} =
-        bprint (build%"@"%build) aiWId aiIndex
+        bprint (F.build%"@"%F.build) aiWId aiIndex
 
 instance Buildable (SecureLog AccountId) where
     build _ = "<account id>"
@@ -206,7 +207,7 @@ data CWAddressMeta = CWAddressMeta
 
 instance Buildable CWAddressMeta where
     build CWAddressMeta{..} =
-        bprint (build%"@"%build%"@"%build%" ("%build%")")
+        bprint (F.build%"@"%F.build%"@"%F.build%" ("%F.build%")")
         cwamWId cwamAccountIndex cwamAddressIndex cwamId
 
 instance Hashable CWAddressMeta
@@ -238,7 +239,7 @@ instance NFData CWalletMeta
 
 instance Buildable CWalletMeta where
     build CWalletMeta{..} =
-        bprint ("("%build%"/"%build%")")
+        bprint ("("%F.build%"/"%F.build%")")
                cwAssurance cwUnit
 
 instance Buildable (SecureLog CWalletMeta) where
@@ -284,11 +285,11 @@ newtype CBackupPhrase (mw :: Nat) =
 
 instance Buildable (SecureLog (CBackupPhrase mw)) where
     build (SecureLog (CBackupPhrase mw))=
-        bprint build (SecureLog mw)
+        bprint F.build (SecureLog mw)
 
 instance Buildable (CBackupPhrase mw) where
     build (CBackupPhrase mw) =
-        bprint build mw
+        bprint F.build mw
 
 -- | Query data for wallet creation
 data CWalletInit = CWalletInit
@@ -298,7 +299,7 @@ data CWalletInit = CWalletInit
 
 instance Buildable CWalletInit where
     build CWalletInit{..} =
-        bprint (build%" / "%build)
+        bprint (F.build%" / "%F.build)
                cwBackupPhrase cwInitMeta
 
 instance Buildable (SecureLog CWalletInit) where
@@ -337,7 +338,7 @@ data CAccountInit = CAccountInit
 
 instance Buildable CAccountInit where
     build CAccountInit{..} =
-        bprint (build%" / "%build)
+        bprint (F.build%" / "%F.build)
                caInitWId caInitMeta
 
 instance Buildable (SecureLog CAccountInit) where
@@ -359,12 +360,12 @@ data CWallet = CWallet
 
 instance Buildable CWallet where
     build CWallet{..} =
-        bprint ("{ id="%build
-                %" meta="%build
-                %" accs="%build
-                %" amount="%build
-                %" pass="%build
-                %" passlu="%build
+        bprint ("{ id="%F.build
+                %" meta="%F.build
+                %" accs="%F.build
+                %" amount="%F.build
+                %" pass="%F.build
+                %" passlu="%F.build
                 %" }")
         cwId
         cwMeta
@@ -384,9 +385,9 @@ data CAccount = CAccount
 
 instance Buildable CAccount where
     build CAccount{..} =
-        bprint ("{ id="%build
-                %" meta="%build
-                %" amount="%build%"\n"
+        bprint ("{ id="%F.build
+                %" meta="%F.build
+                %" amount="%F.build%"\n"
                 %" addrs="%listJsonIndent 4
                 %" }")
         caId
@@ -398,8 +399,8 @@ instance HasTruncateLogPolicy CAddress =>
          Buildable (WithTruncatedLog CAccount) where
     build (WithTruncatedLog CAccount {..}) =
         bprint
-            ("{ id=" %build % " meta=" %build % " amount=" %build % "\n" %
-             " addrs=" %build %
+            ("{ id=" %F.build % " meta=" %F.build % " amount=" %F.build % "\n" %
+             " addrs=" %F.build %
              " }")
             caId
             caMeta
@@ -416,10 +417,10 @@ data CAddress = CAddress
 
 instance Buildable CAddress where
     build CAddress{..} =
-        bprint ("{ id="%build%"\n"
-                %" amount="%build
-                %" used="%build
-                %" change="%build
+        bprint ("{ id="%F.build%"\n"
+                %" amount="%F.build
+                %" used="%F.build
+                %" change="%F.build
                 %" }")
         cadId
         cadAmount
@@ -442,7 +443,7 @@ newtype CProfile = CProfile
 
 instance Buildable CProfile where
     build CProfile{..} =
-        bprint ("{ cpLocale="%build%" }") cpLocale
+        bprint ("{ cpLocale="%F.build%" }") cpLocale
 
 instance Buildable (SecureLog CProfile) where
     build = buildUnsecure
@@ -464,7 +465,7 @@ data CTxMeta = CTxMeta
 instance NFData CTxMeta
 
 instance Buildable CTxMeta where
-    build CTxMeta{..} = bprint ("{ date="%build%" }") ctmDate
+    build CTxMeta{..} = bprint ("{ date="%F.build%" }") ctmDate
 
 instance Buildable (SecureLog CTxMeta) where
     build _ = "<tx meta>"
@@ -502,15 +503,15 @@ data CTx = CTx
 
 instance Buildable CTx where
     build CTx{..} =
-        bprint ("{ id="%build
-                %" amount="%build
-                %" confirms="%build
-                %" meta="%build%"\n"
-                %" inputs="%builder%"\n"
-                %" outputs="%builder%"\n"
-                %" local="%build
-                %" outgoing="%build
-                %" condition="%build
+        bprint ("{ id="%F.build
+                %" amount="%F.build
+                %" confirms="%F.build
+                %" meta="%F.build%"\n"
+                %" inputs="%F.builder%"\n"
+                %" outputs="%F.builder%"\n"
+                %" local="%F.build
+                %" outgoing="%F.build
+                %" condition="%F.build
                 %" }")
         ctId
         ctAmount
@@ -524,7 +525,7 @@ instance Buildable CTx where
       where
         buildTxEnds =
             mconcat . intersperse ", " .
-            map (uncurry $ bprint (build%" - "%build))
+            map (uncurry $ bprint (F.build%" - "%F.build))
 
 -- | meta data of exchanges
 data CTExMeta = CTExMeta
@@ -544,10 +545,10 @@ data NewBatchPayment = NewBatchPayment
 
 instance BuildableSafeGen NewBatchPayment where
     buildSafeGen sl NewBatchPayment {..} =
-        bprint ("{ from="%secretOnlyF sl build
+        bprint ("{ from="%secretOnlyF sl F.build
                 -- TODO: use https://github.com/serokell/serokell-util/pull/19 instead of `later mapBuilder`
                 %" to="%secureListF sl (later mapBuilder)
-                %" inputSelectionPolicy="%secretOnlyF sl build
+                %" inputSelectionPolicy="%secretOnlyF sl F.build
                 %" }")
         npbFrom
         npbTo
@@ -575,14 +576,14 @@ instance NFData CUpdateInfo
 
 instance Buildable CUpdateInfo where
     build CUpdateInfo{..} =
-        bprint ("{ softver="%build
-                %" blockver="%build
-                %" scriptver="%build
-                %" implicit="%build
-                %" for="%build
-                %" against="%build
-                %" pos stake="%build
-                %" neg stake="%build
+        bprint ("{ softver="%F.build
+                %" blockver="%F.build
+                %" scriptver="%F.build
+                %" implicit="%F.build
+                %" for="%F.build
+                %" against="%F.build
+                %" pos stake="%F.build
+                %" neg stake="%F.build
                 %" }")
         cuiSoftwareVersion
         cuiBlockVesion  -- TODO [CSM-407] lol what is it?
@@ -608,7 +609,7 @@ data CInitialized = CInitialized
 
 instance Buildable CInitialized where
     build CInitialized{..} =
-        bprint (build%"/"%build)
+        bprint (F.build%"/"%F.build)
                cPreInit cTotalTime
 
 instance Buildable (SecureLog CInitialized) where
@@ -681,8 +682,8 @@ instance Buildable ApiVersion where
 instance Buildable ClientInfo where
     build ClientInfo{..} =
         bprint ("ClientInfo\n"%
-                "    apiVersion: "%build%
-                "    softwareVersion:"%build%
-                "    cabalVersion: "%build%
-                "    ciGitRevision: "%build)
+                "    apiVersion: "%F.build%
+                "    softwareVersion:"%F.build%
+                "    cabalVersion: "%F.build%
+                "    ciGitRevision: "%F.build)
             ciApiVersion ciSoftwareVersion ciCabalVersion ciGitRevision

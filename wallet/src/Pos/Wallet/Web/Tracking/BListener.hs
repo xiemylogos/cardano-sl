@@ -16,7 +16,8 @@ import           Universum
 import           Control.Lens (to)
 import qualified Data.List.NonEmpty as NE
 import           Data.Time.Units (convertUnit)
-import           Formatting (build, sformat, (%))
+import           Formatting (sformat, (%))
+import qualified Formatting as F
 import           System.Wlog (HasLoggerName (modifyLoggerName), WithLogger)
 
 import           Pos.Block.BListener (MonadBListener (..))
@@ -58,17 +59,17 @@ walletGuard ::
     -> m ()
     -> m ()
 walletGuard ws curTip wAddr action = case WS.getWalletSyncState ws wAddr of
-    Nothing -> logWarningSP $ \sl -> sformat ("There is no syncTip corresponding to wallet #"%secretOnlyF sl build) wAddr
-    Just WS.NotSynced    -> logInfoSP $ \sl -> sformat ("Wallet #"%secretOnlyF sl build%" hasn't been synced yet") wAddr
+    Nothing -> logWarningSP $ \sl -> sformat ("There is no syncTip corresponding to wallet #"%secretOnlyF sl F.build) wAddr
+    Just WS.NotSynced    -> logInfoSP $ \sl -> sformat ("Wallet #"%secretOnlyF sl F.build%" hasn't been synced yet") wAddr
     Just (WS.SyncedWith wTip)      -> tipGuard wTip
     Just (WS.RestoringFrom _ _) -> do
         logWarningSP $ \sl ->
-            sformat ( "Wallet #"%secretOnlyF sl build%" is restoring, not tracking it just yet...") wAddr
+            sformat ( "Wallet #"%secretOnlyF sl F.build%" is restoring, not tracking it just yet...") wAddr
     where
         tipGuard wTip
             | wTip /= curTip =
                 logWarningSP $ \sl ->
-                    sformat ("Skip wallet #"%secretOnlyF sl build%", because of wallet's tip "%build
+                    sformat ("Skip wallet #"%secretOnlyF sl F.build%", because of wallet's tip "%F.build
                              %" mismatched with current tip") wAddr wTip
             | otherwise = action
 
@@ -213,7 +214,7 @@ logMsg
     -> m ()
 logMsg action (NE.length -> bNums) wid accModifier =
     logInfoSP $ \sl ->
-        sformat (build%" "%build%" block(s) to wallet "%secretOnlyF sl build%", "%buildSafe sl)
+        sformat (F.build%" "%F.build%" block(s) to wallet "%secretOnlyF sl F.build%", "%buildSafe sl)
              action bNums wid accModifier
 
 catchInSync
@@ -225,5 +226,5 @@ catchInSync desc syncWallet wId =
         logWarningSP $ \sl -> prefix sl <> show e
   where
     -- REPORT:ERROR 'reportOrLogW' in wallet sync.
-    fmt sl = "Failed to sync wallet "%secretOnlyF sl build%" in BListener ("%build%"): "
+    fmt sl = "Failed to sync wallet "%secretOnlyF sl F.build%" in BListener ("%F.build%"): "
     prefix sl = sformat (fmt sl) wId desc

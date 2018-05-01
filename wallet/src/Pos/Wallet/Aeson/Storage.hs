@@ -28,6 +28,16 @@ import           Pos.Wallet.Web.State.Storage (AccountInfo, AddressInfo,
                      RestorationBlockDepth, SyncStatistics, SyncThroughput,
                      WAddressMeta, WalletInfo, WalletStorage, WalletSyncState)
 
+import           Data.Text.Lazy (toStrict)
+import           Data.Text.Lazy.Builder (toLazyText)
+import           Formatting.Buildable (Buildable (build))
+----------------------------------------------------------------------------
+-- Compat shims
+----------------------------------------------------------------------------
+-- pretty used to be in Universum
+pretty :: Buildable a => a -> Text
+pretty = toStrict . toLazyText . build
+
 instance FromJSON (CId a) => FromJSONKey (CId a) where
     fromJSONKey = FromJSONKeyTextParser parser
       where

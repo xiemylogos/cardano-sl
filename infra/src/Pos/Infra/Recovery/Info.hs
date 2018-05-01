@@ -12,8 +12,9 @@ module Pos.Infra.Recovery.Info
 
 import           Universum
 
-import qualified Data.Text.Buildable
-import           Formatting (bprint, build, sformat, stext, (%))
+import           Formatting (bprint, sformat, stext, (%))
+import qualified Formatting as F
+import           Formatting.Buildable (Buildable (build))
 import           System.Wlog (WithLogger, logDebug)
 
 import           Pos.Core (HasProtocolConstants, SlotCount, SlotId, slotIdF,
@@ -101,7 +102,7 @@ recoveryCommGuard actionName action =
         status ->
             logDebug $
             sformat ("recoveryCommGuard: we are skipping action '"%stext%
-                     "', because "%build) actionName status
+                     "', because "%F.build) actionName status
 
 -- | This function checks that last known block is more than K slots
 -- away from the current slot, or current slot isn't known. It also

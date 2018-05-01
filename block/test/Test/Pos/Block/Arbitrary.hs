@@ -20,8 +20,10 @@ module Test.Pos.Block.Arbitrary
 
 import           Universum
 
-import qualified Data.Text.Buildable as Buildable
-import           Formatting (bprint, build, (%))
+import qualified Formatting as F
+import           Formatting.Buildable (Buildable (build))
+
+import           Formatting (bprint, (%))
 import qualified Prelude
 import           System.Random (Random, mkStdGen, randomR)
 import           Test.QuickCheck (Arbitrary (..), Gen, choose, suchThat,
@@ -48,6 +50,16 @@ import           Test.Pos.Core.Arbitrary.Txp (genTxPayload)
 import           Test.Pos.Crypto.Dummy (dummyProtocolMagic)
 import           Test.Pos.Delegation.Arbitrary (genDlgPayload)
 import           Test.Pos.Update.Arbitrary (genUpdatePayload)
+
+import           Data.Text.Lazy (toStrict)
+import           Data.Text.Lazy.Builder (toLazyText)
+----------------------------------------------------------------------------
+-- Compat shims
+----------------------------------------------------------------------------
+-- pretty used to be in Universum
+pretty :: Buildable a => a -> Text
+pretty = toStrict . toLazyText . build
+
 
 newtype BodyDependsOnSlot b = BodyDependsOnSlot
     { genBodyDepsOnSlot :: Core.SlotId -> Gen (T.Body b)
@@ -269,8 +281,8 @@ instance ( HasProtocolConstants
 instance Buildable (T.BlockHeader, PublicKey) where
     build (block, key) =
         bprint
-            ( build%"\n"%
-              build%"\n"
+            (F.build%"\n"%
+             F.build%"\n"
             ) block key
 
 newtype BlockHeaderList = BHL

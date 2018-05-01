@@ -7,15 +7,16 @@ module Pos.Ssc.Error.Verify
        , sscIsCriticalVerifyError
        ) where
 
-import qualified Data.Text.Buildable
-import           Formatting (bprint, build, ords, stext, (%))
+import           Formatting (bprint, ords, stext, (%))
+import qualified Formatting as F
+import           Formatting.Buildable (Buildable (build))
 import           Serokell.Util (listJson)
 import           Universum
 
 import           Pos.Core (EpochIndex, SlotId, StakeholderId, VssCertificate)
 
 instance Buildable (StakeholderId, VssCertificate) where
-    build (a, b) = bprint ("(id: "%build%" , cert: "%build%")") a b
+    build (a, b) = bprint ("(id: "%F.build%" , cert: "%F.build%")") a b
 
 type NEStIds = NonEmpty StakeholderId
 
@@ -55,19 +56,19 @@ data SscVerifyError
 
 instance Buildable SscVerifyError where
     build (NotCommitmentPhase slotId) =
-        bprint (build%" doesn't belong commitment phase") slotId
+        bprint (F.build%" doesn't belong commitment phase") slotId
     build (NotOpeningPhase slotId) =
-        bprint (build%" doesn't belong openings phase") slotId
+        bprint (F.build%" doesn't belong openings phase") slotId
     build (NotSharesPhase slotId) =
-        bprint (build%" doesn't belong share phase") slotId
+        bprint (F.build%" doesn't belong share phase") slotId
     build (NotIntermediatePhase slotId) =
-        bprint (build%" doesn't  belong intermidiate phase") slotId
+        bprint (F.build%" doesn't  belong intermidiate phase") slotId
     build CurrentSlotUnknown = "we don't know current slot"
 
     build (DifferentEpoches e g) =
-        bprint ("expected epoch: "%build%", but got: "%build) e g
+        bprint ("expected epoch: "%F.build%", but got: "%F.build) e g
     build (NoRichmen epoch) =
-        bprint ("no richmen for epoch"%build) epoch
+        bprint ("no richmen for epoch"%F.build) epoch
     build (TossUnknownRichmen epoch) =
         bprint ("richmen aren't know for "%ords%" epoch") epoch
 

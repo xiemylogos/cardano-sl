@@ -10,7 +10,8 @@ import           Universum
 import           Control.Lens (at)
 import           Control.Monad.Except (MonadError (throwError))
 import qualified Data.HashMap.Strict as HM
-import           Formatting (build, sformat, (%))
+import           Formatting (sformat, (%))
+import qualified Formatting as F
 import           Serokell.Util (allDistinct)
 
 import           Pos.Core.Common (StakeholderId, addressHash)
@@ -54,7 +55,7 @@ recreateGenesisDelegation pskMap = do
         when (addressHash (pskIssuerPk psk) /= k) $
             throwError $ sformat
                 ("wrong issuerPk set as key for delegation map: "%
-                 "issuer id = "%build%", cert id = "%build)
+                 "issuer id = "%F.build%", cert id = "%F.build)
                 k (addressHash (pskIssuerPk psk))
     when (any isSelfSignedPsk pskMap) $
         throwError "there is a self-signed (revocation) psk"

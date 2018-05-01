@@ -20,8 +20,10 @@ import           Universum
 
 import           Control.Lens (makePrisms)
 import           Data.Tagged (Tagged)
-import qualified Data.Text.Buildable as Buildable
-import           Formatting (bprint, build, (%))
+import qualified Formatting as F
+import           Formatting.Buildable (Buildable (build))
+
+import           Formatting (bprint, (%))
 import           Node.Message.Class (Message)
 
 import           Pos.Binary.Class (Bi (..), encodeListLen, enforceSize)
@@ -75,19 +77,19 @@ instance Bi (DataMsg MCVssCertificate) where
 
 instance Buildable MCCommitment where
     build (MCCommitment (pk, _, _))  =
-        bprint ("commitment contents from "%build) $ addressHash pk
+        bprint ("commitment contents from "%F.build) $ addressHash pk
 
 instance Buildable MCOpening where
     build (MCOpening k _) =
-        bprint ("opening contents from "%build) k
+        bprint ("opening contents from "%F.build) k
 
 instance Buildable MCShares where
     build (MCShares k _) =
-        bprint ("shares contents from "%build) k
+        bprint ("shares contents from "%F.build) k
 
 instance Buildable MCVssCertificate where
     build (MCVssCertificate c) =
-        bprint ("VSS certificate contents from "%build) $ getCertId c
+        bprint ("VSS certificate contents from "%F.build) $ getCertId c
 
 instance HasSscTag MCCommitment where
     toSscTag _ = CommitmentMsg

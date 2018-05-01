@@ -7,14 +7,24 @@ module Pos.Generator.Block.Error
 import           Universum
 
 import           Control.Exception.Safe (Exception (..))
-import qualified Data.Text.Buildable
-import           Formatting (bprint, build, stext, (%))
+import           Formatting (bprint, stext, (%))
+import qualified Formatting as F
+import           Formatting.Buildable (Buildable (build))
 
 import           Pos.Block.Error (VerifyBlocksException)
 import           Pos.Core (Address, StakeholderId, addressF)
 import           Pos.Crypto (shortHashF)
 import           Pos.Exception (cardanoExceptionFromException,
                      cardanoExceptionToException)
+
+import           Data.Text.Lazy (toStrict)
+import           Data.Text.Lazy.Builder (toLazyText)
+----------------------------------------------------------------------------
+-- Compat shims
+----------------------------------------------------------------------------
+-- pretty used to be in Universum
+pretty :: Buildable a => a -> Text
+pretty = toStrict . toLazyText . build
 
 -- | Errors which can happen during blockchain generation.
 data BlockGenError
@@ -42,7 +52,7 @@ instance Buildable BlockGenError where
     build (BGFailedToCreate reason) =
         bprint ("Failed to create a block: "%stext) reason
     build (BGCreatedInvalid reason) =
-        bprint ("Unfortunately, I created invalid block: "%build) reason
+        bprint ("Unfortunately, I created invalid block: "%F.build) reason
     build (BGInternal reason) =
         bprint ("Internal error: "%stext) reason
 

@@ -6,8 +6,8 @@ module Pos.Core.Slotting.TimeDiff
 
 import           Universum
 
-import qualified Data.Text.Buildable as Buildable
 import           Data.Time.Units (Microsecond)
+import           Formatting.Buildable (Buildable (build))
 import qualified Prelude
 
 import           Pos.Binary.Class (Bi (..))
@@ -25,7 +25,7 @@ instance Read TimeDiff where
     readsPrec i = fmap (first (TimeDiff . fromInteger)) . Prelude.readsPrec i
 
 instance Buildable TimeDiff where
-    build = Buildable.build . toInteger
+    build = build . toInteger
 
 instance Bi TimeDiff where
     encode = encode . toInteger

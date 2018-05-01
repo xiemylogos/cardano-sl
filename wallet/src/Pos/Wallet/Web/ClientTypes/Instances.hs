@@ -12,8 +12,9 @@ import qualified Data.ByteArray as ByteArray
 import qualified Data.ByteString as BS
 import           Data.List (partition)
 import           Data.Text (splitOn)
-import qualified Data.Text.Buildable
-import           Formatting (bprint, build, int, sformat, (%))
+import           Formatting (bprint, int, sformat, (%))
+import qualified Formatting as F
+
 import qualified Serokell.Util.Base16 as Base16
 import           Servant.API (FromHttpApiData (..), ToHttpApiData (..))
 import           Servant.Multipart (FromMultipart (..), Mem, lookupFile,
@@ -32,6 +33,16 @@ import           Pos.Wallet.Web.ClientTypes.Types (AccountId (..),
                      CTxId (..), CWallet (..), ScrollLimit (..),
                      ScrollOffset (..), mkCTxId)
 import           Pos.Wallet.Web.Pending.Types (PtxCondition (..))
+
+import           Data.Text.Lazy (toStrict)
+import           Data.Text.Lazy.Builder (toLazyText)
+import           Formatting.Buildable (Buildable (build))
+----------------------------------------------------------------------------
+-- Compat shims
+----------------------------------------------------------------------------
+-- pretty used to be in Universum
+pretty :: Buildable a => a -> Text
+pretty = toStrict . toLazyText . build
 
 ----------------------------------------------------------------------------
 -- Convertions
@@ -70,7 +81,7 @@ instance FromCType CAccountId where
             _ -> Left "Expected 2 parts separated by '@'"
 
 instance ToCType CAccountId where
-    encodeCType = CAccountId . sformat build
+    encodeCType = CAccountId . sformat F.build
 
 
 type instance OriginType CCoin = Coin
@@ -92,7 +103,7 @@ instance ToCType (CId w) where
     -- safe to introduce `class PSSimplified` that would have the same
     -- implementation has it is with Buildable Address but then person
     -- will know it will probably change something for purescript.
-    encodeCType = CId . CHash . sformat build
+    encodeCType = CId . CHash . sformat F.build
 
 instance FromCType (CId w) where
     decodeCType (CId (CHash h)) = decodeTextAddress h
@@ -215,7 +226,7 @@ instance HasTruncateLogPolicy CAddress where
 -- TODO [CSM-466] deal with this hack
 instance Buildable (WithTruncatedLog ([CTx], Word)) where
     build (WithTruncatedLog (ctxs, size)) =
-        bprint ("Num: "%build%", entries: \n"%build)
+        bprint ("Num: "%F.build%", entries: \n"%F.build)
             size (WithTruncatedLog ctxs)
 
 -- TODO [CSM-466] deal with this hack especially
@@ -223,5 +234,5 @@ instance (Buildable e, Buildable (WithTruncatedLog a)) =>
          Buildable (WithTruncatedLog (Either e a)) where
     build (WithTruncatedLog x) =
         case x of
-            Left e  -> bprint ("Failure: "%build) e
-            Right a -> bprint build (WithTruncatedLog a)
+            Left e  -> bprint ("Failure: "%F.build) e
+            Right a -> bprint F.build (WithTruncatedLog a)

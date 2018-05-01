@@ -7,7 +7,8 @@ import           Universum
 import           Data.ByteString.Base58 (bitcoinAlphabet, encodeBase58)
 import qualified Data.List as L
 import qualified Data.Text as T
-import           Formatting (build, sformat, stext, string, (%))
+import           Formatting (sformat, stext, string, (%))
+import qualified Formatting as F
 import           System.Directory (createDirectoryIfMissing)
 import           System.FilePath ((</>))
 import           System.FilePath.Glob (glob)
@@ -91,7 +92,7 @@ showKeyWithAddressHash sk =
     ah = addressHash pk
 
 showPvssKey :: VssKeyPair -> Text
-showPvssKey = sformat build . asBinary . toVssPublicKey
+showPvssKey = sformat F.build . asBinary . toVssPublicKey
 
 decryptESK :: EncryptedSecretKey -> SecretKey
 decryptESK (EncryptedSecretKey sk _) = SecretKey sk

@@ -12,8 +12,9 @@ module Pos.Block.Network.Types
        , MsgStreamBlock (..)
        ) where
 
-import qualified Data.Text.Buildable
-import           Formatting (bprint, build, (%))
+import           Formatting (bprint, (%))
+import qualified Formatting as F
+import           Formatting.Buildable (Buildable (build))
 import           Serokell.Util.Text (listJson)
 import           Universum
 
@@ -55,8 +56,8 @@ data MsgGetHeaders = MsgGetHeaders
 
 instance Buildable MsgGetHeaders where
     build (MsgGetHeaders mghFrom mghTo) =
-        bprint ("MsgGetHeaders {from = "%listJson%", to = "%build%"}")
-               mghFrom (maybe "<Nothing>" (bprint build) mghTo)
+        bprint ("MsgGetHeaders {from = "%listJson%", to = "%F.build%"}")
+               mghFrom (maybe "<Nothing>" (bprint F.build) mghTo)
 
 deriveSimpleBi ''MsgGetHeaders [
     Cons 'MsgGetHeaders [
@@ -72,7 +73,7 @@ data MsgGetBlocks = MsgGetBlocks
 
 instance Buildable MsgGetBlocks where
     build (MsgGetBlocks mgbFrom mgbTo) =
-        bprint ("MsgGetBlocks {from = "%build%", to = "%build%"}")
+        bprint ("MsgGetBlocks {from = "%F.build%", to = "%F.build%"}")
                mgbFrom mgbTo
 
 deriveSimpleBi ''MsgGetBlocks [

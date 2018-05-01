@@ -39,6 +39,16 @@ import           Pos.Crypto (ProtocolMagic, ProxySignature (..), SignTag (..),
 import           Pos.Ssc.Functions (verifySscPayload)
 import           Pos.Util.Some (Some (Some))
 
+import           Data.Text.Lazy (toStrict)
+import           Data.Text.Lazy.Builder (toLazyText)
+import           Formatting.Buildable (Buildable (build))
+----------------------------------------------------------------------------
+-- Compat shims
+----------------------------------------------------------------------------
+-- pretty used to be in Universum
+pretty :: Buildable a => a -> Text
+pretty = toStrict . toLazyText . build
+
 -- | Verify a BlockHeader in isolation. There is nothing to be done for
 -- genesis headers.
 verifyBlockHeader

@@ -25,6 +25,16 @@ import           Pos.Update.Poll.Types (BlockVersionState (..),
                      DecidedProposalState (..), UndecidedProposalState (..),
                      cpsSoftwareVersion, propStateToEither, psProposal)
 
+import           Data.Text.Lazy (toStrict)
+import           Data.Text.Lazy.Builder (toLazyText)
+import           Formatting.Buildable (Buildable (build))
+----------------------------------------------------------------------------
+-- Compat shims
+----------------------------------------------------------------------------
+-- pretty used to be in Universum
+pretty :: Buildable a => a -> Text
+pretty = toStrict . toLazyText . build
+
 newtype PurePoll a = PurePoll
     { getPurePoll :: StateT Poll.PollState (NamedPureLogger Identity) a
     } deriving (Functor, Applicative, Monad, CanLog, HasLoggerName, MonadState Poll.PollState)

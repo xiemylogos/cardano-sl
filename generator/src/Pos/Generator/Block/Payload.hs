@@ -18,7 +18,9 @@ import           Data.List ((!!))
 import qualified Data.List.NonEmpty as NE
 import qualified Data.Map as M
 import qualified Data.Vector as V
-import           Formatting (build, sformat, (%))
+import           Formatting (sformat, (%))
+import qualified Formatting as F
+
 import           System.Random (RandomGen (..))
 
 import           Pos.AllSecrets (asSecretKeys, asSpendingData,
@@ -42,6 +44,16 @@ import           Pos.Txp.MemState.Class (MonadTxpLocal (..))
 import           Pos.Txp.Toil (Utxo, execUtxoM, utxoToLookup)
 import qualified Pos.Txp.Toil.Utxo as Utxo
 import qualified Pos.Util.Modifier as Modifier
+
+import           Data.Text.Lazy (toStrict)
+import           Data.Text.Lazy.Builder (toLazyText)
+import           Formatting.Buildable (Buildable (build))
+----------------------------------------------------------------------------
+-- Compat shims
+----------------------------------------------------------------------------
+-- pretty used to be in Universum
+pretty :: Buildable a => a -> Text
+pretty = toStrict . toLazyText . build
 
 ----------------------------------------------------------------------------
 -- Tx payload generation
@@ -163,7 +175,7 @@ genTxPayload pm = do
                         fromMaybe (error inconsistent) (HM.lookup (addressHash pk) secrets)
                     another -> error $
                         sformat ("addrToSk: ound an address with non-pubkey spending data: "
-                                    %build) another
+                                    %F.build) another
 
         -- Currently payload generator only uses addresses with
         -- bootstrap era distribution. This is fine, because we don't

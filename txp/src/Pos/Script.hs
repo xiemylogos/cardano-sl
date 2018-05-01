@@ -27,7 +27,8 @@ import           Control.Monad.Error.Class (throwError)
 import qualified Data.ByteArray as BA
 import qualified Data.ByteString.Lazy as BSL
 import qualified Data.Set as S
-import qualified Data.Text.Buildable as Buildable
+import           Formatting.Buildable (Buildable (build))
+
 import qualified Elaboration.Contexts as PL
 import qualified Interface.Integration as PL
 import qualified Interface.Prelude as PL
@@ -101,13 +102,13 @@ data PlutusError
 
 instance Buildable PlutusError where
     build (PlutusUnknownVersion v) =
-        "unknown script version: " <> Buildable.build v
+        "unknown script version: " <> build v
     build (PlutusDecodingFailure s) =
-        "script decoding failure: " <> Buildable.build s
+        "script decoding failure: " <> build s
     build (PlutusExecutionFailure s) =
-        "script execution failure: " <> Buildable.build s
+        "script execution failure: " <> build s
     build (PlutusException s) =
-        "Plutus threw an exception: " <> Buildable.build s
+        "Plutus threw an exception: " <> build s
     build PlutusReturnedFalse =
         "script execution resulted in 'failure'"
 

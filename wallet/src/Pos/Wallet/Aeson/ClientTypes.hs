@@ -30,6 +30,16 @@ import           Pos.Wallet.Web.ClientTypes (Addr, ApiVersion (..), CAccount,
 import           Pos.Wallet.Web.Error (WalletError)
 import           Pos.Wallet.Web.Sockets.Types (NotifyEvent)
 
+import           Data.Text.Lazy (toStrict)
+import           Data.Text.Lazy.Builder (toLazyText)
+import           Formatting.Buildable (Buildable (build))
+----------------------------------------------------------------------------
+-- Compat shims
+----------------------------------------------------------------------------
+-- pretty used to be in Universum
+pretty :: Buildable a => a -> Text
+pretty = toStrict . toLazyText . build
+
 deriveJSON defaultOptions ''CAccountId
 deriveJSON defaultOptions ''CWAddressMeta
 deriveJSON defaultOptions ''CWalletAssurance

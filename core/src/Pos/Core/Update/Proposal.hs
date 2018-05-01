@@ -14,9 +14,11 @@ import           Universum
 import           Control.Monad.Except (MonadError (throwError))
 import qualified Data.HashMap.Strict as HM
 import           Data.SafeCopy (base, deriveSafeCopySimple)
-import qualified Data.Text.Buildable as Buildable
+import qualified Formatting as F
+import           Formatting.Buildable (Buildable (build))
+
 import           Data.Text.Lazy.Builder (Builder)
-import           Formatting (bprint, build, builder, (%))
+import           Formatting (bprint, (%))
 import           Serokell.Util.Text (listJson)
 
 import           Pos.Binary.Class (Bi (..), Cons (..), Field (..),
@@ -68,12 +70,12 @@ instance Hashable UpdateProposal
 
 instance Buildable UpdateProposal where
     build up@UnsafeUpdateProposal {..} =
-      bprint (build%
-              " { block v"%build%
-              ", UpId: "%build%
-              ", "%build%
+      bprint (F.build%
+              " { block v"%F.build%
+              ", UpId: "%F.build%
+              ", "%F.build%
               ", tags: "%listJson%
-              ", "%builder%
+              ", "%F.builder%
               " }")
         upSoftwareVersion
         upBlockVersion
@@ -85,7 +87,7 @@ instance Buildable UpdateProposal where
         attrs = upAttributes
         attrsBuilder
             | areAttributesKnown upAttributes = "no attributes"
-            | otherwise = bprint ("attributes: " %build) attrs
+            | otherwise = bprint ("attributes: " %F.build) attrs
 
 instance NFData UpdateProposal
 
@@ -109,7 +111,7 @@ instance Bi UpdateProposal where
                                <*> decode
 
 formatMaybeProposal :: Maybe UpdateProposal -> Builder
-formatMaybeProposal = maybe "no proposal" Buildable.build
+formatMaybeProposal = maybe "no proposal" build
 
 mkUpdateProposalWSign
     :: ProtocolMagic

@@ -5,8 +5,9 @@ module Pos.Core.Update.Data
 import           Universum
 
 import           Data.SafeCopy (base, deriveSafeCopySimple)
-import qualified Data.Text.Buildable as Buildable
-import           Formatting (bprint, build, (%))
+import           Formatting (bprint, (%))
+import qualified Formatting as F
+import           Formatting.Buildable (Buildable (build))
 
 import           Pos.Binary.Class (Cons (..), Field (..), Raw, deriveSimpleBi)
 import           Pos.Crypto (Hash)
@@ -35,10 +36,10 @@ instance Hashable UpdateData
 
 instance Buildable UpdateData where
     build UpdateData {..} =
-      bprint ("{ appDiff: "%build%
-              ", pkg: "%build%
-              ", updater: "%build%
-              ", metadata: "%build%
+      bprint ("{ appDiff: "%F.build%
+              ", pkg: "%F.build%
+              ", updater: "%F.build%
+              ", metadata: "%F.build%
               " }")
         udAppDiffHash
         udPkgHash

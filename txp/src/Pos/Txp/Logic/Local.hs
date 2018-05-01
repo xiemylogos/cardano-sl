@@ -24,7 +24,8 @@ import           Control.Monad.Morph (generalize, hoist)
 import           Data.Default (Default (def))
 import qualified Data.HashMap.Strict as HM
 import           Data.Reflection (given)
-import           Formatting (build, sformat, (%))
+import           Formatting (sformat, (%))
+import qualified Formatting as F
 import           JsonLog (CanJsonLog (..))
 import           System.Wlog (NamedPureLogger, WithLogger, launchNamedPureLog,
                      logDebug, logError, logWarning)
@@ -52,6 +53,16 @@ import           Pos.Txp.Toil (ExtendedLocalToilM, LocalToilState (..), MemPool,
                      processTx, utxoToLookup)
 import           Pos.Txp.Topsort (topsortTxs)
 import           Pos.Util.Util (HasLens')
+
+import           Data.Text.Lazy (toStrict)
+import           Data.Text.Lazy.Builder (toLazyText)
+import           Formatting.Buildable (Buildable (build))
+----------------------------------------------------------------------------
+-- Compat shims
+----------------------------------------------------------------------------
+-- pretty used to be in Universum
+pretty :: Buildable a => a -> Text
+pretty = toStrict . toLazyText . build
 
 type TxpProcessTransactionMode ctx m =
     ( TxpLocalWorkMode ctx m
@@ -135,11 +146,11 @@ txProcessTransactionAbstract buildEnv txAction itw@(txId, txAux) = reportTipMism
     -- should't happen. If it happens, it's better to look at logs.
     case pRes of
         Left er -> do
-            logDebug $ sformat ("Transaction processing failed: " %build) txId
+            logDebug $ sformat ("Transaction processing failed: " %F.build) txId
             throwError er
         Right _ ->
             logDebug
-                (sformat ("Transaction is processed successfully: " %build) txId)
+                (sformat ("Transaction is processed successfully: " %F.build) txId)
   where
     processTransactionPure
         :: BlockVersionData
@@ -250,8 +261,8 @@ txGetPayload neededTip = do
         (,) <$> readTVar txpMemPool <*> readTVar txpTip
     let tipMismatchMsg =
             sformat
-                ("txGetPayload: tip mismatch (in DB: )"%build%
-                 ", (in mempool: "%build%")")
+                ("txGetPayload: tip mismatch (in DB: )"%F.build%
+                 ", (in mempool: "%F.build%")")
                 neededTip memPoolTip
     let topsortFailMsg = "txGetPayload: topsort failed!"
     let convertTx (txId, txAux) = WithHash (taTx txAux) txId

@@ -38,7 +38,9 @@ import qualified Data.HashMap.Strict as HM
 import qualified Data.List.NonEmpty as NE
 import           Data.Maybe (fromMaybe)
 import qualified Data.Vector as V
-import           Formatting (build, int, sformat, (%))
+import           Formatting (int, sformat, (%))
+import qualified Formatting as F
+
 import           Network.Wai (Application)
 import           Network.Wai.Middleware.RequestLogger (logStdoutDev)
 
@@ -154,9 +156,9 @@ getTotalAda = do
     validateUtxoSum :: ExplorerMode ctx m => Integer -> m ()
     validateUtxoSum n
         | n < 0 = throwM $ Internal $
-            sformat ("Internal tracker of utxo sum has a negative value: "%build) n
+            sformat ("Internal tracker of utxo sum has a negative value: "%F.build) n
         | n > coinToInteger (maxBound :: Coin) = throwM $ Internal $
-            sformat ("Internal tracker of utxo sum overflows: "%build) n
+            sformat ("Internal tracker of utxo sum overflows: "%F.build) n
         | otherwise = pure ()
 
 -- | Get the total number of blocks/slots currently available.
@@ -226,7 +228,7 @@ getBlocksPage mPageNumber mPageSize = do
         getPageBlocksCSLI pageNumber >>= maybeThrow (Internal errMsg)
       where
         errMsg :: Text
-        errMsg = sformat ("No blocks on page "%build%" found!") pageNumber
+        errMsg = sformat ("No blocks on page "%F.build%" found!") pageNumber
 
 -- | Get total pages from blocks. Calculated from
 -- pageSize we pass to it.
@@ -519,7 +521,7 @@ getGenesisSummary = do
         currentBalance <- fromMaybe minBound <$> getAddrBalance address
         if currentBalance > initialBalance then
             throwM $ Internal $ sformat
-                ("Redeem address "%build%" had "%build%" at genesis, but now has "%build)
+                ("Redeem address "%F.build%" had "%F.build%" at genesis, but now has "%F.build)
                 address initialBalance currentBalance
         else
             -- Abusing gsiNumRedeemed here. We'd like to keep
@@ -645,7 +647,7 @@ getEpochSlot epochIndex slotIndex = do
         getEpochBlocksCSLI epoch page >>= maybeThrow (Internal errMsg)
       where
         errMsg :: Text
-        errMsg = sformat ("No blocks on epoch "%build%" page "%build%" found!") epoch page
+        errMsg = sformat ("No blocks on epoch "%F.build%" page "%F.build%" found!") epoch page
 
 -- | Search the blocks by epoch and epoch page number.
 getEpochPage
@@ -686,7 +688,7 @@ getEpochPage epochIndex mPage = do
         getEpochBlocksCSLI epoch page' >>= maybeThrow (Internal errMsg)
       where
         errMsg :: Text
-        errMsg = sformat ("No blocks on epoch "%build%" page "%build%" found!") epoch page'
+        errMsg = sformat ("No blocks on epoch "%F.build%" page "%F.build%" found!") epoch page'
 
     -- | Sorting.
     sortBlocksByEpochSlots

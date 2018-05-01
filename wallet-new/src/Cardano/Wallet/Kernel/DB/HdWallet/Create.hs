@@ -21,8 +21,9 @@ import           Universum
 import           Control.Lens (at, (.=))
 import           Data.SafeCopy (base, deriveSafeCopy)
 
-import qualified Data.Text.Buildable
-import           Formatting (bprint, build, sformat, (%))
+import           Formatting (bprint, sformat, (%))
+import qualified Formatting as F
+import           Formatting.Buildable (Buildable (build))
 
 import qualified Pos.Core as Core
 
@@ -146,7 +147,7 @@ initHdAccount accountId checkpoint = HdAccount {
     , _hdAccountCheckpoints = checkpoint :| []
     }
   where
-    defName = AccountName $ sformat ("Account: " % build)
+    defName = AccountName $ sformat ("Account: " % F.build)
                                     (accountId ^. hdAccountIdIx)
 
 -- | New address in the specified account
@@ -174,16 +175,16 @@ initHdAddress addrId address = HdAddress {
 
 instance Buildable CreateHdRootError where
     build (CreateHdRootExists rootId)
-        = bprint ("CreateHdRootError::CreateHdRootExists "%build) rootId
+        = bprint ("CreateHdRootError::CreateHdRootExists "%F.build) rootId
 
 instance Buildable CreateHdAccountError where
     build (CreateHdAccountUnknownRoot (UnknownHdRoot rootId))
-        = bprint ("CreateHdAccountError::CreateHdAccountUnknownRoot "%build) rootId
+        = bprint ("CreateHdAccountError::CreateHdAccountUnknownRoot "%F.build) rootId
     build (CreateHdAccountExists accountId)
-        = bprint ("CreateHdAccountError::CreateHdAccountExists "%build) accountId
+        = bprint ("CreateHdAccountError::CreateHdAccountExists "%F.build) accountId
 
 instance Buildable CreateHdAddressError where
   build (CreateHdAddressUnknown unknownRoot)
-      = bprint ("CreateHdAddressUnknown: "%build) unknownRoot
+      = bprint ("CreateHdAddressUnknown: "%F.build) unknownRoot
   build (CreateHdAddressExists addressId)
-      = bprint ("CreateHdAddressExists: "%build) addressId
+      = bprint ("CreateHdAddressExists: "%F.build) addressId

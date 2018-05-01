@@ -55,10 +55,11 @@ import qualified Data.List.NonEmpty as NE
 import qualified Data.Map as M
 import qualified Data.Semigroup as S
 import qualified Data.Set as Set
-import qualified Data.Text.Buildable
 import           Data.Traversable (for)
 import qualified Data.Vector as V
-import           Formatting (bprint, build, sformat, stext, (%))
+import           Formatting (bprint, sformat, stext, (%))
+import qualified Formatting as F
+import           Formatting.Buildable (Buildable (build))
 import           Serokell.Util (listJson)
 
 import           Pos.Binary (biSize)
@@ -101,7 +102,7 @@ newtype PendingAddresses = PendingAddresses (Set Address)
 
 instance Buildable TxWithSpendings where
     build (txAux, neTxOut) =
-        bprint ("("%build%", "%listJson%")") txAux neTxOut
+        bprint ("("%F.build%", "%listJson%")") txAux neTxOut
 
 -- This datatype corresponds to raw transaction.
 data TxRaw = TxRaw
@@ -141,18 +142,18 @@ instance Exception TxError
 
 instance Buildable TxError where
     build (NotEnoughMoney coin) =
-        bprint ("Transaction creation error: not enough money, need "%build%" more") coin
+        bprint ("Transaction creation error: not enough money, need "%F.build%" more") coin
     build (NotEnoughAllowedMoney coin) =
         bprint ("Transaction creation error: not enough money on addresses which are not included \
-                \in output addresses set, need "%build%" more") coin
+                \in output addresses set, need "%F.build%" more") coin
     build FailedToStabilize =
         "Transaction creation error: failed to stabilize fee"
     build (OutputIsRedeem addr) =
-        bprint ("Output address "%build%" is a redemption address") addr
+        bprint ("Output address "%F.build%" is a redemption address") addr
     build RedemptionDepleted =
         bprint "Redemption address balance is 0"
     build (SafeSignerNotFound addr) =
-        bprint ("Address "%build%" has no associated safe signer") addr
+        bprint ("Address "%F.build%" has no associated safe signer") addr
     build (GeneralTxError msg) =
         bprint ("Transaction creation error: "%stext) msg
 
@@ -631,7 +632,7 @@ withLinearFeePolicy
     -> TxCreator m a
 withLinearFeePolicy action = view tcdFeePolicy >>= \case
     TxFeePolicyUnknown w _ -> throwError $ GeneralTxError $
-        sformat ("Unknown fee policy, tag: "%build) w
+        sformat ("Unknown fee policy, tag: "%F.build) w
     TxFeePolicyTxSizeLinear linearPolicy ->
         action linearPolicy
 

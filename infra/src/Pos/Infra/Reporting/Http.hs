@@ -13,6 +13,7 @@ import           Control.Exception.Safe (catchAny, try)
 import           Data.Aeson (encode)
 import qualified Data.List.NonEmpty as NE
 import           Data.Time.Clock (getCurrentTime)
+
 import           Formatting (sformat, shown, string, (%))
 import           Network.HTTP.Client (httpLbs, newManager, parseUrlThrow)
 import qualified Network.HTTP.Client.MultipartFormData as Form
@@ -29,6 +30,16 @@ import           Pos.Util.CompileInfo (CompileTimeInfo)
 import           Pos.Util.Trace (Severity (..), Trace, traceWith)
 import           Pos.Util.Util ((<//>))
 
+
+import           Data.Text.Lazy (toStrict)
+import           Data.Text.Lazy.Builder (toLazyText)
+import           Formatting.Buildable (Buildable (build))
+----------------------------------------------------------------------------
+-- Compat shims
+----------------------------------------------------------------------------
+-- pretty used to be in Universum
+pretty :: Buildable a => a -> Text
+pretty = toStrict . toLazyText . build
 
 -- | Given optional log file and report type, sends reports to URI
 -- asked. The file, if given, must of course exist and be openable/readable

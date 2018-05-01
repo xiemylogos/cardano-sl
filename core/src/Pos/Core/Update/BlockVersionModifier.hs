@@ -8,10 +8,12 @@ import           Universum
 import           Control.Monad.Except (MonadError)
 import           Data.Default (Default (..))
 import           Data.SafeCopy (base, deriveSafeCopySimple)
-import qualified Data.Text.Buildable as Buildable
+import qualified Formatting as F
+import           Formatting.Buildable (Buildable (build))
+
 import           Data.Text.Lazy.Builder (Builder)
 import           Data.Time.Units (Millisecond)
-import           Formatting (Format, bprint, build, int, later, (%))
+import           Formatting (Format, bprint, int, later, (%))
 import           Serokell.Data.Memory.Units (Byte, memory)
 
 import           Pos.Binary.Class (Cons (..), Field (..), deriveSimpleBi)
@@ -64,20 +66,20 @@ instance Default BlockVersionModifier where
 
 instance Buildable BlockVersionModifier where
     build BlockVersionModifier {..} =
-      bprint ("{ script version: "%bmodifier build%
+      bprint ("{ script version: "%bmodifier F.build%
               ", slot duration (mcs): "%bmodifier int%
               ", block size limit: "%bmodifier memory%
               ", header size limit: "%bmodifier memory%
               ", tx size limit: "%bmodifier memory%
               ", proposal size limit: "%bmodifier memory%
-              ", mpc threshold: "%bmodifier build%
-              ", heavyweight delegation threshold: "%bmodifier build%
-              ", update vote threshold: "%bmodifier build%
-              ", update proposal threshold: "%bmodifier build%
+              ", mpc threshold: "%bmodifier F.build%
+              ", heavyweight delegation threshold: "%bmodifier F.build%
+              ", update vote threshold: "%bmodifier F.build%
+              ", update proposal threshold: "%bmodifier F.build%
               ", update implicit period (slots): "%bmodifier int%
-              ", softfork rule: "%bmodifier build%
-              ", tx fee policy: "%bmodifier build%
-              ", unlock stake epoch: "%bmodifier build%
+              ", softfork rule: "%bmodifier F.build%
+              ", tx fee policy: "%bmodifier F.build%
+              ", unlock stake epoch: "%bmodifier F.build%
               " }")
         bvmScriptVersion
         bvmSlotDuration

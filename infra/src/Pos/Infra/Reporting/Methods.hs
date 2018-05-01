@@ -30,6 +30,16 @@ import           Pos.DB.Error (DBError (..))
 import           Pos.Exception (CardanoFatalError)
 import           Pos.Infra.Reporting.MemState ()
 
+import           Data.Text.Lazy (toStrict)
+import           Data.Text.Lazy.Builder (toLazyText)
+import           Formatting.Buildable (Buildable (build))
+----------------------------------------------------------------------------
+-- Compat shims
+----------------------------------------------------------------------------
+-- pretty used to be in Universum
+pretty :: Buildable a => a -> Text
+pretty = toStrict . toLazyText . build
+
 -- | Encapsulates the sending of a report, with potential for side-effects.
 newtype Reporter m = Reporter
     { runReporter :: ReportType -> m ()

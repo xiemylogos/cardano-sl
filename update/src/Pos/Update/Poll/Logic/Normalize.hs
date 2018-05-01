@@ -13,7 +13,8 @@ import           Universum hiding (id)
 import           Control.Lens (at, non)
 import qualified Data.HashMap.Strict as HM
 import qualified Data.HashSet as HS
-import           Formatting (build, sformat, (%))
+import           Formatting (sformat, (%))
+import qualified Formatting as F
 import           System.Wlog (logWarning)
 
 import           Pos.Core (Coin, EpochIndex, SlotId (siEpoch), addressHash,
@@ -122,7 +123,7 @@ normalizeVotes votesGroups =
     verifyNApplyVotesGroup (upId, votesGroup) = getProposal upId >>= \case
         Nothing -> Nothing <$
                    logWarning (
-                       sformat ("Update Proposal with id "%build%
+                       sformat ("Update Proposal with id "%F.build%
                                 " not found in normalizeVotes") upId)
         Just ps
             | PSUndecided ups <- ps -> do
@@ -148,7 +149,7 @@ filterProposalsByThd epoch proposalsHM = getEpochTotalStake epoch >>= \case
     Nothing ->
         (mempty, getKeys proposalsHM) <$
             logWarning
-                (sformat ("Couldn't get stake in filterProposalsByTxd for epoch "%build)
+                (sformat ("Couldn't get stake in filterProposalsByTxd for epoch "%F.build)
                          epoch)
     Just totalStake -> do
         thresholdPortion <- bvdUpdateProposalThd <$> getAdoptedBVData

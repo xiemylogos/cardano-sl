@@ -16,6 +16,7 @@ module Pos.Binary.Limit
        , vectorOfNE
        ) where
 
+import           Formatting.Buildable (Buildable (..))
 import           Universum
 
 -- | A limit on the length of something (in bytes).
@@ -24,6 +25,9 @@ import           Universum
 --   is almost certainly amiss.
 newtype Limit t = Limit { getLimit :: Word32 }
     deriving (Eq, Ord, Show, Num, Enum, Real, Integral)
+
+instance Buildable (Limit t) where
+  build = build . getLimit
 
 instance Functor Limit where
     fmap _ (Limit x) = Limit x

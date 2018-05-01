@@ -22,9 +22,8 @@ import qualified Data.ByteArray as ByteArray
 import qualified Data.ByteString as BS
 import           Data.Default (Default (..))
 import           Data.Semigroup (Semigroup)
-import           Data.Text.Buildable (build)
-import qualified Data.Text.Buildable as B
 import           Formatting (int, sformat, (%))
+import           Formatting.Buildable (Buildable (build))
 import qualified Prelude
 import           Universum
 
@@ -48,7 +47,7 @@ deriving instance Eq CC.XPrv => Eq EncryptedSecretKey
 instance Show EncryptedSecretKey where
     show _ = "<encrypted key>"
 
-instance B.Buildable EncryptedSecretKey where
+instance Buildable EncryptedSecretKey where
     build _ = "<encrypted key>"
 
 instance Bi EncryptedSecretKey where

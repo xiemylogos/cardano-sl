@@ -13,7 +13,8 @@ import           Universum hiding (id)
 import           Control.Exception.Safe (try)
 import           Control.Lens (At (at), Index, _Right)
 import qualified Data.HashMap.Strict as HM
-import           Formatting (build, int, sformat, (%))
+import           Formatting (int, sformat, (%))
+import qualified Formatting as F
 import           Serokell.Util (listJson)
 import           Test.Hspec (Spec, describe)
 import           Test.Hspec.QuickCheck (modifyMaxSuccess, prop)
@@ -217,7 +218,7 @@ checkRichmen = do
         let checkRich (id, realStake) =
                 when (isNothing (richmenSet ^. at id)) $
                 stopProperty $ sformat
-                (build%" has stake "%coinF%", but wasn't considered richman")
+                (F.build%" has stake "%coinF%", but wasn't considered richman")
                  id realStake
         mapM_ checkRich =<< expectedRichmenStakes
 

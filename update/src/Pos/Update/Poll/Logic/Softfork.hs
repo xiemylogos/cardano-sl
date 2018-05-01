@@ -13,7 +13,8 @@ import           Control.Monad.Except (MonadError, throwError)
 import qualified Data.HashSet as HS
 import qualified Data.List.NonEmpty as NE
 import           Data.Tagged (Tagged (..))
-import           Formatting (build, sformat, (%))
+import           Formatting (sformat, (%))
+import qualified Formatting as F
 import           Serokell.Util.Text (listJson)
 import           System.Wlog (logInfo)
 
@@ -51,12 +52,12 @@ recordBlockIssuance id bv slot h = do
         PollInternalError $
         sformat
             ("someone issued a block with unconfirmed and not adopted block version ("
-             %build%") and we are recording this fact now") bv
+             %F.build%") and we are recording this fact now") bv
     unstableNotEmpty =
         PollInternalError $
         sformat
             ("bvsIssuersUnstable is not empty while we are processing slot"%
-             " before a crucial one (block is "%build%")") h
+             " before a crucial one (block is "%F.build%")") h
     newBVS bvs@BlockVersionState {..} unstable
         | unstable =
             bvs
@@ -108,7 +109,7 @@ processGenesisBlock epoch = do
         let onNoConfirmedEpoch =
                 PollInternalError $
                 sformat
-                    ("checkThresholdDo: block version " %build %
+                    ("checkThresholdDo: block version " %F.build %
                      " is not competing, hello!")
                     bv
         confirmedEpoch <- note onNoConfirmedEpoch (bvsConfirmedEpoch bvs)
@@ -145,7 +146,7 @@ processGenesisBlock epoch = do
                   (map fst versions)
         mapM_ logBVIssuers versions
     logBVIssuers (bv, BlockVersionState {..}) =
-        logInfo $ sformat (build%" has these stable issuers "%listJson%
+        logInfo $ sformat (F.build%" has these stable issuers "%listJson%
                            " and these unstable issuers "%listJson)
                            bv bvsIssuersStable bvsIssuersUnstable
     logWhichCanBeAdopted =
@@ -163,7 +164,7 @@ calculateIssuersStake epoch BlockVersionState {..} =
         getBlockIssuerStake epoch id
     unknownStakeMsg =
         sformat
-            ("stake for epoch " %build % " is unknown for stable issuer " %build)
+            ("stake for epoch " %F.build % " is unknown for stable issuer " %F.build)
             epoch
 
 -- This function moves unstable issuers and unstable last block to stable.
@@ -201,4 +202,4 @@ sanityCheckCompeting = mapM_ sanityCheckConfirmedDo
     sanityCheckConfirmedDo bv = unlessM (canBeAdoptedBV bv) $
         throwError $ PollInternalError $ sformat fmt bv
     fmt = "we have competing block version which doesn't satisfy "%
-          "'canBeAdoptedBV' predicate: "%build%" :unamused:"
+          "'canBeAdoptedBV' predicate: "%F.build%" :unamused:"

@@ -165,8 +165,8 @@ packages:
 # Because log-warper mainline depends on a lifted-async which depends upon a
 # buggy async
 - location:
-    git: https://github.com/input-output-hk/log-warper.git
-    commit: fa925f9dadf239b38e2ffcc35f9d241a9fcb7d55
+    git: https://github.com/angerman/log-warper.git
+    commit: 400204b1b1e853c0edf83d1fd033f6b8ce8cc2cf    
   extra-dep: true
 
 # Exposes a custom discovery function so you can specify the prefix.
@@ -191,6 +191,13 @@ packages:
     commit: ecfd3b307d8d13a6d12aff03055f25a39a17e182
   extra-dep: true
 
+# Need to adjust version bounds on serokell-util.
+# serokell-util has an upper bound preventing 6.3 for some reason
+- location:
+    git: https://github.com/angerman/serokell-util.git
+    commit: 000b6cea24a9b33e0deff0a3e238e3f4e67f8610
+  extra-dep: true
+
 nix:
   shell-file: shell.nix
 
@@ -207,10 +214,11 @@ extra-deps:
 - lifted-async-0.10.0.1
 
 # Serokell-specific utilities not on stackage
-- serokell-util-0.8.0
-# serokell-util has an upper bound preventing 6.3 for some reason.
-# TODO: investigate?
-- formatting-6.2.5
+- universum-1.2.0
+- formatting-6.3.4
+# fmt <0.6 depends on text-format,
+# instead of formatting
+- fmt-0.6
 
 # Following 9 are not on stackage.
 - pvss-0.2.0
@@ -257,6 +265,9 @@ extra-deps:
 
 # Needed for coin selection in the wallet
 - normaldistribution-1.1.0.3
+
+# This used to be Serokell.Aeson.Options
+- aeson-options-0.0.0
 
 # This is for CI to pass --fast to all dependencies
 apply-ghc-options: everything

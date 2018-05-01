@@ -32,8 +32,9 @@ import           Universum
 import qualified Control.Concurrent.STM as STM
 import           Control.Lens (lens, makeClassy, makeLensesWith)
 import           Data.Default (def)
-import qualified Data.Text.Buildable
-import           Formatting (bprint, build, formatToString, (%))
+import           Formatting (bprint, formatToString, (%))
+import qualified Formatting as F
+import           Formatting.Buildable (Buildable (build))
 import qualified Prelude
 import           System.Wlog (HasLoggerName (..), LoggerName)
 import           Test.Hspec (Spec)
@@ -140,12 +141,12 @@ instance Arbitrary WalletTestParams where
 instance Buildable WalletTestParams where
     build WalletTestParams {..} =
         bprint ("WalletTestParams {\n"%
-                "  blockTestParams = "%build%"\n"%
+                "  blockTestParams = "%F.build%"\n"%
                 "}\n")
         _wtpBlockTestParams
 
 instance Show WalletTestParams where
-    show = formatToString build
+    show = formatToString F.build
 
 ----------------------------------------------------------------------------
 -- Wallet context

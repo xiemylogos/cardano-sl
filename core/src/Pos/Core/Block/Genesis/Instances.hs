@@ -8,8 +8,10 @@ module Pos.Core.Block.Genesis.Instances
 
 import           Universum
 
-import qualified Data.Text.Buildable as Buildable
-import           Formatting (bprint, build, int, sformat, stext, (%))
+import qualified Formatting as F
+import           Formatting.Buildable (Buildable (build))
+
+import           Formatting (bprint, int, sformat, stext, (%))
 import           Serokell.Util (Color (Magenta), colorize)
 
 import           Pos.Core.Block.Blockchain (GenericBlock (..),
@@ -37,7 +39,7 @@ instance Buildable GenesisBlockHeader where
             ("GenesisBlockHeader:\n"%
              "    hash: "%hashHexF%"\n"%
              "    previous block: "%hashHexF%"\n"%
-             "    epoch: "%build%"\n"%
+             "    epoch: "%F.build%"\n"%
              "    difficulty: "%int%"\n"
             )
             gbhHeaderHash
@@ -53,7 +55,7 @@ instance Buildable GenesisBlock where
     build UnsafeGenericBlock {..} =
         bprint
             (stext%":\n"%
-             "  "%build%
+             "  "%F.build%
              stext
             )
             (colorize Magenta "GenesisBlock")

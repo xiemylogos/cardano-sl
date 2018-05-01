@@ -17,7 +17,8 @@ module Pos.Wallet.Web.Util
 import           Universum
 
 import qualified Data.HashMap.Strict as HM
-import           Formatting (build, sformat, (%))
+import           Formatting (sformat, (%))
+import qualified Formatting as F
 import           Servant.Server (err405, errReasonPhrase)
 
 import           Pos.Configuration (HasNodeConfiguration, walletProductionApi)
@@ -41,7 +42,7 @@ getAccountMetaOrThrow :: MonadThrow m => WalletSnapshot -> AccountId -> m CAccou
 getAccountMetaOrThrow ws accId = maybeThrow noAccount (getAccountMeta ws accId)
   where
     noAccount =
-        RequestError $ sformat ("No account with id "%build%" found") accId
+        RequestError $ sformat ("No account with id "%F.build%" found") accId
 
 getWalletAccountIds :: WalletSnapshot -> CId Wal -> [AccountId]
 getWalletAccountIds ws cWalId = filter ((== cWalId) . aiWId) (getAccountIds ws)
@@ -55,7 +56,7 @@ getAccountAddrsOrThrow ws mode accId = maybeThrow noWallet (getAccountWAddresses
   where
     noWallet =
         RequestError $
-        sformat ("No account with id "%build%" found") accId
+        sformat ("No account with id "%F.build%" found") accId
 
 getWalletAddrMetas
     :: WalletSnapshot

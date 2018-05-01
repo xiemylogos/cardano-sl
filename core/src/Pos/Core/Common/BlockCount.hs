@@ -2,6 +2,7 @@ module Pos.Core.Common.BlockCount
        ( BlockCount (..)
        ) where
 
+import           Formatting.Buildable (Buildable)
 import           Universum
 
 import           Data.SafeCopy (base, deriveSafeCopySimple)

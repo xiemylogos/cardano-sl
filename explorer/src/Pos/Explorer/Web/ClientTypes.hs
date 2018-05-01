@@ -60,7 +60,10 @@ import           Data.Default (Default (..))
 import           Data.Fixed (Micro, showFixed)
 import qualified Data.List.NonEmpty as NE
 import           Data.Time.Clock.POSIX (POSIXTime)
-import           Formatting (build, sformat, (%))
+import           Formatting (sformat, (%))
+import qualified Formatting as F
+import           Formatting.Buildable (Buildable)
+
 import           Serokell.Data.Memory.Units (Byte)
 import           Serokell.Util.Base16 as SB16
 import           Servant.API (FromHttpApiData (..))
@@ -370,7 +373,7 @@ instance FromHttpApiData CAddressesFilter where
     parseUrlPiece "redeemed" = pure RedeemedAddresses
     parseUrlPiece "notredeemed" = pure NonRedeemedAddresses
     parseUrlPiece other = throwError $
-        sformat ("Unknown option '"%build%"'. "%
+        sformat ("Unknown option '"%F.build%"'. "%
             "Valid options are 'all', 'redeemed' and 'notredeemed'.") other
 
 -- TODO: When we have a generic enough `readEither`

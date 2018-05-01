@@ -68,6 +68,16 @@ import           Pos.DB.GState.Common (gsGetBi, writeBatchGState)
 import           Pos.Delegation.Cede.Types (DlgEdgeAction (..))
 import           Pos.Delegation.Types (isRevokePsk)
 
+import           Data.Text.Lazy (toStrict)
+import           Data.Text.Lazy.Builder (toLazyText)
+import           Formatting.Buildable (Buildable (build))
+----------------------------------------------------------------------------
+-- Compat shims
+----------------------------------------------------------------------------
+-- pretty used to be in Universum
+pretty :: Buildable a => a -> Text
+pretty = toStrict . toLazyText . build
+
 ----------------------------------------------------------------------------
 -- Getters/direct accessors
 ----------------------------------------------------------------------------

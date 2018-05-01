@@ -30,7 +30,8 @@ import           Control.Concurrent.STM (writeTVar)
 import           Control.Monad.Random.Strict (evalRandT)
 import           Data.List (head, (!!))
 import qualified Data.Map as M
-import           Formatting (build, sformat, (%))
+import           Formatting (sformat, (%))
+import qualified Formatting as F
 import           Test.QuickCheck (Arbitrary (..), choose, frequency, sublistOf,
                      suchThat, vectorOf)
 import           Test.QuickCheck.Gen (Gen (MkGen))
@@ -218,9 +219,9 @@ expectedAddrBalance :: HasConfiguration => Address -> Coin -> WalletProperty ()
 expectedAddrBalance addr expected = do
     balance <- lift $ getBalance addr
     assertProperty (balance == expected) $
-        sformat ("balance for address "%build
-                    %" mismatched, expected: "%build
-                    %", actual balance: "%build)
+        sformat ("balance for address "%F.build
+                    %" mismatched, expected: "%F.build
+                    %", actual balance: "%F.build)
                 addr expected balance
 
 ----------------------------------------------------------------------------

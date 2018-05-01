@@ -10,7 +10,8 @@ import           Universum hiding (id)
 
 import           Crypto.Random (drgNewSeed, seedNew, withDRG)
 import qualified Data.HashMap.Strict as HM
-import           Formatting (build, sformat, (%))
+import           Formatting (sformat, (%))
+import qualified Formatting as F
 import           System.Wlog (WithLogger, launchNamedPureLog, logWarning)
 
 import           Pos.Binary.Class (AsBinary, asBinary, fromBinary)
@@ -38,7 +39,7 @@ getOurShares ourKey = do
                 Just encShares ->
                     lift $ Just . (id,) <$> mapM (decryptShare ourKey) encShares
                 _             -> do
-                    logWarning $ sformat ("Failed to deserialize share for " % build) id
+                    logWarning $ sformat ("Failed to deserialize share for " % F.build) id
                     return Nothing
     return $ HM.fromList . catMaybes $ res
 

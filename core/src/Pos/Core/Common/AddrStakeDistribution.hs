@@ -11,8 +11,8 @@ import           Control.Exception.Safe (Exception (displayException))
 import           Control.Lens (_Left)
 import           Control.Monad.Except (MonadError (throwError))
 import           Data.SafeCopy (base, deriveSafeCopySimple)
-import qualified Data.Text.Buildable as Buildable
 import           Formatting (bprint, (%))
+import           Formatting.Buildable (Buildable (build))
 import           Serokell.Util (mapJson)
 
 import           Pos.Binary.Class (Bi, decode, encode)
@@ -22,6 +22,16 @@ import           Pos.Util.Util (cborError, toCborError)
 
 import           Pos.Core.Common.CoinPortion
 import           Pos.Core.Common.StakeholderId
+
+import           Data.Text.Lazy (toStrict)
+import           Data.Text.Lazy.Builder (toLazyText)
+----------------------------------------------------------------------------
+-- Compat shims
+----------------------------------------------------------------------------
+-- pretty used to be in Universum
+pretty :: Buildable a => a -> Text
+pretty = toStrict . toLazyText . build
+
 
 -- | Stake distribution associated with an address.
 data AddrStakeDistribution

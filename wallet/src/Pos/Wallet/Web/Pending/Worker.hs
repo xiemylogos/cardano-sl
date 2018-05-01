@@ -12,7 +12,9 @@ import           Universum
 import           Control.Exception.Safe (handleAny)
 import           Control.Lens (has)
 import           Data.Time.Units (Microsecond, Second, convertUnit)
-import           Formatting (build, sformat, (%))
+import           Formatting (sformat, (%))
+import qualified Formatting as F
+
 import           Mockable (delay, forConcurrently)
 import           Serokell.Util (enumerate, listJson)
 import           System.Wlog (logDebug, logInfo, modifyLoggerName)
@@ -66,7 +68,7 @@ processPtxInNewestBlocks db PendingTx{..} = do
          Just depth <- getWalletAssuredDepth ws _ptxWallet,
          longAgo depth ptxDiff tipDiff -> do
              void $ casPtxCondition db _ptxWallet _ptxTxId _ptxCond PtxPersisted
-             logInfoSP $ \sl -> sformat ("Transaction "%secretOnlyF sl build%" got persistent") _ptxTxId
+             logInfoSP $ \sl -> sformat ("Transaction "%secretOnlyF sl F.build%" got persistent") _ptxTxId
        | otherwise -> pass
   where
      longAgo depth (ChainDifficulty ptxDiff) (ChainDifficulty tipDiff) =
@@ -80,15 +82,15 @@ resubmitTx :: MonadPendings ctx m
            -> m ()
 resubmitTx pm db submitTx ptx =
     handleAny (\_ -> pass) $ do
-        logInfoSP $ \sl -> sformat ("Resubmitting tx "%secretOnlyF sl build) (_ptxTxId ptx)
+        logInfoSP $ \sl -> sformat ("Resubmitting tx "%secretOnlyF sl F.build) (_ptxTxId ptx)
         let submissionH = ptxResubmissionHandler db ptx
         submitAndSavePtx pm db submitTx submissionH ptx
         updateTiming
   where
     reportNextCheckTime time =
         logInfoSP $ \sl ->
-        sformat ("Next resubmission of transaction "%secretOnlyF sl build%" is scheduled at "
-                %build) (_ptxTxId ptx) time
+        sformat ("Next resubmission of transaction "%secretOnlyF sl F.build%" is scheduled at "
+                %F.build) (_ptxTxId ptx) time
 
     updateTiming = do
         usingPtxCoords (ptxUpdateMeta db) ptx PtxIncSubmitTiming

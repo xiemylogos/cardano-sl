@@ -9,7 +9,7 @@ import           Criterion.Main
 import           Data.ByteString (ByteString)
 import qualified Data.ByteString as BS
 import qualified Data.ByteString.Lazy as LBS
-import           Formatting (build, sformat, shown)
+import           Formatting (sformat, shown)
 import           System.Environment (lookupEnv)
 
 import           Pos.Binary.Class (Bi, serialize, unsafeDeserialize)

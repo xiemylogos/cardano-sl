@@ -13,7 +13,7 @@ module Pos.Infra.Reporting.Metrics
 import           Universum
 
 import           Data.Time.Units (Microsecond)
-import           Formatting (Format, build, sformat)
+import           Formatting (Format, sformat)
 import           Mockable (CurrentTime, Mockable, currentTime)
 import qualified System.Metrics as Metrics
 import           System.Metrics.Gauge (Gauge)
@@ -21,6 +21,9 @@ import qualified System.Metrics.Gauge as Gauge
 import           System.Wlog (WithLogger, logDebug)
 
 import           Pos.System.Metrics.Constants (withCardanoNamespace)
+
+import qualified Formatting as F
+import           Formatting.Buildable (Buildable)
 
 -- | 'MetricMonitor' is primarily used to parameterize 'recordValue'
 -- function (see below).
@@ -91,7 +94,7 @@ noReportMonitor converter debugFormat st =
     MetricMonitor
     { mmState = st
     , mmReportMisbehaviour = classifier
-    , mmMisbehFormat = build -- won't be used due to classifier
+    , mmMisbehFormat = F.build -- won't be used due to classifier
     , mmConvertValue = converter
     , mmDebugFormat = debugFormat
     }

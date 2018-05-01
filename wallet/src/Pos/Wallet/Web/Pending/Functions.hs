@@ -14,7 +14,8 @@ module Pos.Wallet.Web.Pending.Functions
 
 import           Universum
 
-import           Formatting (build, sformat, (%))
+import           Formatting (sformat, (%))
+import qualified Formatting as F
 
 import           Pos.Client.Txp.History (SaveTxException (..), TxHistoryEntry)
 import           Pos.Core (HasConfiguration, protocolConstants)
@@ -61,7 +62,7 @@ mkPendingTx ws wid _ptxTxId _ptxTxAux th = do
         }
   where
     noWallet =
-        RequestError $ sformat ("Failed to get meta of wallet "%build) wid
+        RequestError $ sformat ("Failed to get meta of wallet "%F.build) wid
 
 -- | Whether formed transaction ('TxAux') has reasonable chances to be applied
 -- later after specified error.

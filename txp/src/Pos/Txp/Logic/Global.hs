@@ -20,7 +20,8 @@ import           Control.Monad.Except (throwError)
 import           Data.Default (Default, def)
 import qualified Data.HashMap.Strict as HM
 import qualified Data.List.NonEmpty as NE
-import           Formatting (build, sformat, (%))
+import           Formatting (sformat, (%))
+import qualified Formatting as F
 
 import           Pos.Core (HasCoreConfiguration, HasGenesisData, ProtocolMagic,
                      epochIndexL)
@@ -174,7 +175,7 @@ applyBlocksWith pm settings blunds = do
         verdict <- verifyBlocks pm False blocks
         whenLeft verdict $
             assertionFailed .
-            sformat ("we are trying to apply txp blocks which we fail to verify: "%build)
+            sformat ("we are trying to apply txp blocks which we fail to verify: "%F.build)
     processBlunds settings (getOldestFirst blunds)
 
 processBlundsSettings ::

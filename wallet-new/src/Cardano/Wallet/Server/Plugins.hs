@@ -35,7 +35,8 @@ import qualified Pos.Wallet.Web.Error.Types as V0
 
 import           Control.Exception (fromException)
 import           Data.Aeson
-import           Formatting (build, sformat, (%))
+import           Formatting (sformat, (%))
+import qualified Formatting as F
 import           Mockable
 import           Network.HTTP.Types.Status (badRequest400)
 import           Network.Wai (Application, Middleware, Response, responseLBS)
@@ -127,9 +128,9 @@ legacyWalletBackend :: (HasConfigurations, HasCompileInfo)
                     -> Plugin WalletWebMode
 legacyWalletBackend pm WalletBackendParams {..} ntpStatus = pure $ \diffusion -> do
     modifyLoggerName (const "legacyServantBackend") $ do
-      logInfo $ sformat ("Production mode for API: "%build)
+      logInfo $ sformat ("Production mode for API: "%F.build)
         walletProductionApi
-      logInfo $ sformat ("Transaction submission disabled: "%build)
+      logInfo $ sformat ("Transaction submission disabled: "%F.build)
         walletTxCreationDisabled
 
       ctx <- view shutdownContext
@@ -193,7 +194,7 @@ legacyWalletBackend pm WalletBackendParams {..} ntpStatus = pure $ \diffusion ->
                     V0.RequestError _  -> err
                     V0.InternalError _ -> V0.RequestError "InternalError"
                     V0.DecodeError _   -> V0.RequestError "DecodeError"
-            reify (re :: V0.WalletError) = V1.UnknownError (sformat build . maskSensitive $ re)
+            reify (re :: V0.WalletError) = V1.UnknownError (sformat F.build . maskSensitive $ re)
         in fmap (responseLBS badRequest400 [V1.applicationJson] .  encode . reify) (fromException se)
 
     -- Handles any generic error, trying to prevent internal exceptions from leak outside.

@@ -22,7 +22,8 @@ import qualified Data.ByteString.Char8 as B8 (unpack)
 import qualified Data.ByteString.Lazy as BS
 import           Data.List (intersect, (\\))
 import           Data.Time.Units (Second, toMicroseconds)
-import           Formatting (build, sformat, shown, (%))
+import           Formatting (sformat, shown, (%))
+import qualified Formatting as F
 import qualified Network.Kademlia as K
 import qualified Network.Kademlia.Instance as K (KademliaInstance (state),
                      KademliaState (sTree))
@@ -61,7 +62,7 @@ startDHTInstance logTrace kconf@KademliaParams {..} defaultBind = do
         extAddr  = maybe bindAddr (first B8.unpack) kpExternalAddress
     traceWith logTrace (Info, "Generating dht key..")
     kdiKey <- maybe randomDHTKey pure kpKey
-    traceWith logTrace (Info, sformat ("Generated dht key "%build) kdiKey)
+    traceWith logTrace (Info, sformat ("Generated dht key "%F.build) kdiKey)
     kdiDumpPath <- case kpDumpFile of
         Nothing -> pure Nothing
         Just fp -> do
@@ -178,10 +179,10 @@ kademliaJoinNetwork' logTrace inst peer = do
         K.NodeDown -> throwIO NodeDown
         K.NodeBanned ->
             traceWith logTrace $ ((,) Info) $
-                sformat ("kademliaJoinNetwork: peer " % build % " is banned") peer
+                sformat ("kademliaJoinNetwork: peer " % F.build % " is banned") peer
         K.IDClash ->
             traceWith logTrace $ ((,) Info) $
-            sformat ("kademliaJoinNetwork: peer " % build % " already contains us") peer
+            sformat ("kademliaJoinNetwork: peer " % F.build % " already contains us") peer
 
 -- | Attempt to join a Kademlia network by contacting this list of peers.
 --   If none of them are up, a warning is logged but no exception is thrown.

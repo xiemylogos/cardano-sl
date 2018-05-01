@@ -15,9 +15,11 @@ module Cardano.Wallet.Util
 import           Universum
 
 import           Data.Char (isUpper, toLower)
-import qualified Data.Text.Buildable
 import qualified Data.Time as Time
-import           Formatting (bprint, build, formatToString, (%))
+import           Formatting (bprint, formatToString, (%))
+import qualified Formatting as F
+import           Formatting.Buildable (Buildable (build))
+
 import qualified Prelude
 
 -- * String manipulation utils
@@ -50,10 +52,10 @@ apiTimeFormat = Time.iso8601DateFormat (Just "%H:%M:%S%Q")
 newtype UtcTimeParseError = UtcTimeParseError Text
 
 instance Buildable UtcTimeParseError where
-    build (UtcTimeParseError msg) = bprint ("UTC time parse error: "%build) msg
+    build (UtcTimeParseError msg) = bprint ("UTC time parse error: "%F.build) msg
 
 instance Show UtcTimeParseError where
-    show = formatToString build
+    show = formatToString F.build
 
 -- | Parse UTC time from API.
 parseApiUtcTime :: Text -> Either UtcTimeParseError Time.UTCTime

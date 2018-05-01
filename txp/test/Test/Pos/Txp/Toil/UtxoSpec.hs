@@ -10,9 +10,9 @@ import           Control.Monad.Except (runExceptT)
 import           Data.List.NonEmpty (NonEmpty ((:|)))
 import qualified Data.List.NonEmpty as NE
 import qualified Data.Map as M
-import qualified Data.Text.Buildable as B
 import qualified Data.Vector as V (fromList)
 import           Fmt (blockListF', genericF, nameF, (+|), (|+))
+import           Formatting.Buildable (Buildable (build))
 import           Serokell.Util (allDistinct)
 import           Test.Hspec (Expectation, Spec, describe, expectationFailure,
                      it)
@@ -109,7 +109,7 @@ verifyTxInUtxo pm (SmallGenerator (GoodTx ls)) =
         vtxContext = VTxContext False
         txAux = TxAux newTx witness
     in counterexample ("\n"+|nameF "txs" (blockListF' "-" genericF txs)|+""
-                           +|nameF "transaction" (B.build txAux)|+"") $
+                           +|nameF "transaction" (build txAux)|+"") $
        qcIsRight $ verifyTxUtxoSimple pm vtxContext utxo txAux
 
 badSigsTx :: ProtocolMagic -> SmallGenerator BadSigsTx -> Property

@@ -50,10 +50,14 @@ import           Control.Lens (Getter, LensLike', choosing, makePrisms, to)
 
 import           Data.SafeCopy (SafeCopy (..), contain, safeGet, safePut)
 import qualified Data.Serialize as Cereal
-import qualified Data.Text.Buildable as Buildable
-import           Formatting (Format, bprint, build, (%))
+import qualified Formatting as F
+import           Formatting.Buildable (Buildable (build))
+
+import           Formatting (Format, bprint, (%))
 import           Universum
 
+import           Data.Text.Lazy (toStrict)
+import           Data.Text.Lazy.Builder (toLazyText)
 import           Pos.Binary.Class (Bi (..), decodeListLenCanonicalOf,
                      encodeListLen, enforceSize)
 import           Pos.Core.Block.Blockchain (Blockchain (..), GenericBlock (..),
@@ -72,6 +76,13 @@ import           Pos.Crypto (Hash, ProtocolMagic, PublicKey, Signature, hash,
                      unsafeHash)
 import           Pos.Util.Some (Some, applySome, liftLensSome)
 import           Pos.Util.Util (cborError, cerealError)
+
+----------------------------------------------------------------------------
+-- Compat shims
+----------------------------------------------------------------------------
+-- pretty used to be in Universum
+pretty :: Buildable a => a -> Text
+pretty = toStrict . toLazyText . build
 
 ----------------------------------------------------------------------------
 -- GenesisBlockchain
@@ -132,9 +143,9 @@ data BlockSignature
 instance NFData MainProof => NFData BlockSignature
 
 instance Buildable BlockSignature where
-    build (BlockSignature s)       = bprint ("BlockSignature: "%build) s
-    build (BlockPSignatureLight s) = bprint ("BlockPSignatureLight: "%build) s
-    build (BlockPSignatureHeavy s) = bprint ("BlockPSignatureHeavy: "%build) s
+    build (BlockSignature s)       = bprint ("BlockSignature: "%F.build) s
+    build (BlockPSignatureLight s) = bprint ("BlockPSignatureLight: "%F.build) s
+    build (BlockPSignatureHeavy s) = bprint ("BlockPSignatureHeavy: "%F.build) s
 
 instance Bi BlockSignature where
     encode input = case input of
@@ -312,7 +323,7 @@ type HeaderHash = Hash BlockHeader
 
 -- | Specialized formatter for 'HeaderHash'.
 headerHashF :: Format r (HeaderHash -> r)
-headerHashF = build
+headerHashF = F.build
 
 -- HasHeaderHash
 class HasHeaderHash a where

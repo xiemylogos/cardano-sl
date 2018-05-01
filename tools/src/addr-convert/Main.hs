@@ -17,6 +17,16 @@ import           Pos.Core (makeRedeemAddress)
 import           Pos.Crypto.Signing (fromAvvmPk)
 import           Pos.Util.Util (eitherToThrow)
 
+import           Data.Text.Lazy (toStrict)
+import           Data.Text.Lazy.Builder (toLazyText)
+import           Formatting.Buildable (Buildable (build))
+----------------------------------------------------------------------------
+-- Compat shims
+----------------------------------------------------------------------------
+-- pretty used to be in Universum
+pretty :: Buildable a => a -> Text
+pretty = toStrict . toLazyText . build
+
 data AddrConvertOptions = AddrConvertOptions
     { address :: !(Maybe Text)
     }

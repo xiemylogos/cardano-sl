@@ -15,7 +15,8 @@ import           Control.Lens (to)
 import           Control.Monad.STM (retry)
 import qualified Data.List.NonEmpty as NE
 import           Data.Time.Units (Second)
-import           Formatting (build, int, sformat, (%))
+import           Formatting (int, sformat, (%))
+import qualified Formatting as F
 import           Mockable (delay)
 import           System.Wlog (logDebug, logError, logInfo, logWarning)
 
@@ -40,6 +41,16 @@ import qualified Pos.Infra.Diffusion.Types as Diffusion
 import           Pos.Infra.Reporting (HasMisbehaviorMetrics, reportOrLogE,
                      reportOrLogW)
 import           Pos.Util.Util (HasLens (..))
+
+import           Data.Text.Lazy (toStrict)
+import           Data.Text.Lazy.Builder (toLazyText)
+import           Formatting.Buildable (Buildable (build))
+----------------------------------------------------------------------------
+-- Compat shims
+----------------------------------------------------------------------------
+-- pretty used to be in Universum
+pretty :: Buildable a => a -> Text
+pretty = toStrict . toLazyText . build
 
 -- I really don't like join
 {-# ANN retrievalWorker ("HLint: ignore Use join" :: Text) #-}
@@ -97,8 +108,8 @@ retrievalWorker pm diffusion = do
     handleBlockRetrieval nodeId BlockRetrievalTask{..} =
         handleAny (handleRetrievalE nodeId brtHeader) $ do
             logDebug $ sformat
-                ("Block retrieval queue task received, nodeId="%build%
-                 ", header="%build%", continues="%build)
+                ("Block retrieval queue task received, nodeId="%F.build%
+                 ", header="%F.build%", continues="%F.build)
                 nodeId
                 (headerHash brtHeader)
                 brtContinues
@@ -127,7 +138,7 @@ retrievalWorker pm diffusion = do
                 logError "handleAlternative: invalid header got into retrievalWorker queue"
             CHUseless _ ->
                 logDebug $
-                sformat ("handleAlternative: header "%build%" became useless, ignoring it")
+                sformat ("handleAlternative: header "%F.build%" became useless, ignoring it")
                         header
             _ -> do
                 logDebug "handleAlternative: considering header for recovery mode"
@@ -138,7 +149,7 @@ retrievalWorker pm diffusion = do
     -- safe-exceptions so it will let async exceptions pass.
     handleRetrievalE nodeId cHeader e = do
         reportOrLogW (sformat
-            ("handleRetrievalE: error handling nodeId="%build%", header="%build%": ")
+            ("handleRetrievalE: error handling nodeId="%F.build%", header="%F.build%": ")
             nodeId (headerHash cHeader)) e
 
     -----------------
@@ -152,7 +163,7 @@ retrievalWorker pm diffusion = do
     handleRecoveryE nodeId rHeader e = do
         -- REPORT:ERROR 'reportOrLogW' in block retrieval worker/recovery.
         reportOrLogW (sformat
-            ("handleRecoveryE: error handling nodeId="%build%", header="%build%": ")
+            ("handleRecoveryE: error handling nodeId="%F.build%", header="%F.build%": ")
             nodeId (headerHash rHeader)) e
         dropRecoveryHeaderAndRepeat pm diffusion nodeId
 
@@ -211,16 +222,16 @@ updateRecoveryHeader nodeId hdr = do
                     else return $ RecoveryContinued oldNodeId oldHdr
     logDebug $ case updated of
         RecoveryStarted rNodeId rHeader -> sformat
-            ("Recovery started with nodeId="%build%" and tip="%build)
+            ("Recovery started with nodeId="%F.build%" and tip="%F.build)
             rNodeId
             (headerHash rHeader)
         RecoveryShifted rNodeId' rHeader' rNodeId rHeader -> sformat
-            ("Recovery shifted from nodeId="%build%" and tip="%build%
-             " to nodeId="%build%" and tip="%build)
+            ("Recovery shifted from nodeId="%F.build%" and tip="%F.build%
+             " to nodeId="%F.build%" and tip="%F.build)
             rNodeId' (headerHash rHeader')
             rNodeId  (headerHash rHeader)
         RecoveryContinued rNodeId rHeader -> sformat
-            ("Recovery continued with nodeId="%build%" and tip="%build)
+            ("Recovery continued with nodeId="%F.build%" and tip="%F.build)
             rNodeId
             (headerHash rHeader)
 
@@ -246,7 +257,7 @@ dropRecoveryHeader nodeId = do
                 pure (p, Just peer)
         maybe (pure (True,Nothing)) processKick =<< tryReadTMVar recHeaderVar
     when kicked $ logWarning $
-        sformat ("Recovery mode communication dropped with peer "%build) nodeId
+        sformat ("Recovery mode communication dropped with peer "%F.build) nodeId
     unless kicked $
         logDebug $ "Recovery mode wasn't disabled: " <>
                    maybe "noth" show realPeer <> " vs " <> show nodeId
@@ -288,7 +299,7 @@ getProcessBlocks pm diffusion nodeId desired checkpoints = do
     case OldestFirst <$> nonEmpty (getOldestFirst result) of
       Nothing -> do
           let msg = sformat ("getProcessBlocks: diffusion returned []"%
-                             " on request to fetch "%shortHashF%" from peer "%build)
+                             " on request to fetch "%shortHashF%" from peer "%F.build)
                             desired nodeId
           throwM $ DialogUnexpected msg
       Just (blocks :: OldestFirst NE Block) -> do

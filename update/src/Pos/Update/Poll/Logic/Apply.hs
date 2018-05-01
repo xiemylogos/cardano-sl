@@ -12,7 +12,8 @@ import           Control.Monad.Except (MonadError, runExceptT, throwError)
 import qualified Data.HashSet as HS
 import           Data.List (partition)
 import qualified Data.List.NonEmpty as NE
-import           Formatting (build, builder, int, sformat, (%))
+import           Formatting (int, sformat, (%))
+import qualified Formatting as F
 import           System.Wlog (logDebug, logInfo, logNotice)
 
 import           Pos.Binary.Class (biSize)
@@ -303,7 +304,7 @@ applyImplicitAgreement (flattenSlotId -> slotId) cd hh = do
         let upId = hash $ upsProposal ups
             status | dpsDecision decided = "approved"
                    | otherwise = "rejected"
-        logInfo $ sformat ("Proposal "%build%" is implicitly "%builder)
+        logInfo $ sformat ("Proposal "%F.build%" is implicitly "%F.builder)
             upId status
     makeImplicitlyDecided ups@UndecidedProposalState {..} =
         DecidedProposalState
@@ -390,9 +391,9 @@ applyDepthCheck epoch hh (ChainDifficulty cd)
         needConfirmBV <- (dpsDecision &&) <$> canBeAdoptedBV bv
         if | needConfirmBV -> do
                confirmBlockVersion epoch bv
-               logInfo $ sformat (build%" is competing now") bv
+               logInfo $ sformat (F.build%" is competing now") bv
            | otherwise -> do
                delBVState bv
-               logInfo $ sformat ("State of "%build%" is deleted") bv
+               logInfo $ sformat ("State of "%F.build%" is deleted") bv
         deactivateProposal upId
-        logNotice $ sformat ("Proposal "%shortHashF%" is "%builder) upId status
+        logNotice $ sformat ("Proposal "%shortHashF%" is "%F.builder) upId status
