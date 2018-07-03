@@ -15,6 +15,7 @@ module Cardano.Faucet.Types.API (
  , WithdrawlResult(..)
  , DepositRequest(..), dWalletId, dAmount
  , DepositResult(..)
+ , WithdrawlQWrite(..)
   ) where
 
 import           Control.Lens hiding ((.=))
@@ -59,7 +60,28 @@ instance ToSchema WithdrawlRequest where
 
 
 --------------------------------------------------------------------------------
--- | The result of processing a 'WithdrawlRequest'
+data WithdrawlQWrite = Success (V1 Coin) | Full deriving (Show, Generic)
+
+instance ToJSON WithdrawlQWrite where
+  toJSON (Success coin )=
+      object ["data" .= coin, "status" .= ("success" :: Text) ]
+  toJSON Full =
+      object [ "error" .= ("Withdrawl queue is full" :: Text)
+             , "status" .= ("error" :: Text) ]
+
+instance ToSchema WithdrawlQWrite where
+    declareNamedSchema _ = do
+        coinSchema <- declareSchemaRef (Proxy :: Proxy (V1 Coin))
+        strSchema <- declareSchemaRef (Proxy :: Proxy Text)
+        return $ NamedSchema (Just "WithdrawlQWrite") $ mempty
+          & type_ .~ SwaggerObject
+          & properties .~ (mempty
+              & at "status" ?~ strSchema
+              & at "coin" ?~ coinSchema
+              & at "error" ?~ strSchema)
+          & required .~ ["status"]
+
+--------------------------------------------------------------------------------
 data WithdrawlResult =
     WithdrawlError Text   -- ^ Error with http client error
   | WithdrawlSuccess Transaction -- ^ Success with transaction details

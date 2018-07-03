@@ -13,7 +13,7 @@ module Cardano.Faucet (
   ) where
 
 import           Control.Lens
-import Control.Monad (unless, forM_)
+import           Control.Monad (forM_, unless)
 import           Control.Monad.IO.Class (liftIO)
 import           Data.ByteString.Lens (packedChars)
 import           Data.Monoid ((<>))
@@ -22,10 +22,10 @@ import           Data.Text.Lens
 import           Servant
 import           System.Wlog (LoggerName (..), logError, logInfo, withSublogger)
 
-import           Cardano.Wallet.API.Response (WalletResponse (..))
-import           Cardano.Wallet.API.V1.Types (txAmount, unV1)
-import qualified Cardano.WalletClient as Client
+import           Cardano.Wallet.API.V1.Types (unV1, V1)
+import           Pos.Core (Coin (..))
 
+import qualified Cardano.WalletClient as Client
 import           Cardano.Faucet.Init
 import           Cardano.Faucet.Metrics
 import           Cardano.Faucet.Types
@@ -33,16 +33,16 @@ import           Cardano.Faucet.Types.Recaptcha
 
 -- | Top level type of the faucet API
 type FaucetAPI = "api" :> "withdraw" :> Summary "Requests some ADA from the faucet"
-                                     :> ReqBody '[JSON] WithdrawlRequest :> Post '[JSON] WithdrawlResult
+                                     :> ReqBody '[JSON] WithdrawlRequest :> Post '[JSON] (V1 Coin)
                 :<|> "withdraw" :> Summary "Requests ADA from the faucet via recaptcha enabled form"
-                                :> ReqBody '[FormUrlEncoded] WithdrawlFormRequest :> Post '[JSON] WithdrawlResult
+                                :> ReqBody '[FormUrlEncoded] WithdrawlFormRequest :> Post '[JSON] (V1 Coin)
                 :<|> Raw
          -- :<|> "_deposit" :> ReqBody '[JSON] DepositRequest :> Post '[JSON] DepositResult
 
 faucetServerAPI :: Proxy FaucetAPI
 faucetServerAPI = Proxy
 
-formWithdraw :: (MonadFaucet c m) => WithdrawlFormRequest -> m WithdrawlResult
+formWithdraw :: (MonadFaucet c m) => WithdrawlFormRequest -> m (V1 Coin)
 formWithdraw wfr = withSublogger (LoggerName "formWithdraw") $ do
     mCaptchaSecret <- view (feFaucetConfig . fcRecaptchaSecret)
     forM_ mCaptchaSecret $ \captchaSecret -> do
@@ -56,23 +56,18 @@ formWithdraw wfr = withSublogger (LoggerName "formWithdraw") $ do
     withdraw wr
 
 -- | Handler for the withdrawl of ADA from the faucet
-withdraw :: (MonadFaucet c m) => WithdrawlRequest -> m WithdrawlResult
+withdraw :: (MonadFaucet c m) => WithdrawlRequest -> m (V1 Coin)
 withdraw wr = withSublogger (LoggerName "withdraw") $ do
     logInfo "Attempting to send ADA"
     resp <- Client.withdraw (wr ^. wAddress)
     case resp of
-        Left err -> do
-            logError ("Error withdrawing " <> (wr ^. to show . packed)
-                                           <> " error: "
-                                           <> (err ^. to show . packed))
-            return $ WithdrawlError (show err ^. packed)
-        Right withDrawResp -> do
-            let txn = wrData withDrawResp
-                amount = unV1 $ txAmount txn
-            logInfo ((withDrawResp ^. to show . packed) <> " withdrew: "
-                                              <> (amount ^. to show . packed))
-            incWithDrawn amount
-            return $ WithdrawlSuccess txn
+        Full -> do
+            logError "Withdrawl queue is full"
+            throwError $ err503 { errBody = "Withdrawl queue is full" }
+        Success coin -> do
+            logInfo "Successfully sent payment to withdrawl queue"
+            incWithDrawn (unV1 coin)
+            return $ coin
 
 -- | Function to _deposit funds back into the faucet /not implemented/
 _deposit :: (MonadFaucet c m) => DepositRequest -> m DepositResult

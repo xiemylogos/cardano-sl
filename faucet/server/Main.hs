@@ -18,7 +18,6 @@ import           Servant
 import           System.Environment (getArgs)
 import           System.Remote.Monitoring (forkServer, serverMetricStore)
 import           System.Remote.Monitoring.Statsd (forkStatsd)
-import           System.Wlog (LoggerName (..), launchFromFile)
 
 import           Cardano.Faucet
 import           Cardano.Faucet.Swagger
@@ -32,9 +31,7 @@ main = withCompileInfo $ do
       ecfg <- eitherDecode <$> BSL.readFile cfgFile
       either (error . ("Error decoding: " ++)) return ecfg
     _ -> error "Need a --config argument pointing to a json file"
-  fEnv <- runInitLogger config $ initEnv config (serverMetricStore ekg)
+  fEnv <- initEnv config (serverMetricStore ekg)
   let server = faucetHandler fEnv
   _statsd <- forkStatsd (config ^. fcStatsdOpts . _Wrapped') (fEnv ^. feStore)
   run (config ^. fcPort) (serve faucetDocAPI server)
-  where
-      runInitLogger c = launchFromFile (c ^. fcLoggerConfigFile) (LoggerName "faucet")

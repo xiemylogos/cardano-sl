@@ -14,8 +14,9 @@
 {-# OPTIONS_GHC -Wall #-}
 module Cardano.Faucet.Init (initEnv) where
 
-import           Control.Concurrent (threadDelay)
-import           Control.Concurrent.MVar (newMVar)
+import           Control.Concurrent (forkIO, threadDelay)
+import           Control.Concurrent.STM (atomically)
+import qualified Control.Concurrent.STM.TBQueue as TBQ
 import           Control.Exception (catch, throw)
 import           Control.Lens hiding ((.=))
 import           Control.Monad.Except
@@ -40,11 +41,12 @@ import           Network.TLS.Extra.Cipher (ciphersuite_strong)
 import           Servant.Client.Core (BaseUrl (..), Scheme (..))
 import           System.Directory (createDirectoryIfMissing)
 import           System.FilePath (takeDirectory)
-import System.IO.Error (isDoesNotExistError)
+import           System.IO.Error (isDoesNotExistError)
 import           System.Metrics (Store, createCounter, createGauge)
 import qualified System.Metrics.Gauge as Gauge
-import           System.Wlog (CanLog, HasLoggerName, LoggerNameBox (..),
-                              logError, logInfo, withSublogger)
+import           System.Wlog (CanLog, HasLoggerName, LoggerName (..),
+                              LoggerNameBox (..), launchFromFile, logError,
+                              logInfo, withSublogger)
 
 import           Cardano.Wallet.API.V1.Types (Account (..),
                                               AssuranceLevel (NormalAssurance),
@@ -53,7 +55,7 @@ import           Cardano.Wallet.API.V1.Types (Account (..),
                                               SyncPercentage, V1 (..),
                                               Wallet (..), WalletAddress (..),
                                               WalletOperation (CreateWallet),
-                                              mkSyncPercentage, unV1)
+                                              mkSyncPercentage, unV1, txAmount)
 import           Cardano.Wallet.Client (ClientError (..), WalletClient (..),
                                         WalletResponse (..), liftClient)
 import           Cardano.Wallet.Client.Http (mkHttpClient)
@@ -235,38 +237,75 @@ makeInitializedWallet fc client = withSublogger "makeInitializedWallet" $ do
                     return iw
     where
         left = return . Left
+
+
+processWithdrawls :: FaucetEnv -> LoggerNameBox IO ()
+processWithdrawls fEnv = withSublogger "processWithdrawls" $ forever $ do
+    let wc = fEnv ^. feWalletClient
+        pmtQ = fEnv ^. feWithdrawlQ
+    logInfo "Waiting for next payment"
+    pmt <- liftIO $ atomically $ TBQ.readTBQueue pmtQ
+    logInfo "Processing payment"
+    resp <- liftIO $ postTransaction wc pmt
+    liftIO $ putStrLn "print: Got response"
+    logInfo "Got response"
+    case resp of
+        Left err -> do
+            liftIO $ print err
+            logError ("Error withdrawing " <> (pmt ^. to show . packed)
+                                           <> " error: "
+                                           <> (err ^. to show . packed))
+        Right withDrawResp -> do
+            let txn = wrData withDrawResp
+                amount = unV1 $ txAmount txn
+            logInfo ((withDrawResp ^. to show . packed)
+                    <> " withdrew: "
+                    <> (amount ^. to show . packed))
+
 -- | Creates a 'FaucetEnv' from a given 'FaucetConfig'
 --
 -- Also sets the 'Gauge.Gauge' for the 'feWalletBalance'
-initEnv :: FaucetConfig -> Store -> LoggerNameBox IO FaucetEnv
-initEnv fc store = withSublogger "init" $ do
-    walletBalanceGauge <- liftIO $ createGauge "wallet-balance" store
-    feConstruct <- liftIO $ FaucetEnv
-      <$> createCounter "total-withdrawn" store
-      <*> createCounter "num-withdrawals" store
-      <*> pure walletBalanceGauge
-    logInfo "Creating Manager"
-    manager <- liftIO $ createManager fc
-    let url = BaseUrl Https (fc ^. fcWalletApiHost) (fc ^. fcWalletApiPort) ""
-        client = mkHttpClient url manager
-    logInfo "Initializing wallet"
-    initialWallet <- makeInitializedWallet fc (liftClient client)
-    lock <- liftIO $ newMVar ()
-    case initialWallet of
-        Left err -> do
-            logError ( "Error initializing wallet. Exiting: "
-                    <> (show err ^. packed))
-            throw err
-        Right iw -> do
-            logInfo ( "Initialised wallet: "
-                   <> (iw ^. walletConfig . srcWalletId . to show . packed))
-            liftIO $ Gauge.set walletBalanceGauge (iw ^. walletBalance)
-            return $ feConstruct
-                        store
-                        (iw ^. walletConfig)
-                        fc
-                        client
-                        lock
+initEnv :: FaucetConfig -> Store -> IO FaucetEnv
+initEnv fc store = do
+    env <- runLogger createEnv
+    runLogger $ withSublogger "initEnv" $
+        logInfo "Created environment"
+    tID <- forkIO $ runLogger $ processWithdrawls env
+    runLogger $ withSublogger "initEnv" $
+        logInfo ("Forked thread for processing withdrawls:" <> show tID ^. packed)
+    return env
+  where
+    createEnv = withSublogger "init" $ do
+      walletBalanceGauge <- liftIO $ createGauge "wallet-balance" store
+      feConstruct <- liftIO $ FaucetEnv
+        <$> createCounter "total-withdrawn" store
+        <*> createCounter "num-withdrawals" store
+        <*> pure walletBalanceGauge
+      logInfo "Creating Manager"
+      manager <- liftIO $ createManager fc
+      let url = BaseUrl Https (fc ^. fcWalletApiHost) (fc ^. fcWalletApiPort) ""
+          client = mkHttpClient url manager
+      logInfo "Initializing wallet"
+      initialWallet <- makeInitializedWallet fc (liftClient client)
+      pmtQ <- liftIO $ TBQ.newTBQueueIO 10
+      case initialWallet of
+          Left err -> do
+              logError ( "Error initializing wallet. Exiting: "
+                      <> (show err ^. packed))
+              throw err
+          Right iw -> do
+              logInfo ( "Initialised wallet: "
+                    <> (iw ^. walletConfig . srcWalletId . to show . packed))
+              liftIO $ Gauge.set walletBalanceGauge (iw ^. walletBalance)
+              return $ feConstruct
+                          store
+                          (iw ^. walletConfig)
+                          fc
+                          client
+                          pmtQ
+
+    runLogger :: LoggerNameBox IO a -> IO a
+    runLogger = launchFromFile (fc ^. fcLoggerConfigFile) (LoggerName "faucet")
 
 -- | Makes a http client 'Manager' for communicating with the wallet node
 createManager :: FaucetConfig -> IO Manager

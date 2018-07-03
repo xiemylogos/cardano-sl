@@ -52,6 +52,7 @@ library
                      , servant-server
                      , servant-swagger
                      , servant-swagger-ui
+                     , stm
                      , swagger2
                      , tagged
                      , text

@@ -8,11 +8,10 @@ module Cardano.WalletClient (
     withdraw
   ) where
 
+import Control.Concurrent.STM (atomically)
+import qualified Control.Concurrent.STM.TBQueue as TBQ
 import           Cardano.Wallet.API.V1.Types (Payment (..), V1 (..))
 import qualified Cardano.Wallet.API.V1.Types as V1
-import           Cardano.Wallet.Client (Resp, Transaction, WalletClient (..))
-import           Control.Concurrent.MVar (MVar, putMVar, takeMVar)
-import           Control.Exception (bracket)
 import           Control.Lens
 import           Control.Monad.IO.Class (liftIO)
 import           Control.Monad.Reader
@@ -38,21 +37,21 @@ randomAmount (PaymentDistribution (getCoin -> amt) (getCoin -> var))= do
 --
 -- Simply sends a 'randomAmount' of ADA (units in lovelace )to the supplied
 -- 'Address'
-withdraw :: (MonadFaucet c m) => V1 Address -> Resp m Transaction
+withdraw :: (MonadFaucet c m) => V1 Address -> m WithdrawlQWrite
 withdraw addr = do
     paymentSource <- view (feSourceWallet . to cfgToPaymentSource)
     spendingPassword <- view (feSourceWallet . srcSpendingPassword)
     coin <- randomAmount =<< view (feFaucetConfig . fcPaymentDistribution)
-    client <- view feWalletClient
-    lock <- view feWithdrawlLock
+    q <- view feWithdrawlQ
     let paymentDist = (V1.PaymentDistribution addr coin :| [])
         sp =  spendingPassword <&> view (re utf8 . to hashPwd . to V1)
         payment = Payment paymentSource paymentDist Nothing sp
-    liftIO $ runWithDraw client lock payment
+    liftIO $ atomically $ do
+        isFull <- TBQ.isFullTBQueue q
+        if isFull
+           then return Full
+           else TBQ.writeTBQueue q payment >> return (Success coin)
 
-runWithDraw :: WalletClient IO -> MVar () -> Payment -> Resp IO Transaction
-runWithDraw wc mVar pmt =
-    bracket (takeMVar mVar) (putMVar mVar) $ const $ postTransaction wc pmt
 
 -- | Hashes bytestring password to the form expected by the wallet API
 hashPwd :: ByteString -> PassPhrase
