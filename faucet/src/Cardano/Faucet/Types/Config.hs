@@ -27,12 +27,12 @@ module Cardano.Faucet.Types.Config (
   ) where
 
 import           Control.Applicative ((<|>))
-import Control.Concurrent.STM.TMVar (TMVar)
-import Control.Concurrent.STM.TBQueue (TBQueue)
+import           Control.Concurrent.STM.TBQueue (TBQueue)
+import           Control.Concurrent.STM.TMVar (TMVar)
 import           Control.Exception (Exception)
 import           Control.Lens hiding ((.=))
 import           Data.Aeson (FromJSON (..), ToJSON (..), object, withObject,
-                             (.:), (.:?), (.=))
+                     (.:), (.:?), (.=))
 import           Data.Int (Int64)
 import           Data.Text (Text)
 import           Data.Typeable (Typeable)
@@ -42,14 +42,14 @@ import           System.Metrics.Counter (Counter)
 import           System.Metrics.Gauge (Gauge)
 import           System.Remote.Monitoring.Statsd (StatsdOptions (..))
 
-import           Cardano.Wallet.API.V1.Types (AccountIndex, PaymentSource (..),
-                                              WalletId (..), Payment)
+import           Cardano.Wallet.API.V1.Types (AccountIndex, Payment,
+                     PaymentSource (..), WalletId (..))
 import           Cardano.Wallet.Client (ClientError (..), WalletClient (..))
 import           Pos.Core (Address (..), Coin (..))
 import           Pos.Util.Mnemonic (Mnemonic)
 
-import           Cardano.Faucet.Types.Recaptcha
 import           Cardano.Faucet.Types.API
+import           Cardano.Faucet.Types.Recaptcha
 
 --------------------------------------------------------------------------------
 -- | Newtype for 'StatsdOptions' for the 'FromJSON' instance
@@ -232,7 +232,7 @@ instance Exception InitFaucetError
 
 --------------------------------------------------------------------------------
 data ProcessorPayload = ProcessorPayload {
-    _ppQueue :: !Payment
+    _ppQueue  :: !Payment
   , _ppResult :: !(TMVar WithdrawlResult)
   }
 
@@ -255,7 +255,7 @@ data FaucetEnv = FaucetEnv {
     -- | Client for communicating with wallet API
   , _feWalletClient  :: !(WalletClient IO)
     -- | Lock to ensure only one withdrawl at a time
-  , _feWithdrawlQ :: !(TBQueue ProcessorPayload)
+  , _feWithdrawlQ    :: !(TBQueue ProcessorPayload)
   }
 
 makeClassy ''FaucetEnv

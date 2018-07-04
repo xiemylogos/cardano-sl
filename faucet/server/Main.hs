@@ -10,8 +10,8 @@
 module Main where
 
 import           Control.Lens
+import           Control.Monad.Except
 import           Data.Aeson (eitherDecode)
-import Control.Monad.Except
 import           Data.ByteString.Lazy as BSL
 import           Network.Wai.Handler.Warp (run)
 import           Pos.Util.CompileInfo (withCompileInfo)

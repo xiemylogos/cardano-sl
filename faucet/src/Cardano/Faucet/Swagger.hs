@@ -14,11 +14,11 @@ module Cardano.Faucet.Swagger
 import           Control.Lens
 import           Control.Monad.Except
 import           Data.Aeson
-import           Data.Tagged (retag)
 import           Data.Aeson.Encode.Pretty (encodePretty)
 import           Data.Proxy
 import           Data.String (fromString)
 import           Data.Swagger
+import           Data.Tagged (retag)
 import qualified Data.Text as T
 import           NeatInterpolation
 import           Servant
@@ -28,9 +28,9 @@ import           Servant.Swagger.UI (SwaggerSchemaUI)
 import           Cardano.Wallet.API.V1.Swagger
 import           Pos.Core.Update (SoftwareVersion)
 import           Pos.Update.Configuration (HasUpdateConfiguration,
-                                           curSoftwareVersion)
+                     curSoftwareVersion)
 import           Pos.Util.CompileInfo (CompileTimeInfo (..), HasCompileInfo,
-                                       compileInfo)
+                     compileInfo)
 
 import           Cardano.Faucet
 import           Cardano.Faucet.Types

@@ -1,6 +1,6 @@
 {-# LANGUAGE ConstraintKinds            #-}
+{-# LANGUAGE DeriveAnyClass             #-}
 {-# LANGUAGE DeriveGeneric              #-}
-{-# LANGUAGE DeriveAnyClass              #-}
 {-# LANGUAGE DuplicateRecordFields      #-}
 {-# LANGUAGE FlexibleInstances          #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
@@ -19,10 +19,10 @@ module Cardano.Faucet.Types.API (
  , WithdrawlQFull(..)
   ) where
 
-import Control.Exception
+import           Control.Exception
 import           Control.Lens hiding ((.=))
 import           Data.Aeson (FromJSON (..), ToJSON (..), object, withObject,
-                             (.:), (.=))
+                     (.:), (.=))
 import qualified Data.Char as Char
 import           Data.Monoid ((<>))
 import           Data.Text (Text)
