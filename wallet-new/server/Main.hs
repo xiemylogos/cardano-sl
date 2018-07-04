@@ -127,7 +127,7 @@ actionWithNewWallet pm sscParams nodeParams params =
       -- 'NewWalletBackendParams' to construct or initialize the wallet
 
       -- TODO(ks): Currently using non-implemented layer for wallet layer.
-      keystore <- Keystore.legacyKeystore (nrContext nr)
+      keystore <- Keystore.newLegacyKeystore (nrContext nr)
       bracketKernelPassiveWallet logMessage' keystore $ \walletLayer passiveWallet -> do
         liftIO $ logMessage' Info "Wallet kernel initialized"
         Kernel.Mode.runWalletMode pm

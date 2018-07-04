@@ -110,7 +110,7 @@ bracketPassiveWallet :: (MonadMask m, MonadIO m)
                      -> (PassiveWallet -> m a) -> m a
 bracketPassiveWallet _walletLogMessage keystore f =
     bracket (liftIO $ openMemoryState defDB)
-            (\_ -> return ())
+            (\_ -> Keystore.releaseKeystore keystore)
             (\db ->
                 bracket
                   (liftIO $ initPassiveWallet _walletLogMessage keystore db)
