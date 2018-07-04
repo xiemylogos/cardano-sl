@@ -198,6 +198,13 @@ packages:
     commit: 000b6cea24a9b33e0deff0a3e238e3f4e67f8610
   extra-dep: true
 
+# formatting since 6.3 has a space leak in `int` when used with `newtype`s.
+# see formatting#43
+- location:
+    git: https://github.com/angerman/formatting.git
+    commit: a922965aa58d523feb3174ed994f12b4c4788719
+  extra-dep: true
+
 nix:
   shell-file: shell.nix
 
@@ -215,7 +222,7 @@ extra-deps:
 
 # Serokell-specific utilities not on stackage
 - universum-1.2.0
-- formatting-6.3.4
+# - formatting-6.3.4
 # fmt <0.6 depends on text-format,
 # instead of formatting
 - fmt-0.6
