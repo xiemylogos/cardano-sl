@@ -16640,6 +16640,7 @@ license = stdenv.lib.licenses.mit;
 , servant-swagger
 , servant-swagger-ui
 , stdenv
+, stm
 , swagger2
 , tagged
 , text
@@ -16697,6 +16698,7 @@ servant-client-core
 servant-server
 servant-swagger
 servant-swagger-ui
+stm
 swagger2
 tagged
 text
