@@ -17,6 +17,7 @@ module Cardano.Faucet.Init (initEnv) where
 import           Control.Concurrent (forkIO, threadDelay)
 import           Control.Concurrent.STM (atomically)
 import qualified Control.Concurrent.STM.TBQueue as TBQ
+import           Control.Concurrent.STM.TMVar (putTMVar)
 import           Control.Exception (catch, throw)
 import           Control.Lens hiding ((.=))
 import           Control.Monad.Except
@@ -241,29 +242,32 @@ makeInitializedWallet fc client = withSublogger "makeInitializedWallet" $ do
     where
         left = return . Left
 
-
+--------------------------------------------------------------------------------
 processWithdrawls :: FaucetEnv -> LoggerNameBox IO ()
 processWithdrawls fEnv = withSublogger "processWithdrawls" $ forever $ do
     let wc = fEnv ^. feWalletClient
         pmtQ = fEnv ^. feWithdrawlQ
     logInfo "Waiting for next payment"
-    pmt <- liftIO $ atomically $ TBQ.readTBQueue pmtQ
+    (ProcessorPayload pmt tVarResult)<- liftIOA $ TBQ.readTBQueue pmtQ
     logInfo "Processing payment"
     resp <- liftIO $ postTransaction wc pmt
     logInfo "Got response"
     case resp of
         Left err -> do
-            liftIO $ print err
+            let txtErr = err ^. to show . packed
             logError ("Error sending to " <> (showPmt pmt)
                                           <> " error: "
-                                          <> (err ^. to show . packed))
+                                          <> txtErr)
+            liftIOA $ putTMVar tVarResult (WithdrawlError txtErr)
         Right withDrawResp -> do
             let txn = wrData withDrawResp
                 amount = unV1 $ txAmount txn
             logInfo ((withDrawResp ^. to show . packed)
                     <> " withdrew: "
                     <> (amount ^. to show . packed))
+            liftIOA $ putTMVar tVarResult (WithdrawlSuccess txn)
     where
+      liftIOA = liftIO . atomically
       showPmt = toStrict . encodeToLazyText . pdAddress . NonEmpty.head . pmtDestinations
 
 -- | Creates a 'FaucetEnv' from a given 'FaucetConfig'

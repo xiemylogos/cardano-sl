@@ -1,5 +1,6 @@
 {-# LANGUAGE ConstraintKinds            #-}
 {-# LANGUAGE DeriveGeneric              #-}
+{-# LANGUAGE DeriveAnyClass              #-}
 {-# LANGUAGE DuplicateRecordFields      #-}
 {-# LANGUAGE FlexibleInstances          #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
@@ -12,12 +13,13 @@
 {-# OPTIONS_GHC -Wall #-}
 module Cardano.Faucet.Types.API (
    WithdrawlRequest(..), wAddress
- , WithdrawlResult(..)
+ , WithdrawlResult(..), _WithdrawlError, _WithdrawlSuccess
  , DepositRequest(..), dWalletId, dAmount
  , DepositResult(..)
- , WithdrawlQWrite(..)
+ , WithdrawlQFull(..)
   ) where
 
+import Control.Exception
 import           Control.Lens hiding ((.=))
 import           Data.Aeson (FromJSON (..), ToJSON (..), object, withObject,
                              (.:), (.=))
@@ -60,24 +62,20 @@ instance ToSchema WithdrawlRequest where
 
 
 --------------------------------------------------------------------------------
-data WithdrawlQWrite = Success (V1 Coin) | Full deriving (Show, Generic)
+data WithdrawlQFull = WithdrawlQFull deriving (Show, Generic, Exception)
 
-instance ToJSON WithdrawlQWrite where
-  toJSON (Success coin )=
-      object ["data" .= coin, "status" .= ("success" :: Text) ]
-  toJSON Full =
+instance ToJSON WithdrawlQFull where
+  toJSON _ =
       object [ "error" .= ("Withdrawl queue is full" :: Text)
              , "status" .= ("error" :: Text) ]
 
-instance ToSchema WithdrawlQWrite where
+instance ToSchema WithdrawlQFull where
     declareNamedSchema _ = do
-        coinSchema <- declareSchemaRef (Proxy :: Proxy (V1 Coin))
         strSchema <- declareSchemaRef (Proxy :: Proxy Text)
-        return $ NamedSchema (Just "WithdrawlQWrite") $ mempty
+        return $ NamedSchema (Just "WithdrawlQFull") $ mempty
           & type_ .~ SwaggerObject
           & properties .~ (mempty
               & at "status" ?~ strSchema
-              & at "coin" ?~ coinSchema
               & at "error" ?~ strSchema)
           & required .~ ["status"]
 
@@ -86,6 +84,8 @@ data WithdrawlResult =
     WithdrawlError Text   -- ^ Error with http client error
   | WithdrawlSuccess Transaction -- ^ Success with transaction details
   deriving (Show, Typeable, Generic)
+
+makePrisms ''WithdrawlResult
 
 instance ToJSON WithdrawlResult where
     toJSON (WithdrawlSuccess txn) =

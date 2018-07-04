@@ -18,7 +18,6 @@ module Cardano.Faucet.Types (
   , module Cardano.Faucet.Types.API
   ) where
 
-import           Control.Lens
 import           Control.Monad.Except
 import           Control.Monad.Morph (hoist)
 import           Control.Monad.Reader

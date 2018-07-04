@@ -9,6 +9,7 @@ module Cardano.WalletClient (
   ) where
 
 import Control.Concurrent.STM (atomically)
+import Control.Concurrent.STM.TMVar (takeTMVar, newEmptyTMVar)
 import qualified Control.Concurrent.STM.TBQueue as TBQ
 import           Cardano.Wallet.API.V1.Types (Payment (..), V1 (..))
 import qualified Cardano.Wallet.API.V1.Types as V1
@@ -24,6 +25,7 @@ import           Data.Text.Strict.Lens (utf8)
 import           Pos.Core (Address (..), Coin (..), getCoin)
 import           Pos.Crypto.Signing (PassPhrase)
 import           System.Random
+import           System.Wlog (logError, logInfo, withSublogger)
 
 import           Cardano.Faucet.Types
 
@@ -37,8 +39,8 @@ randomAmount (PaymentDistribution (getCoin -> amt) (getCoin -> var))= do
 --
 -- Simply sends a 'randomAmount' of ADA (units in lovelace )to the supplied
 -- 'Address'
-withdraw :: (MonadFaucet c m) => V1 Address -> m WithdrawlQWrite
-withdraw addr = do
+withdraw :: (MonadFaucet c m) => V1 Address -> m (Either WithdrawlQFull WithdrawlResult)
+withdraw addr = withSublogger "WalletClient.withdraw" $ do
     paymentSource <- view (feSourceWallet . to cfgToPaymentSource)
     spendingPassword <- view (feSourceWallet . srcSpendingPassword)
     coin <- randomAmount =<< view (feFaucetConfig . fcPaymentDistribution)
@@ -46,11 +48,21 @@ withdraw addr = do
     let paymentDist = (V1.PaymentDistribution addr coin :| [])
         sp =  spendingPassword <&> view (re utf8 . to hashPwd . to V1)
         payment = Payment paymentSource paymentDist Nothing sp
-    liftIO $ atomically $ do
+    eRes <- liftIO $ atomically $ do
         isFull <- TBQ.isFullTBQueue q
         if isFull
-           then return Full
-           else TBQ.writeTBQueue q payment >> return (Success coin)
+           then return $ Left WithdrawlQFull
+           else do
+            resTMVar <- newEmptyTMVar
+            TBQ.writeTBQueue q  (ProcessorPayload payment resTMVar)
+            return $ Right resTMVar
+    case eRes of
+        Left e -> do
+            logError "Queue is full"
+            return $ Left e
+        Right tvar -> do
+            logInfo "Waiting for processing result"
+            liftIO $ (Right <$> atomically (takeTMVar tvar))
 
 
 -- | Hashes bytestring password to the form expected by the wallet API

@@ -22,10 +22,12 @@ module Cardano.Faucet.Types.Config (
  , SourceWallet(..), srcWalletId, srcAccountIndex, srcSpendingPassword
  , InitializedWallet(..), walletBalance, walletConfig
  , CreatedWallet(..)
+ , ProcessorPayload(..), ppQueue, ppResult
  , InitFaucetError(..)
   ) where
 
 import           Control.Applicative ((<|>))
+import Control.Concurrent.STM.TMVar (TMVar)
 import Control.Concurrent.STM.TBQueue (TBQueue)
 import           Control.Exception (Exception)
 import           Control.Lens hiding ((.=))
@@ -47,6 +49,7 @@ import           Pos.Core (Address (..), Coin (..))
 import           Pos.Util.Mnemonic (Mnemonic)
 
 import           Cardano.Faucet.Types.Recaptcha
+import           Cardano.Faucet.Types.API
 
 --------------------------------------------------------------------------------
 -- | Newtype for 'StatsdOptions' for the 'FromJSON' instance
@@ -228,6 +231,13 @@ data InitFaucetError =
 instance Exception InitFaucetError
 
 --------------------------------------------------------------------------------
+data ProcessorPayload = ProcessorPayload {
+    _ppQueue :: !Payment
+  , _ppResult :: !(TMVar WithdrawlResult)
+  }
+
+makeLenses ''ProcessorPayload
+--------------------------------------------------------------------------------
 -- | Run time environment for faucet's reader Monad
 data FaucetEnv = FaucetEnv {
     -- | Counter for total amount withdawn from a wallet while faucet is running
@@ -245,7 +255,7 @@ data FaucetEnv = FaucetEnv {
     -- | Client for communicating with wallet API
   , _feWalletClient  :: !(WalletClient IO)
     -- | Lock to ensure only one withdrawl at a time
-  , _feWithdrawlQ :: !(TBQueue Payment)
+  , _feWithdrawlQ :: !(TBQueue ProcessorPayload)
   }
 
 makeClassy ''FaucetEnv
