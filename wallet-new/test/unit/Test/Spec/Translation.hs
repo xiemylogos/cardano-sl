@@ -5,6 +5,7 @@ module Test.Spec.Translation (
 import           Universum
 
 import qualified Data.Set as Set
+import qualified Formatting as F
 import           Formatting (bprint, shown, (%))
 import           Formatting.Buildable (Buildable (build))
 import           Pos.Core.Chrono
@@ -301,36 +302,36 @@ instance (Hash h a, Buildable a) => Buildable (ValidationResult h a) where
   build ExpectedValid = "ExpectedValid"
   build ExpectedInvalid{..} = bprint
       ( "ExpectedInvalid"
-      % ", errorDsl:     " % build
-      % ", errorCardano: " % build
+      % ", errorDsl:     " % F.build
+      % ", errorCardano: " % F.build
       % "}"
       )
       validationErrorDsl
       validationErrorCardano
   build ExpectedInvalid'{..} = bprint
       ( "ExpectedInvalid'"
-      % ", errorDsl: " % build
-      % ", errorInt: " % build
+      % ", errorDsl: " % F.build
+      % ", errorInt: " % F.build
       % "}"
       )
       validationErrorDsl
       validationErrorInt
   build Disagreement{..} = bprint
       ( "Disagreement "
-      % "{ ledger: "       % build
-      % ", disagreement: " % build
+      % "{ ledger: "       % F.build
+      % ", disagreement: " % F.build
       % "}"
       )
       validationLedger
       validationDisagreement
 
 instance (Hash h a, Buildable a) => Buildable (Disagreement h a) where
-  build (UnexpectedInvalid e) = bprint ("UnexpectedInvalid " % build) e
+  build (UnexpectedInvalid e) = bprint ("UnexpectedInvalid " % F.build) e
   build (UnexpectedError e)   = bprint ("UnexpectedError " % shown) e
   build (UnexpectedValid e)   = bprint ("UnexpectedValid " % shown) e
   build UnexpectedUtxo{..}    = bprint
       ( "UnexpectedUtxo"
-      % "{ dsl:     " % build
+      % "{ dsl:     " % F.build
       % ", cardano: " % mapJson
       % ", int:     " % mapJson
       % "}"

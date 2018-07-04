@@ -13,6 +13,7 @@ module Wallet.Inductive.Interpreter (
 import           Universum
 
 import           Formatting (bprint, (%))
+import qualified Formatting as F
 import           Formatting.Buildable (Buildable (build))
 import           Pos.Core.Chrono
 import           Serokell.Util (listJson)
@@ -145,9 +146,9 @@ data InvalidInput h a =
 instance (Hash h a, Buildable a) => Buildable (InvalidInput h a) where
   build InvalidPending{..} = bprint
     ( "InvalidPending "
-    % "{ transaction:   " % build
-    % ", walletUtxo:    " % build
-    % ", walletPending: " % build
+    % "{ transaction:   " % F.build
+    % ", walletUtxo:    " % F.build
+    % ", walletPending: " % F.build
     % "}"
     )
     invalidPendingTransaction
@@ -155,9 +156,9 @@ instance (Hash h a, Buildable a) => Buildable (InvalidInput h a) where
     invalidPendingWalletPending
 
 instance (Hash h a, Buildable a) => Buildable (History h a) where
-  build = bprint ("{" % build) . go
+  build = bprint ("{" % F.build) . go
     where
-      go (History s n)  = bprint ("state: " % listJson % build) s (go' n)
+      go (History s n)  = bprint ("state: " % listJson % F.build) s (go' n)
 
       go' Nothing       = "}"
-      go' (Just (e, h)) = bprint (", action: " % F.build % ", " % build) e (go h)
+      go' (Just (e, h)) = bprint (", action: " % F.build % ", " % F.build) e (go h)

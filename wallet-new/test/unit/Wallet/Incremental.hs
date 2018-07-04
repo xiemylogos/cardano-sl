@@ -23,6 +23,7 @@ import           Universum hiding (State)
 
 import           Control.Lens.TH
 import qualified Data.Map as Map
+import qualified Formatting as F
 import           Formatting (bprint, (%))
 import           Formatting.Buildable (Buildable (build))
 
@@ -110,8 +111,8 @@ applyBlock' (ins, outs) State{..} = State{
 instance (Hash h a, Buildable a) => Buildable (State h a) where
   build State{..} = bprint
     ( "State"
-    % "{ basic:       " % build
-    % ", utxoBalance: " % build
+    % "{ basic:       " % F.build
+    % ", utxoBalance: " % F.build
     % "}"
     )
     _stateBasic

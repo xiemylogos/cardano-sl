@@ -14,7 +14,7 @@ module Util.Buildable.QuickCheck (
 
 import qualified Test.QuickCheck as QC
 import           Universum
-
+import           Formatting.Buildable (Buildable)
 import           Util.Buildable
 
 {-------------------------------------------------------------------------------

@@ -18,6 +18,7 @@ import qualified Cardano.Wallet.Kernel as Kernel
 import           Cardano.Wallet.Kernel.Types
 import qualified Data.List as List
 import           Formatting (bprint, (%))
+import qualified Formatting as F
 import           Formatting.Buildable (Buildable (build))
 
 import           Pos.Core (AddressHash, HasConfiguration)
@@ -297,9 +298,9 @@ data EquivalenceViolationEvidence =
 instance Hash h Addr => Buildable (EquivalenceViolation h) where
   build EquivalenceViolation{..} = bprint
     ( "EquivalenceViolation "
-    % "{ name:      " % build
-    % ", evidence:  " % build
-    % ", events:    " % build
+    % "{ name:      " % F.build
+    % ", evidence:  " % F.build
+    % ", events:    " % F.build
     % "}"
     )
     equivalenceViolationName
@@ -307,9 +308,9 @@ instance Hash h Addr => Buildable (EquivalenceViolation h) where
     equivalenceViolationEvents
   build EquivalenceNotChecked{..} = bprint
     ( "EquivalenceNotChecked "
-    % "{ name:      " % build
-    % ", reason:    " % build
-    % ", events:    " % build
+    % "{ name:      " % F.build
+    % ", reason:    " % F.build
+    % ", events:    " % F.build
     % "}"
     )
     equivalenceNotCheckedName
@@ -319,9 +320,9 @@ instance Hash h Addr => Buildable (EquivalenceViolation h) where
 instance Buildable EquivalenceViolationEvidence where
   build NotEquivalent{..} = bprint
     ( "NotEquivalent "
-    % "{ notEquivalentDsl:        " % build
-    % ", notEquivalentTranslated: " % build
-    % ", notEquivalentKernel:     " % build
+    % "{ notEquivalentDsl:        " % F.build
+    % ", notEquivalentTranslated: " % F.build
+    % ", notEquivalentKernel:     " % F.build
     % "}"
     )
     notEquivalentDsl

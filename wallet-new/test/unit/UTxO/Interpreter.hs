@@ -30,6 +30,7 @@ import qualified Data.Map.Strict as Map
 import           Formatting (bprint, shown)
 import           Formatting.Buildable (Buildable (build))
 import           Prelude (Show (..))
+import           Fmt (fmt)
 
 import           Cardano.Wallet.Kernel.DB.Resolved
 import           Cardano.Wallet.Kernel.Types
@@ -214,7 +215,7 @@ intHash h = do
     mId <- Map.lookup h . icHashes <$> get
     case mId of
       Just id -> return id
-      Nothing -> throwError . Left $ IntUnknownHash (pretty h)
+      Nothing -> throwError . Left $ IntUnknownHash (fmt . build $ h)
 
 {-------------------------------------------------------------------------------
   Lift some DSL operations that require a ledger to operations that

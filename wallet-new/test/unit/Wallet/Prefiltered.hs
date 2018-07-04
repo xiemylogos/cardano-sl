@@ -17,6 +17,8 @@ import           Universum
 
 import qualified Data.Set as Set
 
+import           Formatting.Buildable (Buildable)
+
 import           UTxO.DSL
 import           Wallet.Abstract
 import qualified Wallet.Incremental as Incr

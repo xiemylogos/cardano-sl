@@ -25,7 +25,7 @@ import qualified Data.Set as S
 import qualified Data.Vector as V
 import           Formatting (bprint, (%))
 import qualified Formatting as F
-import           Formatting.Buildable (build)
+import           Formatting.Buildable (Buildable (build))
 import qualified Pos.Core as Core
 import           Pos.Crypto.Hashing (hash)
 import           Pos.Crypto.Signing (deterministicKeyGen)

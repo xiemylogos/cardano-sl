@@ -3,7 +3,7 @@ module Util.Buildable (
     ShowThroughBuild(..)
   ) where
 
-import           Data.Text.Buildable (Buildable (..))
+import           Formatting.Buildable (Buildable (..))
 import           Formatting (bprint, sformat)
 import qualified Formatting as F
 import           Prelude (Show (..))

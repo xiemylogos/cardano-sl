@@ -9,6 +9,7 @@ import           Universum
 import qualified Data.List as List
 import qualified Data.Set as Set
 import           Formatting (bprint, (%))
+import qualified Formatting as F
 import           Formatting.Buildable (Buildable (build))
 import           Pos.Core.Chrono
 
@@ -203,18 +204,18 @@ inductiveIsValid Inductive{..} = do
 instance (Hash h a, Buildable a) => Buildable (InductiveValidationError h a) where
   build InductiveInvalidBoot{..} = bprint
     ( "InductiveInvalidBoot"
-    % "{ boot:  " % build
-    % ", error: " % build
+    % "{ boot:  " % F.build
+    % ", error: " % F.build
     % "}"
     )
     inductiveInvalidBoot
     inductiveInvalidError
   build InductiveInvalidApplyBlock{..} = bprint
     ( "InductiveInvalidApplyBlock"
-    % "{ events:      " % build
-    % ", blockPrefix: " % build
-    % ", transaction: " % build
-    % ", error:       " % build
+    % "{ events:      " % F.build
+    % ", blockPrefix: " % F.build
+    % ", transaction: " % F.build
+    % ", error:       " % F.build
     % "}")
     inductiveInvalidEvents
     inductiveInvalidBlockPrefix
@@ -222,9 +223,9 @@ instance (Hash h a, Buildable a) => Buildable (InductiveValidationError h a) whe
     inductiveInvalidError
   build InductiveInvalidNewPendingAlreadySpent{..} = bprint
     ( "InductiveInvalidNewPendingAlreadySpent"
-    % "{ events:      " % build
-    % ", transaction: " % build
-    % ", input:       " % build
+    % "{ events:      " % F.build
+    % ", transaction: " % F.build
+    % ", input:       " % F.build
     % "}"
     )
     inductiveInvalidEvents
@@ -232,10 +233,10 @@ instance (Hash h a, Buildable a) => Buildable (InductiveValidationError h a) whe
     inductiveInvalidInput
   build InductiveInvalidNewPendingNotOurs{..} = bprint
     ( "InductiveInvalidNewPendingNotOurs"
-    % "{ events:      " % build
-    % ", transaction: " % build
-    % ", input:       " % build
-    % ", address:     " % build
+    % "{ events:      " % F.build
+    % ", transaction: " % F.build
+    % ", input:       " % F.build
+    % ", address:     " % F.build
     % "}"
     )
     inductiveInvalidEvents

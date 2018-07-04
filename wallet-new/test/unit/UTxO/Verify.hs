@@ -21,6 +21,9 @@ import qualified Data.HashSet as HS
 import qualified Data.List.NonEmpty as NE
 import           System.Wlog
 
+import           Formatting.Buildable (build)
+import           Fmt (fmt)
+
 import           Pos.Block.Error
 import           Pos.Block.Logic hiding (verifyBlocksPrefix)
 import           Pos.Block.Logic.Integrity (verifyBlocks)
@@ -243,12 +246,12 @@ verifyBlocksPrefix pm tip curSlot leaders lastSlots blocks = do
 
     -- We skip SSC verification
     {-
-    _ <- withExceptT (VerifyBlocksError . pretty) $
+    _ <- withExceptT (VerifyBlocksError . fmt . build) $
         ExceptT $ sscVerifyBlocks (map toSscBlock blocks)
     -}
 
     -- Verify transactions
-    txUndo <- mapVerifyErrors (VerifyBlocksError . pretty) $
+    txUndo <- mapVerifyErrors (VerifyBlocksError . fmt . build) $
         tgsVerifyBlocks pm $ map toTxpBlock blocks
 
     -- Skip delegation verification
@@ -260,7 +263,7 @@ verifyBlocksPrefix pm tip curSlot leaders lastSlots blocks = do
 
     -- Skip update verification
     {-
-    (pModifier, usUndos) <- withExceptT (VerifyBlocksError . pretty) $
+    (pModifier, usUndos) <- withExceptT (VerifyBlocksError . fmt . build) $
         ExceptT $ usVerifyBlocks dataMustBeKnown (map toUpdateBlock blocks)
     -}
     let usUndos :: OldestFirst NE USUndo

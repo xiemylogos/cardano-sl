@@ -39,6 +39,7 @@ import qualified Data.HashMap.Strict as HM
 import qualified Data.List.NonEmpty as NE
 import qualified Data.Map.Strict as Map
 import           Formatting (bprint, sformat, (%))
+import qualified Formatting as F
 import           Formatting.Buildable (Buildable (build))
 import           Serokell.Util (listJson, mapJson, pairF)
 import           Serokell.Util.Base16 (base16F)
@@ -545,8 +546,8 @@ blockSignInfoForSlot slotId = blockSignInfo . leaderForSlot slotId
 instance Buildable Rich where
   build Rich{..} = bprint
       ( "Rich"
-      % "{ key:  " % build
-      % ", addr: " % build
+      % "{ key:  " % F.build
+      % ", addr: " % F.build
       % "}"
       )
       richKey
@@ -555,7 +556,7 @@ instance Buildable Rich where
 instance Buildable Poor where
   build Poor{..} = bprint
       ( "Poor"
-      % "{ key:   " % build
+      % "{ key:   " % F.build
       % ", addrs: " % listJson
       % "}"
       )
@@ -565,8 +566,8 @@ instance Buildable Poor where
 instance Buildable Stakeholder where
   build Stakeholder{..} = bprint
       ( "Stakeholder"
-      % "{ key: " % build
-      % ", del: " % build
+      % "{ key: " % F.build
+      % ", del: " % F.build
       % "}"
       )
       stkKey
@@ -575,9 +576,9 @@ instance Buildable Stakeholder where
 instance Buildable Avvm where
   build Avvm{..} = bprint
       ( "Avvm"
-      % "{ key:  " % build
+      % "{ key:  " % F.build
       % ", seed: " % base16F
-      % ", addr: " % build
+      % ", addr: " % F.build
       % "}"
       )
       avvmKey
@@ -599,15 +600,15 @@ instance Buildable Actors where
       (Map.elems actorsAvvm)
 
 instance Buildable ActorIx where
-  build (IxRich ix) = bprint ("IxRich " % build) ix
-  build (IxPoor ix) = bprint ("IxPoor " % build) ix
-  build (IxAvvm ix) = bprint ("IxAvvm " % build) ix
+  build (IxRich ix) = bprint ("IxRich " % F.build) ix
+  build (IxPoor ix) = bprint ("IxPoor " % F.build) ix
+  build (IxAvvm ix) = bprint ("IxAvvm " % F.build) ix
 
 instance Buildable Addr where
   build Addr{..} = bprint
       ( "Addr"
-      % "{ actorIx: " % build
-      % ", addrIx:  " % build
+      % "{ actorIx: " % F.build
+      % ", addrIx:  " % F.build
       % "}"
       )
       addrActorIx
@@ -639,9 +640,9 @@ instance Buildable AddrMap where
 instance Buildable TransCtxt where
   build TransCtxt{..} = bprint
       ( "TransCtxt"
-      % "{ cardano: " % build
-      % ", actors:  " % build
-      % ", addrMap: " % build
+      % "{ cardano: " % F.build
+      % ", actors:  " % F.build
+      % ", addrMap: " % F.build
       % "}"
       )
       tcCardano

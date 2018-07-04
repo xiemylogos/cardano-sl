@@ -4,6 +4,7 @@ import           Universum
 
 import           Data.Either (isLeft)
 import           Formatting (sformat)
+import qualified Formatting as F
 import           Test.Hspec
 
 import           Cardano.Wallet.API.Request.Filter

@@ -18,6 +18,7 @@ module UTxO.Crypto (
 
 import           Formatting (bprint, (%))
 import           Formatting.Buildable (Buildable (build))
+import qualified Formatting as F
 import           Universum
 
 import           Pos.Core
@@ -138,9 +139,9 @@ data DelegatedTo a = DelegatedTo {
 instance Buildable RegularKeyPair where
   build RegularKeyPair{..} = bprint
       ( "RegularKeyPair"
-      % "{ sec:  " % build
-      % ", pub:  " % build
-      % ", hash: " % build
+      % "{ sec:  " % F.build
+      % ", pub:  " % F.build
+      % ", hash: " % F.build
       % "}"
       )
       regKpSec
@@ -150,9 +151,9 @@ instance Buildable RegularKeyPair where
 instance Buildable EncKeyPair where
   build EncKeyPair{..} = bprint
       ( "EncKeyPair"
-      % "{ sec:  " % build
-      % ", pub:  " % build
-      % ", hash: " % build
+      % "{ sec:  " % F.build
+      % ", pub:  " % F.build
+      % ", hash: " % F.build
       % "}"
       )
       encKpSec
@@ -162,8 +163,8 @@ instance Buildable EncKeyPair where
 instance Buildable RedeemKeyPair where
   build RedeemKeyPair{..} = bprint
       ( "RedeemKeyPair"
-      % "{ sec: " % build
-      % ", pub: " % build
+      % "{ sec: " % F.build
+      % ", pub: " % F.build
       % "}"
       )
       redKpSec
@@ -172,8 +173,8 @@ instance Buildable RedeemKeyPair where
 instance Buildable a => Buildable (DelegatedTo a) where
   build DelegatedTo{..} = bprint
       ( "DelegatedTo"
-      % "{ to:  " % build
-      % ", psk: " % build
+      % "{ to:  " % F.build
+      % ", psk: " % F.build
       % "}"
       )
       delTo

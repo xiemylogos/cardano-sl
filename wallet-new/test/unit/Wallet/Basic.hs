@@ -21,6 +21,7 @@ import           Universum hiding (State)
 import           Control.Lens.TH
 import qualified Data.Map as Map
 import           Formatting (bprint, (%))
+import qualified Formatting as F
 import           Formatting.Buildable (Buildable (build))
 
 import           UTxO.DSL
@@ -76,8 +77,8 @@ applyBlock' ours b State{..} = State {
 instance (Hash h a, Buildable a) => Buildable (State h a) where
   build State{..} = bprint
     ( "State"
-    % "{ utxo:    " % build
-    % ", pending: " % build
+    % "{ utxo:    " % F.build
+    % ", pending: " % F.build
     % "}"
     )
     _stateUtxo

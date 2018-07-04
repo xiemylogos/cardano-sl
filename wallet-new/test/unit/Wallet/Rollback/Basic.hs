@@ -18,6 +18,7 @@ import           Control.Lens.TH
 import qualified Data.Map as Map
 import           Formatting (bprint, (%))
 import           Formatting.Buildable (Buildable (build))
+import qualified Formatting as F
 import           Serokell.Util (listJson)
 
 import           UTxO.DSL
@@ -91,7 +92,7 @@ rollback' State{ _stateCheckpoints = prev : checkpoints'
 instance (Hash h a, Buildable a) => Buildable (State h a) where
   build State{..} = bprint
     ( "State"
-    % "{ current:     " % build
+    % "{ current:     " % F.build
     % ", checkpoints: " % listJson
     % "}"
     )

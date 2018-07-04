@@ -6,7 +6,6 @@ import           Universum
 
 import qualified Prelude
 
-import           Data.String.Conv
 import           Data.Swagger
 import           Pos.Wallet.Aeson.ClientTypes ()
 import           Servant.API.ContentTypes
@@ -14,6 +13,9 @@ import           Servant.Swagger.Test ()
 import           Test.Hspec
 import           Test.Hspec.QuickCheck
 import           Test.QuickCheck.Instances ()
+
+import           Formatting.Buildable (Buildable (build))
+import           Fmt (fmt)
 
 import           Cardano.Wallet.API.Response (ValidJSON)
 import qualified Cardano.Wallet.API.V1 as V1
@@ -31,7 +33,7 @@ import           Test.QuickCheck (Arbitrary)
 -- In the future, hopefully, we will never need these.
 
 instance {-# OVERLAPPABLE #-} Buildable a => Prelude.Show a where
-    show = toS . pretty
+    show = fmt . build
 
 -- | This instance is a little weird -- we have defined 'NoContent' to have
 -- a 'ToJSON' instance that reuses @'toJSON' ()@, which gives @[]@:

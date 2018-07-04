@@ -20,6 +20,8 @@ import           Universum
 import qualified Data.Map as Map
 import qualified Data.Set as Set
 import           Formatting (bprint, (%))
+import qualified Formatting as F
+import           Fmt (fmt)
 import           Formatting.Buildable (Buildable (build))
 import           Serokell.Util (listJson)
 
@@ -245,8 +247,8 @@ balanceChangeAvailable l e = invariant (l <> "/balanceChangeAvailable") e $ \w -
 
 pendingInputsDisjoint :: Hash h a => WalletInv h a
 pendingInputsDisjoint l e = invariant (l <> "/pendingInputsDisjoint") e $ \w ->
-    asum [ checkDisjoint ("trIns " <> pretty h1, trIns tx1)
-                         ("trIns " <> pretty h2, trIns tx2)
+    asum [ checkDisjoint ("trIns " <> (fmt . build $ h1), trIns tx1)
+                         ("trIns " <> (fmt . build $ h2), trIns tx2)
          | (h1, tx1) <- Map.toList $ pending w
          , (h2, tx2) <- Map.toList $ pending w
          , h1 /= h2
@@ -334,9 +336,9 @@ walletEquivalent lbl e e' = void .
 instance (Hash h a, Buildable a) => Buildable (InvariantViolation h a) where
   build InvariantViolation{..} = bprint
     ( "InvariantViolation "
-    % "{ name:     " % build
-    % ", evidence: " % build
-    % ", events:   " % build
+    % "{ name:     " % F.build
+    % ", evidence: " % F.build
+    % ", events:   " % F.build
     % "}"
     )
     invariantViolationName
@@ -344,9 +346,9 @@ instance (Hash h a, Buildable a) => Buildable (InvariantViolation h a) where
     invariantViolationEvents
   build (InvariantNotChecked{..}) = bprint
     ( "InvariantNotChecked "
-    % "{ name:   " % build
-    % ", reason: " % build
-    % ", events: " % build
+    % "{ name:   " % F.build
+    % ", reason: " % F.build
+    % ", events: " % F.build
     % "}"
     )
     invariantNotCheckedName
@@ -356,8 +358,8 @@ instance (Hash h a, Buildable a) => Buildable (InvariantViolation h a) where
 instance Buildable InvariantViolationEvidence where
   build (NotEqual (labelX, x) (labelY, y)) = bprint
     ( "NotEqual "
-    % "{ " % F.build % ": " % build
-    % ", " % F.build % ": " % build
+    % "{ " % F.build % ": " % F.build
+    % ", " % F.build % ": " % F.build
     % "}"
     )
     labelX
@@ -379,7 +381,7 @@ instance Buildable InvariantViolationEvidence where
       (Set.toList $ xs Set.\\ ys)
   build (NotAllSatisfy (labelP, p) (labelXs, xs)) = bprint
     ( "NotAllSatisfy "
-    % "{ " % F.build % ": " % build
+    % "{ " % F.build % ": " % F.build
     % ", " % F.build % ": " % listJson
     % ", " % F.build % ": " % listJson
     % "}"

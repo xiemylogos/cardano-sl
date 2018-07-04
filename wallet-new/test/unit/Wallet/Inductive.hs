@@ -10,6 +10,7 @@ module Wallet.Inductive (
 import           Universum
 
 import qualified Data.Set as Set
+import qualified Formatting as F
 import           Formatting (bprint, (%))
 import           Formatting.Buildable (Buildable (build))
 import           Pos.Core.Chrono
@@ -69,16 +70,16 @@ instance (Hash h a, Buildable a) => Buildable (OldestFirst [] (WalletEvent h a))
   build = bprint listJson . getOldestFirst
 
 instance (Hash h a, Buildable a) => Buildable (WalletEvent h a) where
-  build (ApplyBlock b) = bprint ("ApplyBlock " % build) b
-  build (NewPending t) = bprint ("NewPending " % build) t
+  build (ApplyBlock b) = bprint ("ApplyBlock " % F.build) b
+  build (NewPending t) = bprint ("NewPending " % F.build) t
   build Rollback       = bprint "Rollback"
 
 instance (Hash h a, Buildable a) => Buildable (Inductive h a) where
   build Inductive{..} = bprint
     ( "Inductive"
-    % "{ boot: "   % build
+    % "{ boot: "   % F.build
     % ", ours:   " % listJson
-    % ", events: " % build
+    % ", events: " % F.build
     % "}"
     )
     inductiveBoot

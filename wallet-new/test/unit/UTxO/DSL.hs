@@ -87,6 +87,7 @@ import           Data.Set (Set)
 import qualified Data.Set as Set
 import           Formatting (bprint, sformat, (%))
 import           Formatting.Buildable (Buildable (build))
+import qualified Formatting as F
 import           Pos.Core.Chrono (NewestFirst (NewestFirst),
                      OldestFirst (getOldestFirst))
 import           Prelude (Show (..))
@@ -163,9 +164,9 @@ trIsAcceptable t l = sequence_ [
         whenNothing_ (inpSpentOutput inp l) $
           throwError (sformat
             ( "In transaction "
-            % build
+            % F.build
             % ": cannot resolve input "
-            % build
+            % F.build
             )
             t
             inp)
@@ -178,13 +179,13 @@ trIsAcceptable t l = sequence_ [
         unless (sumIn >= sumOut) $
           throwError $ sformat
             ( "In transaction "
-            % build
+            % F.build
             % ": value not preserved (in: "
-            % build
+            % F.build
             % ", out: "
-            % build
+            % F.build
             % "; difference "
-            % build
+            % F.build
             % ")"
             )
             t
@@ -201,9 +202,9 @@ trIsAcceptable t l = sequence_ [
         unless (inp `Set.member` ledgerUnspentOutputs l) $
           throwError $ sformat
             ( "In transaction "
-            % build
+            % F.build
             % ": input "
-            % build
+            % F.build
             % " already spent"
             )
             t
@@ -317,7 +318,7 @@ inpSpentOutput' :: (Hash h a, HasCallStack)
 inpSpentOutput' i l = fromJust err $
       trOuts (inpTransaction' i l) `at` fromIntegral (inpIndex i)
   where
-    err = sformat ("Input index out of bounds: " % build) i
+    err = sformat ("Input index out of bounds: " % F.build) i
 
 inpVal' :: Hash h a => Input h a -> Ledger h a -> Value
 inpVal' i = outVal . inpSpentOutput' i
@@ -423,7 +424,7 @@ findHash' :: (Hash h a, HasCallStack)
           => h (Transaction h a) -> Ledger h a -> Transaction h a
 findHash' h l = fromJust err (findHash h l)
   where
-    err = sformat ("Hash not found: " % build) h
+    err = sformat ("Hash not found: " % F.build) h
 
 {-------------------------------------------------------------------------------
   Additional: UTxO
@@ -631,13 +632,13 @@ givenHash = GivenHash . trHash
 instance Buildable a => Buildable (Address a) where
   build AddrGenesis     = "AddrGenesis"
   build AddrTreasury    = "AddrTreasury"
-  build (AddrRegular a) = bprint ("AddrRegular " % build) a
+  build (AddrRegular a) = bprint ("AddrRegular " % F.build) a
 
 instance Buildable a => Buildable (Output h a) where
   build Output{..} = bprint
       ( "Output"
-      % "{ addr: " % build
-      % ", val:  " % build
+      % "{ addr: " % F.build
+      % ", val:  " % F.build
       % "}"
       )
       outAddr
@@ -646,8 +647,8 @@ instance Buildable a => Buildable (Output h a) where
 instance Hash h a => Buildable (Input h a) where
   build Input{..} = bprint
       ( "Input"
-      % "{ trans: " % build
-      % ", index: " % build
+      % "{ trans: " % F.build
+      % ", index: " % F.build
       % "}"
       )
       inpTrans
@@ -656,11 +657,11 @@ instance Hash h a => Buildable (Input h a) where
 instance (Buildable a, Hash h a) => Buildable (Transaction h a) where
   build Transaction{..} = bprint
       ( "Transaction"
-      % "{ fresh: " % build
+      % "{ fresh: " % F.build
       % ", ins:   " % listJson
       % ", outs:  " % mapJson
-      % ", fee:   " % build
-      % ", hash:  " % build
+      % ", fee:   " % F.build
+      % ", hash:  " % F.build
       % ", extra: " % listJson
       % "}"
       )

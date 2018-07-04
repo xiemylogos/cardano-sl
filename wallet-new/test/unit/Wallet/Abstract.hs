@@ -25,6 +25,7 @@ import qualified Data.Map as Map
 import qualified Data.Set as Set
 import           Formatting (bprint)
 import           Formatting.Buildable (Buildable (build))
+import           Fmt (fmt)
 import           Pos.Core.Chrono
 import           Serokell.Util (mapJson)
 
@@ -132,7 +133,7 @@ mkDefaultWallet l self st = Wallet {
     , availableBalance = utxoBalance $ available this
     , totalBalance     = utxoBalance $ total     this
       -- Debugging
-    , dumpState  = pretty st
+    , dumpState  = fmt . build $ st
       -- Functions without a default
     , utxo         = error "mkDefaultWallet: no default for utxo"
     , expectedUtxo = error "mkDefaultWallet: no default for expectedUtxo"

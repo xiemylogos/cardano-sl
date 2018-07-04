@@ -6,6 +6,7 @@ import           Universum
 
 import qualified Data.Set as Set
 
+import           Formatting.Buildable (Buildable)
 import           Test.Infrastructure.Generator
 import           Util.Buildable.Hspec
 import           Util.Buildable.QuickCheck

@@ -27,6 +27,7 @@ module Util.Buildable.Hspec (
 import qualified Test.Hspec as H
 import           Universum
 
+import           Formatting.Buildable (Buildable)
 import           Util.Buildable
 import           Util.Validated
 

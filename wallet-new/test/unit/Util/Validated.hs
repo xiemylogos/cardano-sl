@@ -15,6 +15,7 @@ module Util.Validated (
 
 import           Control.Monad.Except
 import           Formatting (bprint, (%))
+import qualified Formatting as F
 import           Formatting.Buildable (Buildable (build))
 import           Serokell.Util (listJson)
 import           Universum
@@ -55,8 +56,8 @@ validatedToEither (Invalid _ e) = Left  e
 validatedToEither (Valid     a) = Right a
 
 instance (Buildable e, Buildable a) => Buildable (Validated e a) where
-  build (Invalid ds e) = bprint ("Invalid " % listJson % " " % build) ds e
-  build (Valid      a) = bprint ("Valid "   % build) a
+  build (Invalid ds e) = bprint ("Invalid " % listJson % " " % F.build) ds e
+  build (Valid      a) = bprint ("Valid "   % F.build) a
 
 isValidated :: Validated e a -> Bool
 isValidated (Invalid _ _) = False

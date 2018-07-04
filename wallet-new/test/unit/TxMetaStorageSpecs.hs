@@ -8,7 +8,7 @@ import           Control.Exception.Safe (bracket)
 import qualified Data.List as List
 import qualified Data.List.NonEmpty as NonEmpty
 import qualified Data.Set as Set
-import           Formatting.Buildable (build)
+import           Formatting.Buildable (Buildable (build))
 import qualified Prelude
 
 import qualified Pos.Core as Core
