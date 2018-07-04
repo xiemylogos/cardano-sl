@@ -67,6 +67,47 @@ foldM' combine = go
     go !base []     = return base
     go !base (x:xs) = combine base x >>= flip go xs
 
+-- | Common code used by @'genBlocksNoApply'@ and @'genBlocks@.  The former
+-- generates a non empty list of @'Block'@s (using @'genBlockNoApply'@), the
+-- latter also applies them one by one (using @'genBlock'@) an returns a list of
+-- @'Blund'@s.
+genBlocks'
+    :: forall g ctx m a t .
+       ( BlockTxpGenMode g ctx m
+       , Semigroup t
+       , Monoid t
+       )
+    => BlockGenParams
+    -> (a -> Block)  -- ^ get @'Block'@ out of generated value
+    -> (    EpochOrSlot
+         -> BlockHeader
+         -> BlockGenRandMode (MempoolExt m) g m (Maybe a)
+       )
+       -- ^ generator of @'Block'@ or @'Blund'@
+    -> (Maybe a -> t)
+    -> RandT g m t
+genBlocks' params getBlock gen inj = do
+    ctx <- lift $ mkBlockGenContext @(MempoolExt m) params
+    mapRandT (`runReaderT` ctx) genBlocksDo
+  where
+    genBlocksDo :: RandT g (BlockGenMode (MempoolExt m) m) t
+    genBlocksDo = do
+        let numberOfBlocks = params ^. bgpBlockCount
+        tipHeader <- lift DB.getTipHeader
+        let tipEOS = getEpochOrSlot tipHeader
+        let startEOS = succ tipEOS
+        let finishEOS = toEnum $ fromEnum tipEOS + fromIntegral numberOfBlocks
+        snd <$> foldM' genOne (tipHeader, mempty) [startEOS .. finishEOS]
+
+    genOne
+        :: (BlockHeader, t)
+        -> EpochOrSlot
+        -> RandT g (BlockGenMode (MempoolExt m) m) (BlockHeader, t)
+    genOne (header, t) eos = do
+        gen eos header >>= \case
+            Nothing -> error $ sformat ("genBlocks': failed to generate a block: previous hash: "%shown) (headerHash header)
+            Just a -> return (getBlockHeader $ getBlock a, (t <>) . inj $ Just a)
+
 -- | Generate an arbitrary sequence of valid blocks. The blocks are
 -- valid with respect to the global state right before this function
 -- call.
@@ -80,51 +121,16 @@ genBlocks ::
     -> BlockGenParams
     -> (Maybe Blund -> t)
     -> RandT g m t
-genBlocks pm params inj = do
-    ctx <- lift $ mkBlockGenContext @(MempoolExt m) params
-    mapRandT (`runReaderT` ctx) genBlocksDo
-  where
-    genBlocksDo :: RandT g (BlockGenMode (MempoolExt m) m) t
-    genBlocksDo = do
-        let numberOfBlocks = params ^. bgpBlockCount
-        tipEOS <- getEpochOrSlot <$> lift DB.getTipHeader
-        let startEOS = succ tipEOS
-        let finishEOS = toEnum $ fromEnum tipEOS + fromIntegral numberOfBlocks
-        foldM' genOneBlock mempty [startEOS .. finishEOS]
+genBlocks pm params inj = genBlocks' params fst (\epoch _ -> genBlock pm epoch) inj
 
-    genOneBlock
-        :: t
-        -> EpochOrSlot
-        -> RandT g (BlockGenMode (MempoolExt m) m) t
-    genOneBlock t eos = ((t <>) . inj) <$> genBlock pm eos
-
+-- | Generate an arbitrary sequence of blocks without applying them.
 genBlocksNoApply ::
        forall g ctx m t . (HasTxpConfiguration, BlockTxpGenMode g ctx m, Semigroup t, Monoid t)
     => ProtocolMagic
     -> BlockGenParams
     -> (Maybe Block -> t)
     -> RandT g m t
-genBlocksNoApply pm params inj = do
-    ctx <- lift $ mkBlockGenContext @(MempoolExt m) params
-    mapRandT (`runReaderT` ctx) genBlocksDo
-  where
-    genBlocksDo :: RandT g (BlockGenMode (MempoolExt m) m) t
-    genBlocksDo = do
-        let numberOfBlocks = params ^. bgpBlockCount
-        tipHeader <- lift DB.getTipHeader
-        let tipEOS = getEpochOrSlot tipHeader
-        let startEOS = succ tipEOS
-        let finishEOS = toEnum $ fromEnum tipEOS + fromIntegral numberOfBlocks
-        snd <$> foldM' genOneBlock (tipHeader, mempty) [startEOS .. finishEOS]
-
-    genOneBlock
-        :: (BlockHeader, t)
-        -> EpochOrSlot
-        -> RandT g (BlockGenMode (MempoolExt m) m) (BlockHeader, t)
-    genOneBlock (header, t) eos = do
-        genBlockNoApply pm eos header >>= \case
-            Nothing -> error $ sformat ("genBlockNoApply: failed to generate a block: previous hash: "%shown) (headerHash header)
-            Just bl -> return (getBlockHeader bl, (t <>) . inj $ Just bl)
+genBlocksNoApply pm params inj = genBlocks' params identity (genBlockNoApply pm) inj
 
 -- | Generate a 'Block' for the given epoch or slot (geneis block in the formet
 -- case and main block in the latter case) and do not apply it.
