@@ -1,9 +1,14 @@
-{-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE ConstraintKinds       #-}
+{-# LANGUAGE FlexibleInstances     #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE UndecidableInstances  #-}
 
--- | Type class used for slotting functionality.
-
-module Pos.Infra.Slotting.Class
-       ( MonadSlots (..)
+module Pos.Sinbin.Slotting.MemState
+       ( HasSlottingVar (..)
+       , MonadSlotsData
+       , MonadSlots (..)
+       , SlottingVar
+       , cloneSlottingVar
        ) where
 
 import           Universum
@@ -11,8 +16,26 @@ import           Universum
 import           Control.Monad.Trans (MonadTrans)
 
 import           Pos.Core.Slotting (SlotId (..), Timestamp)
-import           Pos.Infra.Slotting.MemState (MonadSlotsData)
+import           Pos.Sinbin.Slotting.Types (SlottingData)
 
+
+type MonadSlotsData ctx m =
+    ( MonadReader ctx m
+    , HasSlottingVar ctx
+    , MonadIO m
+    )
+
+type SlottingVar = TVar SlottingData
+
+-- | Create a new 'SlottingVar' with the same contents as the given
+-- variable has.
+cloneSlottingVar :: MonadIO m => SlottingVar -> m SlottingVar
+cloneSlottingVar = readTVarIO >=> newTVarIO
+
+-- | System start and slotting data
+class HasSlottingVar ctx where
+    slottingTimestamp :: Lens' ctx Timestamp
+    slottingVar       :: Lens' ctx SlottingVar
 
 -- | Type class providing information about current slot.
 class (MonadSlotsData ctx m) => MonadSlots ctx m where

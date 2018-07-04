@@ -3,11 +3,7 @@
 -- | Default implementation of 'MonadSlotsData' based on 'TVar'.
 
 module Pos.Infra.Slotting.MemState
-       ( HasSlottingVar(..)
-       , MonadSlotsData
-       , SlottingVar
-       , cloneSlottingVar
-       , withSlottingVarAtomM
+       ( withSlottingVarAtomM
        , getSystemStartM
        , getAllEpochIndicesM
        , getCurrentNextEpochIndexM
@@ -39,20 +35,9 @@ type SlottingVar = TVar SlottingData
 cloneSlottingVar :: MonadIO m => SlottingVar -> m SlottingVar
 cloneSlottingVar = readTVarIO >=> newTVarIO
 
--- | System start and slotting data
-class HasSlottingVar ctx where
-    slottingTimestamp :: Lens' ctx Timestamp
-    slottingVar       :: Lens' ctx SlottingVar
-
 ----------------------------------------------------------------------------
 -- MonadSlotsData implementation
 ----------------------------------------------------------------------------
-
-type MonadSlotsData ctx m =
-    ( MonadReader ctx m
-    , HasSlottingVar ctx
-    , MonadIO m
-    )
 
 -- TODO(ks): We might need a functions similar to `withSlottingDataAtomM` that
 -- executes an STM action (function) and returns the result in @IO@ monad.

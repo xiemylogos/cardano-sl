@@ -1,7 +1,12 @@
-{-# LANGUAGE CPP #-}
+{-# LANGUAGE CPP                        #-}
+{-# LANGUAGE DeriveGeneric              #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE TemplateHaskell            #-}
+{-# LANGUAGE ViewPatterns               #-}
+
 -- | Core types used in 'Slotting'.
 
-module Pos.Infra.Slotting.Types
+module Pos.Sinbin.Slotting.Types
        ( EpochSlottingData (..)
        , SlottingData
        , getSlottingDataMap

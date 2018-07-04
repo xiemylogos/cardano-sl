@@ -41,7 +41,6 @@ library
 
                         -- Slotting
                         Pos.Infra.Slotting
-                        Pos.Infra.Slotting.Class
                         Pos.Infra.Slotting.Impl
                         Pos.Infra.Slotting.Impl.Simple
                         Pos.Infra.Slotting.Impl.Util
@@ -128,6 +127,7 @@ library
                       , cardano-sl-crypto
                       , cardano-sl-db
                       , cardano-sl-networking
+                      , cardano-sl-sinbin
                       , cardano-sl-util
                       , cardano-report-server >= 0.4.5
                       , conduit
