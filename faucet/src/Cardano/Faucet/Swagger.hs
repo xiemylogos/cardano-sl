@@ -14,6 +14,7 @@ module Cardano.Faucet.Swagger
 import           Control.Lens
 import           Control.Monad.Except
 import           Data.Aeson
+import           Data.Tagged (retag)
 import           Data.Aeson.Encode.Pretty (encodePretty)
 import           Data.Proxy
 import           Data.String (fromString)
@@ -42,6 +43,8 @@ type FaucetDoc = SwaggerSchemaUI "docs" "swagger.json"
 -- | Combined swagger UI and 'FaucetAPI'
 type FaucetDocAPI = FaucetDoc :<|> FaucetAPI
 
+faucetDoc :: Proxy FaucetDoc
+faucetDoc = Proxy
 
 faucetDocAPI :: Proxy FaucetDocAPI
 faucetDocAPI = Proxy
@@ -83,10 +86,15 @@ mkSwagger compileInfo walletAPI = toSwagger walletAPI
 swaggerServer :: (HasCompileInfo) => Server FaucetDoc
 swaggerServer = swaggerSchemaUIServer (mkSwagger compileInfo faucetServerAPI)
 
+
+faucetHandler :: HasCompileInfo => ServerT FaucetDocAPI M
+faucetHandler = (hoistServer faucetDoc liftToM swaggerServer) :<|> faucetServer
+
+
 -- | Combined 'swaggerServer' and 'faucetServer'
-faucetHandler :: HasCompileInfo => FaucetEnv -> Server FaucetDocAPI
-faucetHandler env = swaggerServer
-               :<|> hoistServer faucetServerAPI (nat env) faucetServer
-  where
-      nat :: FaucetEnv -> M a -> Handler a
-      nat e = Handler . ExceptT . runM e
+-- faucetHandler :: HasCompileInfo => FaucetEnv -> Server FaucetDocAPI
+-- faucetHandler env = swaggerServer
+--                :<|> hoistServer faucetServerAPI (nat env) faucetServer
+--   where
+--       nat :: FaucetEnv -> M a -> Handler a
+--       nat e = Handler . ExceptT . runM e

@@ -27,8 +27,10 @@ import qualified Data.ByteString as BS
 import qualified Data.ByteString.Lazy as BSL
 import           Data.Default (def)
 import           Data.Int (Int64)
+import           Data.List.NonEmpty as NonEmpty
 import           Data.Monoid ((<>))
 import qualified Data.Text as Text
+import           Data.Text.Lazy (toStrict)
 import qualified Data.Text.Lazy.IO as Text
 import           Data.Text.Lens (packed)
 import           Network.Connection (TLSSettings (..))
@@ -44,18 +46,19 @@ import           System.FilePath (takeDirectory)
 import           System.IO.Error (isDoesNotExistError)
 import           System.Metrics (Store, createCounter, createGauge)
 import qualified System.Metrics.Gauge as Gauge
-import           System.Wlog (CanLog, HasLoggerName, LoggerName (..),
-                              LoggerNameBox (..), launchFromFile, logError,
-                              logInfo, withSublogger)
+import           System.Wlog (CanLog, HasLoggerName, LoggerNameBox (..),
+                              liftLogIO, logError, logInfo, withSublogger)
 
 import           Cardano.Wallet.API.V1.Types (Account (..),
                                               AssuranceLevel (NormalAssurance),
                                               NewWallet (..), NodeInfo (..),
+                                              Payment (..),
+                                              PaymentDistribution (..),
                                               PaymentSource (..),
                                               SyncPercentage, V1 (..),
                                               Wallet (..), WalletAddress (..),
                                               WalletOperation (CreateWallet),
-                                              mkSyncPercentage, unV1, txAmount)
+                                              mkSyncPercentage, txAmount, unV1)
 import           Cardano.Wallet.Client (ClientError (..), WalletClient (..),
                                         WalletResponse (..), liftClient)
 import           Cardano.Wallet.Client.Http (mkHttpClient)
@@ -247,32 +250,32 @@ processWithdrawls fEnv = withSublogger "processWithdrawls" $ forever $ do
     pmt <- liftIO $ atomically $ TBQ.readTBQueue pmtQ
     logInfo "Processing payment"
     resp <- liftIO $ postTransaction wc pmt
-    liftIO $ putStrLn "print: Got response"
     logInfo "Got response"
     case resp of
         Left err -> do
             liftIO $ print err
-            logError ("Error withdrawing " <> (pmt ^. to show . packed)
-                                           <> " error: "
-                                           <> (err ^. to show . packed))
+            logError ("Error sending to " <> (showPmt pmt)
+                                          <> " error: "
+                                          <> (err ^. to show . packed))
         Right withDrawResp -> do
             let txn = wrData withDrawResp
                 amount = unV1 $ txAmount txn
             logInfo ((withDrawResp ^. to show . packed)
                     <> " withdrew: "
                     <> (amount ^. to show . packed))
+    where
+      showPmt = toStrict . encodeToLazyText . pdAddress . NonEmpty.head . pmtDestinations
 
 -- | Creates a 'FaucetEnv' from a given 'FaucetConfig'
 --
 -- Also sets the 'Gauge.Gauge' for the 'feWalletBalance'
-initEnv :: FaucetConfig -> Store -> IO FaucetEnv
+initEnv :: FaucetConfig -> Store -> LoggerNameBox IO FaucetEnv
 initEnv fc store = do
-    env <- runLogger createEnv
-    runLogger $ withSublogger "initEnv" $
-        logInfo "Created environment"
-    tID <- forkIO $ runLogger $ processWithdrawls env
-    runLogger $ withSublogger "initEnv" $
-        logInfo ("Forked thread for processing withdrawls:" <> show tID ^. packed)
+    withSublogger "initEnv" $ logInfo "Initializing environment"
+    env <- createEnv
+    withSublogger "initEnv" $ logInfo "Created environment"
+    tID <- liftLogIO forkIO $ processWithdrawls env
+    withSublogger "initEnv" $ logInfo ("Forked thread for processing withdrawls:" <> show tID ^. packed)
     return env
   where
     createEnv = withSublogger "init" $ do
@@ -304,8 +307,6 @@ initEnv fc store = do
                           client
                           pmtQ
 
-    runLogger :: LoggerNameBox IO a -> IO a
-    runLogger = launchFromFile (fc ^. fcLoggerConfigFile) (LoggerName "faucet")
 
 -- | Makes a http client 'Manager' for communicating with the wallet node
 createManager :: FaucetConfig -> IO Manager
