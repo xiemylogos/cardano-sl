@@ -27,10 +27,10 @@ import           Control.Arrow ((&&&))
 import           Data.Default (def)
 import qualified Data.List.NonEmpty as NE
 import qualified Data.Map.Strict as Map
+import           Fmt (fmt)
 import           Formatting (bprint, shown)
 import           Formatting.Buildable (Buildable (build))
 import           Prelude (Show (..))
-import           Fmt (fmt)
 
 import           Cardano.Wallet.Kernel.DB.Resolved
 import           Cardano.Wallet.Kernel.Types

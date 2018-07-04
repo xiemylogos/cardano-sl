@@ -12,9 +12,9 @@ module Util.Buildable.QuickCheck (
   , QC.choose
   ) where
 
+import           Formatting.Buildable (Buildable)
 import qualified Test.QuickCheck as QC
 import           Universum
-import           Formatting.Buildable (Buildable)
 import           Util.Buildable
 
 {-------------------------------------------------------------------------------

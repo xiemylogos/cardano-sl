@@ -19,9 +19,9 @@ import           Universum
 
 import qualified Data.Map as Map
 import qualified Data.Set as Set
+import           Fmt (fmt)
 import           Formatting (bprint, (%))
 import qualified Formatting as F
-import           Fmt (fmt)
 import           Formatting.Buildable (Buildable (build))
 import           Serokell.Util (listJson)
 

@@ -14,8 +14,8 @@ import           Test.Hspec
 import           Test.Hspec.QuickCheck
 import           Test.QuickCheck.Instances ()
 
-import           Formatting.Buildable (Buildable (build))
 import           Fmt (fmt)
+import           Formatting.Buildable (Buildable (build))
 
 import           Cardano.Wallet.API.Response (ValidJSON)
 import qualified Cardano.Wallet.API.V1 as V1

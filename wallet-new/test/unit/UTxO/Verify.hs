@@ -21,8 +21,8 @@ import qualified Data.HashSet as HS
 import qualified Data.List.NonEmpty as NE
 import           System.Wlog
 
-import           Formatting.Buildable (build)
 import           Fmt (fmt)
+import           Formatting.Buildable (build)
 
 import           Pos.Block.Error
 import           Pos.Block.Logic hiding (verifyBlocksPrefix)

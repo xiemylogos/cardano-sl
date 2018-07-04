@@ -10,8 +10,8 @@ module Wallet.Inductive (
 import           Universum
 
 import qualified Data.Set as Set
-import qualified Formatting as F
 import           Formatting (bprint, (%))
+import qualified Formatting as F
 import           Formatting.Buildable (Buildable (build))
 import           Pos.Core.Chrono
 import           Serokell.Util (listJson)

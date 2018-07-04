@@ -17,8 +17,8 @@ module UTxO.Crypto (
   ) where
 
 import           Formatting (bprint, (%))
-import           Formatting.Buildable (Buildable (build))
 import qualified Formatting as F
+import           Formatting.Buildable (Buildable (build))
 import           Universum
 
 import           Pos.Core

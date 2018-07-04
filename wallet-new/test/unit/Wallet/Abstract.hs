@@ -23,9 +23,9 @@ import           Universum
 import qualified Data.Foldable as Fold
 import qualified Data.Map as Map
 import qualified Data.Set as Set
+import           Fmt (fmt)
 import           Formatting (bprint)
 import           Formatting.Buildable (Buildable (build))
-import           Fmt (fmt)
 import           Pos.Core.Chrono
 import           Serokell.Util (mapJson)
 
