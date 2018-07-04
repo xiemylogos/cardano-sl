@@ -72,8 +72,7 @@ import           Pos.Infra.Network.Types (HasNodeType (..), NodeType (..))
 import           Pos.Infra.Reporting (MonadReporting (..))
 import           Pos.Infra.Shutdown (HasShutdownContext (..),
                      ShutdownContext (..))
-import           Pos.Infra.Slotting (HasSlottingVar (..), MonadSlots (..),
-                     MonadSlotsData, SimpleSlottingStateVar,
+import           Pos.Infra.Slotting (SimpleSlottingStateVar,
                      mkSimpleSlottingStateVar)
 import           Pos.Infra.StateLock (StateLock, StateLockMetrics (..),
                      newStateLock)
@@ -82,6 +81,8 @@ import           Pos.Infra.Util.JsonLog.Events (HasJsonLogConfig (..),
 import           Pos.Infra.Util.TimeWarp (CanJsonLog (..))
 import           Pos.Launcher (HasConfigurations)
 import           Pos.Lrc (LrcContext)
+import           Pos.Sinbin.Slotting (HasSlottingVar (..), MonadSlots (..),
+                     MonadSlotsData)
 import           Pos.Ssc.Mem (SscMemTag)
 import           Pos.Ssc.Types (SscState)
 import           Pos.Txp (GenericTxpLocalData, MempoolExt, MonadTxpLocal (..),

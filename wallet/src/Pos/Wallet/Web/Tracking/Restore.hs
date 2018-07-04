@@ -12,7 +12,7 @@ import           Pos.Core (Address, HasConfiguration, HasDifficulty (..),
 import           Pos.Core.Txp (TxIn, TxOut (..), TxOutAux (..))
 import qualified Pos.DB.BlockIndex as DB
 import           Pos.DB.Class (MonadDBRead (..))
-import           Pos.Infra.Slotting (MonadSlotsData)
+import           Pos.Sinbin.Slotting (MonadSlotsData)
 import           Pos.Txp (genesisUtxo, unGenesisUtxo, utxoToModifier)
 import           Pos.Txp.DB.Utxo (filterUtxo)
 import           Pos.Util (HasLens (..))

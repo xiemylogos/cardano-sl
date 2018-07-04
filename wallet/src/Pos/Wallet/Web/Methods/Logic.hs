@@ -47,7 +47,7 @@ import           Pos.Core (Address, Coin, mkCoin, sumCoins, unsafeIntegerToCoin)
 import           Pos.Core.Configuration (HasConfiguration)
 import           Pos.Crypto (PassPhrase, changeEncPassphrase, checkPassMatches,
                      emptyPassphrase)
-import           Pos.Infra.Slotting (MonadSlots)
+import           Pos.Sinbin.Slotting (MonadSlots)
 import           Pos.Txp (GenericTxpLocalData, MonadTxpMem, TxAux, TxId,
                      UndoMap, applyUtxoModToAddrCoinMap, getLocalTxs,
                      getLocalUndos, withTxpLocalData)

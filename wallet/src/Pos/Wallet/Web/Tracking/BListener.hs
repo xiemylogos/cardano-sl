@@ -31,12 +31,12 @@ import           Pos.DB.BatchOp (SomeBatchOp)
 import           Pos.DB.Class (MonadDBRead)
 import qualified Pos.GState as GS
 import           Pos.Infra.Reporting (MonadReporting, reportOrLogE)
-import           Pos.Infra.Slotting (MonadSlots, MonadSlotsData,
-                     getCurrentEpochSlotDuration, getSlotStartPure,
-                     getSystemStartM)
+import           Pos.Infra.Slotting (getCurrentEpochSlotDuration,
+                     getSlotStartPure, getSystemStartM)
 import           Pos.Infra.Util.LogSafe (buildSafe, logInfoSP, logWarningSP,
                      secretOnlyF, secure)
 import           Pos.Infra.Util.TimeLimit (CanLogInParallel, logWarningWaitInf)
+import           Pos.Sinbin.Slotting (MonadSlots, MonadSlotsData)
 import           Pos.Txp.Base (flattenTxPayload)
 import           Pos.Wallet.Web.Tracking.Decrypt (eskToWalletDecrCredentials)
 

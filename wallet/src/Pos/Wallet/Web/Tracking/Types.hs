@@ -20,8 +20,8 @@ import           System.Wlog (WithLogger)
 
 import           Pos.Core (HasConfiguration)
 import           Pos.DB.Class (MonadDBRead (..))
-import           Pos.Infra.Slotting (MonadSlotsData)
 import           Pos.Infra.StateLock (StateLock)
+import           Pos.Sinbin.Slotting (MonadSlotsData)
 import           Pos.Util (HasLens (..))
 
 import           Pos.Wallet.Web.ClientTypes (CId, Wal)

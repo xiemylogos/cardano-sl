@@ -71,12 +71,12 @@ import qualified Pos.DB.BlockIndex as DB
 import           Pos.DB.Class (MonadDBRead (..))
 import qualified Pos.GState as GS
 import           Pos.GState.BlockExtra (resolveForwardLink)
-import           Pos.Infra.Slotting (MonadSlots (..), MonadSlotsData,
-                     getSlotStartPure, getSystemStartM)
-import           Pos.Infra.Slotting.Types (SlottingData)
+import           Pos.Infra.Slotting (getSlotStartPure, getSystemStartM)
 import           Pos.Infra.StateLock (Priority (..), withStateLockNoMetrics)
 import           Pos.Infra.Util.LogSafe (buildSafe, logDebugSP, logErrorSP,
                      logInfoSP, logWarningSP, secretOnlyF, secure)
+import           Pos.Sinbin.Slotting (MonadSlots (..), MonadSlotsData,
+                     SlottingData)
 import           Pos.Txp (UndoMap, flattenTxPayload, topsortTxs, _txOutputs)
 import qualified Pos.Util.Modifier as MM
 import           Pos.Util.Servant (encodeCType)

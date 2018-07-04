@@ -40,15 +40,14 @@ import           Pos.Infra.Network.Types (HasNodeType (..), getNodeTypeDefault)
 import           Pos.Infra.Reporting (HasMisbehaviorMetrics (..),
                      MonadReporting (..), Reporter (..))
 import           Pos.Infra.Shutdown (HasShutdownContext (..))
-import           Pos.Infra.Slotting.Class (MonadSlots (..))
 import           Pos.Infra.Slotting.Impl (currentTimeSlottingSimple,
                      getCurrentSlotBlockingSimple,
                      getCurrentSlotInaccurateSimple, getCurrentSlotSimple)
-import           Pos.Infra.Slotting.MemState (HasSlottingVar (..),
-                     MonadSlotsData)
 import           Pos.Infra.Util.JsonLog.Events (HasJsonLogConfig (..),
                      JsonLogConfig, jsonLogDefault)
 import           Pos.Infra.Util.TimeWarp (CanJsonLog (..))
+import           Pos.Sinbin.Slotting (HasSlottingVar (..), MonadSlots (..),
+                     MonadSlotsData)
 import           Pos.Ssc.Mem (SscMemTag)
 import           Pos.Ssc.Types (SscState)
 import           Pos.Txp (GenericTxpLocalData, HasTxpConfiguration, MempoolExt,

@@ -49,11 +49,11 @@ import           Pos.DB (MonadDBRead, MonadGState)
 import           Pos.DB.Block (getBlock)
 import qualified Pos.GState as GS
 import           Pos.Infra.Network.Types (HasNodeType)
-import           Pos.Infra.Slotting (MonadSlots, getSlotStartPure,
-                     getSystemStartM)
+import           Pos.Infra.Slotting (getSlotStartPure, getSystemStartM)
 import           Pos.Infra.StateLock (StateLock, StateLockMetrics)
 import           Pos.Infra.Util.JsonLog.Events (MemPoolModifyReason)
 import           Pos.Lrc.Genesis (genesisLeaders)
+import           Pos.Sinbin.Slotting (MonadSlots)
 import           Pos.Txp (MempoolExt, MonadTxpLocal, MonadTxpMem,
                      ToilVerFailure, Tx (..), TxAux (..), TxId, TxOut,
                      TxOutAux (..), TxWitness, TxpError (..), UtxoLookup,

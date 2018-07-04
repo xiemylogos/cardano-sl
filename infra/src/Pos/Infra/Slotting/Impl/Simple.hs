@@ -26,8 +26,9 @@ import           Pos.Core.Slotting (SlotId (..), Timestamp (..),
                      unflattenSlotId)
 import           Pos.Infra.Slotting.Impl.Util (approxSlotUsingOutdated,
                      slotFromTimestamp)
-import           Pos.Infra.Slotting.MemState (MonadSlotsData,
-                     getCurrentNextEpochIndexM, waitCurrentEpochEqualsM)
+import           Pos.Infra.Slotting.MemState (getCurrentNextEpochIndexM,
+                     waitCurrentEpochEqualsM)
+import           Pos.Sinbin.Slotting.MemState (MonadSlotsData)
 import           Pos.Util (HasLens (..))
 
 ----------------------------------------------------------------------------

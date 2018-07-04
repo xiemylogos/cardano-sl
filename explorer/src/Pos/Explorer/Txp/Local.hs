@@ -16,10 +16,11 @@ import qualified Data.HashMap.Strict as HM
 import           Pos.Core (BlockVersionData, EpochIndex, Timestamp)
 import           Pos.Core.Txp (TxAux (..), TxId)
 import           Pos.Crypto (ProtocolMagic)
-import           Pos.Infra.Slotting (MonadSlots (getCurrentSlot), getSlotStart)
+import           Pos.Infra.Slotting (getSlotStart)
 import           Pos.Infra.StateLock (Priority (..), StateLock,
                      StateLockMetrics, withStateLock)
 import           Pos.Infra.Util.JsonLog.Events (MemPoolModifyReason (..))
+import           Pos.Sinbin.Slotting (MonadSlots (..))
 import           Pos.Txp.Logic.Local (txNormalizeAbstract,
                      txProcessTransactionAbstract)
 import           Pos.Txp.MemState (MempoolExt, TxpLocalWorkMode, getTxpExtra,

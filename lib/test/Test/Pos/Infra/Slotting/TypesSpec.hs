@@ -14,7 +14,7 @@ import           Data.Time.Units (Millisecond, Second, convertUnit)
 
 import           Pos.Core (EpochIndex (..), LocalSlotIndex (..), TimeDiff (..),
                      Timestamp (..))
-import           Pos.Infra.Slotting.Types
+import           Pos.Sinbin.Slotting
 
 
 
@@ -54,7 +54,7 @@ testSlottingData = createInitSlottingData testEpochSlottingData0 testEpochSlotti
 ----------------------------------------------------------------------------
 
 -- stack test --no-run-tests
--- stack test cardano-sl --fast --test-arguments "-m Test.Pos.Infra.Slotting.Types"
+-- stack test cardano-sl --fast --test-arguments "-m Test.Pos.Sinbin.Slotting"
 spec :: Spec
 spec = describe "Types" $ do
     describe "createSlottingDataUnsafe" $

@@ -67,7 +67,8 @@ import           Pos.Core.Block (Block, MainBlock, mainBlockSlot,
 import           Pos.Core.Chrono (NewestFirst (..))
 import           Pos.Core.Txp (Tx (..), TxAux, TxId, TxOutAux (..), taTx,
                      txOutValue, txpTxs, _txOutputs)
-import           Pos.Infra.Slotting (MonadSlots (..), getSlotStart)
+import           Pos.Infra.Slotting (getSlotStart)
+import           Pos.Sinbin.Slotting (MonadSlots (..))
 import           Pos.Txp (MonadTxpMem, TxMap, getLocalTxs, getMemPool,
                      mpLocalTxs, topsortTxs, withTxpLocalData)
 import           Pos.Util (divRoundUp, maybeThrow)

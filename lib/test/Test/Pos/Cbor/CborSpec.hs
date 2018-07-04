@@ -36,7 +36,7 @@ import           Pos.Infra.Communication.Limits.Instances (mlDataMsg, mlInvMsg,
 import qualified Pos.Infra.Communication.Relay as R
 import           Pos.Infra.Communication.Types.Relay (DataMsg (..))
 import qualified Pos.Infra.DHT.Model as DHT
-import           Pos.Infra.Slotting.Types (SlottingData)
+import           Pos.Sinbin.Slotting (SlottingData)
 import qualified Pos.Ssc as Ssc
 import qualified Pos.Txp as T
 import qualified Pos.Update as U

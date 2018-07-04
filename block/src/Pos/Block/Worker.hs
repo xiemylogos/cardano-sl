@@ -57,14 +57,14 @@ import           Pos.Infra.Reporting (HasMisbehaviorMetrics, MetricMonitor (..),
                      MetricMonitorState, noReportMonitor, recordValue,
                      reportOrLogE)
 import           Pos.Infra.Slotting (ActionTerminationPolicy (..),
-                     OnNewSlotParams (..), currentTimeSlotting,
-                     defaultOnNewSlotParams, getSlotStartEmpatically,
-                     onNewSlot)
+                     OnNewSlotParams (..), defaultOnNewSlotParams,
+                     getSlotStartEmpatically, onNewSlot)
 import           Pos.Infra.Util.JsonLog.Events (jlCreatedBlock)
 import           Pos.Infra.Util.LogSafe (logDebugS, logInfoS, logWarningS)
 import           Pos.Infra.Util.TimeLimit (logWarningSWaitLinear)
 import           Pos.Infra.Util.TimeWarp (CanJsonLog (..))
 import qualified Pos.Lrc.DB as LrcDB (getLeadersForEpoch)
+import           Pos.Sinbin.Slotting (currentTimeSlotting)
 import           Pos.Update.DB (getAdoptedBVData)
 
 ----------------------------------------------------------------------------

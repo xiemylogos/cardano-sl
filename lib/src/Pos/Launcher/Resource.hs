@@ -53,7 +53,6 @@ import           Pos.Infra.Reporting (initializeMisbehaviorMetrics)
 import           Pos.Infra.Shutdown.Types (ShutdownContext (..))
 import           Pos.Infra.Slotting (SimpleSlottingStateVar,
                      mkSimpleSlottingStateVar)
-import           Pos.Infra.Slotting.Types (SlottingData)
 import           Pos.Infra.StateLock (newStateLock)
 import           Pos.Infra.Util.JsonLog.Events (JsonLogConfig (..),
                      jsonLogConfigFromHandle)
@@ -65,6 +64,7 @@ import           Pos.Txp (GenericTxpLocalData (..), TxpGlobalSettings,
                      mkTxpLocalData, recordTxpMetrics)
 
 import           Pos.Launcher.Mode (InitMode, InitModeContext (..), runInitMode)
+import           Pos.Sinbin.Slotting (SlottingData)
 import           Pos.Update.Context (mkUpdateContext)
 import qualified Pos.Update.DB as GState
 import           Pos.Util (bracketWithLogging, newInitFuture)

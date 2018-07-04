@@ -19,7 +19,7 @@ import qualified Pos.DB.BlockIndex as DB
 import           Pos.DB.Class (MonadDBRead)
 import           Pos.Infra.Recovery.Info (MonadRecoveryInfo (..),
                      SyncStatus (..))
-import           Pos.Infra.Slotting (MonadSlots (getCurrentSlot))
+import           Pos.Sinbin.Slotting (MonadSlots (getCurrentSlot))
 import           Pos.Util.Util (HasLens (..))
 
 instance ( Monad m

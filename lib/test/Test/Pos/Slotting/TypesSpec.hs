@@ -14,7 +14,7 @@ import           Data.Time.Units (Millisecond, Second, convertUnit)
 
 import           Pos.Core (EpochIndex (..), LocalSlotIndex (..), TimeDiff (..),
                      Timestamp (..))
-import           Pos.Infra.Slotting.Types
+import           Pos.Sinbin.Slotting
 
 
 

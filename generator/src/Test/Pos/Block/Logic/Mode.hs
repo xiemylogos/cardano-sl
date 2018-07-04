@@ -84,19 +84,18 @@ import qualified Pos.GState as GS
 import           Pos.Infra.Network.Types (HasNodeType (..), NodeType (..))
 import           Pos.Infra.Reporting (HasMisbehaviorMetrics (..),
                      MonadReporting (..))
-import           Pos.Infra.Slotting (HasSlottingVar (..), MonadSimpleSlotting,
-                     MonadSlots (..), SimpleSlottingMode,
+import           Pos.Infra.Slotting (MonadSimpleSlotting, SimpleSlottingMode,
                      SimpleSlottingStateVar, currentTimeSlottingSimple,
                      getCurrentSlotBlockingSimple,
                      getCurrentSlotBlockingSimple',
                      getCurrentSlotInaccurateSimple,
                      getCurrentSlotInaccurateSimple', getCurrentSlotSimple,
                      getCurrentSlotSimple', mkSimpleSlottingStateVar)
-import           Pos.Infra.Slotting.MemState (MonadSlotsData)
-import           Pos.Infra.Slotting.Types (SlottingData)
 import           Pos.Launcher.Configuration (Configuration (..),
                      HasConfigurations)
 import           Pos.Lrc (LrcContext (..), mkLrcSyncData)
+import           Pos.Sinbin.Slotting (HasSlottingVar (..), MonadSlots (..),
+                     MonadSlotsData, SlottingData)
 import           Pos.Ssc (SscMemTag, SscState, mkSscState)
 import           Pos.Txp (GenericTxpLocalData, MempoolExt, MonadTxpLocal (..),
                      TxpGlobalSettings, TxpHolderTag, mkTxpLocalData,

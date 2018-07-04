@@ -13,13 +13,14 @@ import           Pos.Core.Configuration (HasProtocolConstants, epochSlots)
 import           Pos.Core.Slotting (EpochIndex, LocalSlotIndex, SlotId (..),
                      Timestamp (..), addTimeDiffToTimestamp, flattenEpochIndex,
                      mkLocalSlotIndex, unflattenSlotId)
-import           Pos.Util.Util (leftToPanic)
 
-import           Pos.Infra.Slotting.MemState (MonadSlotsData, getSystemStartM,
+import           Pos.Infra.Slotting.MemState (getSystemStartM,
                      withSlottingVarAtomM)
-import           Pos.Infra.Slotting.Types (EpochSlottingData (..), SlottingData,
-                     getAllEpochIndices, getCurrentEpochIndex,
+import           Pos.Sinbin.Slotting.MemState (MonadSlotsData)
+import           Pos.Sinbin.Slotting.Types (EpochSlottingData (..),
+                     SlottingData, getAllEpochIndices, getCurrentEpochIndex,
                      getNextEpochSlottingData, lookupEpochSlottingData)
+import           Pos.Util.Util (leftToPanic)
 
 -- | Approximate current slot using outdated slotting data.
 approxSlotUsingOutdated

@@ -42,7 +42,7 @@ import           System.Wlog (CanLog, HasLoggerName, LoggerName,
 import           Pos.Block.Types (Blund)
 import           Pos.Core (addressF, siEpoch)
 import qualified Pos.GState as DB
-import           Pos.Infra.Slotting (MonadSlots (getCurrentSlot))
+import           Pos.Sinbin.Slotting (MonadSlots (..))
 
 import           Pos.Explorer.Aeson.ClientTypes ()
 import           Pos.Explorer.ExplorerMode (ExplorerMode)

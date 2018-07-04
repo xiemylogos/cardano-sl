@@ -18,22 +18,13 @@ import           Universum
 import           Control.Monad.STM (retry)
 
 import           Pos.Core.Slotting (EpochIndex, Timestamp)
-import           Pos.Infra.Slotting.Types (EpochSlottingData, SlottingData,
+import           Pos.Sinbin.Slotting.MemState (HasSlottingVar (..),
+                     MonadSlotsData)
+import           Pos.Sinbin.Slotting.Types (EpochSlottingData, SlottingData,
                      getAllEpochIndices, getCurrentEpochIndex,
                      getCurrentEpochSlottingData, getNextEpochIndex,
                      getNextEpochSlottingData, insertEpochSlottingDataUnsafe,
                      lookupEpochSlottingData)
-
-----------------------------------------------------------------------------
--- Context
-----------------------------------------------------------------------------
-
-type SlottingVar = TVar SlottingData
-
--- | Create a new 'SlottingVar' with the same contents as the given
--- variable has.
-cloneSlottingVar :: MonadIO m => SlottingVar -> m SlottingVar
-cloneSlottingVar = readTVarIO >=> newTVarIO
 
 ----------------------------------------------------------------------------
 -- MonadSlotsData implementation

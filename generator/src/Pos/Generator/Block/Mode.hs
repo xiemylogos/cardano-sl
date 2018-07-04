@@ -56,10 +56,10 @@ import qualified Pos.GState as GS
 import           Pos.Infra.Network.Types (HasNodeType (..), NodeType (..))
 import           Pos.Infra.Reporting (HasMisbehaviorMetrics (..),
                      MonadReporting (..))
-import           Pos.Infra.Slotting (HasSlottingVar (..), MonadSlots (..),
-                     MonadSlotsData, currentTimeSlottingSimple)
-import           Pos.Infra.Slotting.Types (SlottingData)
+import           Pos.Infra.Slotting (currentTimeSlottingSimple)
 import           Pos.Lrc (HasLrcContext, LrcContext (..))
+import           Pos.Sinbin.Slotting (HasSlottingVar (..), MonadSlots (..),
+                     MonadSlotsData, SlottingData)
 import           Pos.Ssc (HasSscConfiguration, SscMemTag, SscState, mkSscState)
 import           Pos.Txp (GenericTxpLocalData, MempoolExt, TxpGlobalSettings,
                      TxpHolderTag, mkTxpLocalData)

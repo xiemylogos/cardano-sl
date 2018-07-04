@@ -29,6 +29,7 @@ import           Pos.Infra.Slotting
 import           Pos.Infra.Util.JsonLog.Events
 import           Pos.Infra.Util.TimeWarp (CanJsonLog (..))
 import           Pos.Launcher
+import           Pos.Sinbin.Slotting
 import           Pos.Txp.Configuration
 import           Pos.Txp.Logic
 import           Pos.Txp.MemState

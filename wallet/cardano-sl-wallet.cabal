@@ -126,6 +126,7 @@ library
                       , cardano-sl-db
                       , cardano-sl-infra
                       , cardano-sl-lrc
+                      , cardano-sl-sinbin
                       , cardano-sl-ssc
                       , cardano-sl-txp
                       , cardano-sl-networking
@@ -259,6 +260,7 @@ test-suite cardano-wallet-test
                      , cardano-sl-infra
                      , cardano-sl-lrc
                      , cardano-sl-networking
+                     , cardano-sl-sinbin
                      , cardano-sl-ssc
                      , cardano-sl-txp
                      , cardano-sl-txp-test

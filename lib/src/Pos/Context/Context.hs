@@ -40,13 +40,12 @@ import           Pos.Infra.Reporting.MemState (HasMisbehaviorMetrics (..),
                      MisbehaviorMetrics (..))
 import           Pos.Infra.Shutdown (HasShutdownContext (..),
                      ShutdownContext (..))
-import           Pos.Infra.Slotting (HasSlottingVar (..),
-                     SimpleSlottingStateVar)
-import           Pos.Infra.Slotting.Types (SlottingData)
+import           Pos.Infra.Slotting (SimpleSlottingStateVar)
 import           Pos.Infra.StateLock (StateLock, StateLockMetrics)
 import           Pos.Infra.Util.JsonLog.Events (MemPoolModifyReason (..))
 import           Pos.Launcher.Param (BaseParams (..), NodeParams (..))
 import           Pos.Lrc.Context (LrcContext)
+import           Pos.Sinbin.Slotting (HasSlottingVar (..), SlottingData)
 import           Pos.Ssc.Types (HasSscContext (..), SscContext)
 import           Pos.Txp.Settings (TxpGlobalSettings)
 import           Pos.Update.Context (UpdateContext)
