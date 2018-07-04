@@ -14919,6 +14919,7 @@ formatting
 generic-arbitrary
 hspec
 lens
+log-warper
 mtl
 network-transport
 network-transport-inmemory
@@ -14933,6 +14934,7 @@ stm
 tagged
 text
 text-format
+time
 time-units
 universum
 unordered-containers
@@ -15768,6 +15770,7 @@ license = stdenv.lib.licenses.mit;
 , base
 , base16-bytestring
 , base58-bytestring
+, bifunctors
 , bytestring
 , Cabal
 , canonical-json
@@ -15835,6 +15838,7 @@ aeson
 ansi-terminal
 base
 base58-bytestring
+bifunctors
 bytestring
 Cabal
 canonical-json
@@ -15891,6 +15895,7 @@ cardano-sl-util
 cardano-sl-util-test
 containers
 cryptonite
+deepseq
 formatting
 generic-arbitrary
 hedgehog
