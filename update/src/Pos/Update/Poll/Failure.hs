@@ -7,7 +7,7 @@ module Pos.Update.Poll.Failure
 
 import           Universum hiding (id, last)
 
-import           Formatting (asInt, bprint, int, sformat, stext, (%))
+import           Formatting (bprint, int, sformat, stext, (%))
 import qualified Formatting as F
 import           Formatting.Buildable (Buildable (build))
 import           Serokell.Data.Memory.Units (Byte, memory)
@@ -171,7 +171,7 @@ instance Buildable PollVerFailure where
         pbpvUpId pbpvGiven pbpvAdopted
     build (PollTooLargeProposal {..}) =
         bprint ("update proposal "%shortHashF%" exceeds maximal size ("%
-                asInt%" > "%asInt%")")
+                int%" > "%int%")")
         ptlpUpId ptlpSize ptlpLimit
     build (PollMoreThanOneProposalPerEpoch {..}) =
         bprint ("stakeholder "%shortHashF%

@@ -46,7 +46,7 @@ import qualified Data.HashMap.Strict as HM
 import           Data.List (zipWith3)
 import qualified Data.List.NonEmpty as NE
 import           Data.SafeCopy (SafeCopy (..))
-import           Formatting (asInt, bprint, sformat, stext, (%))
+import           Formatting (bprint, int, sformat, stext, (%))
 import           Formatting.Buildable (Buildable (build))
 
 import           Pos.Binary.Class (AsBinary (..), AsBinaryClass (..), Bi (..),
@@ -372,8 +372,8 @@ checkLenImpl action name expectedLen len
     | otherwise =
         Just $
         sformat
-            (stext % " " %stext % " failed: length of bytestring is " % asInt %
-             " instead of " % asInt)
+            (stext % " " %stext % " failed: length of bytestring is " % int %
+             " instead of " % int)
             action
             name
             len
