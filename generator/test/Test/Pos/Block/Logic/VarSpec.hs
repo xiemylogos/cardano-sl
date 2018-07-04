@@ -48,7 +48,8 @@ import           Test.Pos.Block.Logic.Event (BlockScenarioResult (..),
 import           Test.Pos.Block.Logic.Mode (BlockProperty, BlockTestMode)
 import           Test.Pos.Block.Logic.Util (EnableTxPayload (..),
                      InplaceDB (..), bpGenBlock, bpGenBlocks,
-                     bpGoToArbitraryState, getAllSecrets, satisfySlotCheck)
+                     bpGenBlocksNoApply, bpGoToArbitraryState, getAllSecrets,
+                     satisfySlotCheck)
 import           Test.Pos.Block.Property (blockPropertySpec)
 import           Test.Pos.Configuration (HasStaticConfigurations,
                      withStaticConfigurations)
@@ -107,10 +108,11 @@ verifyValidBlocks
     :: HasConfigurations => BlockProperty ()
 verifyValidBlocks = do
     bpGoToArbitraryState
-    blocks <- map fst . toList <$> bpGenBlocks dummyProtocolMagic
+    blocks <- toList <$> bpGenBlocksNoApply dummyProtocolMagic
                                                Nothing
                                                (EnableTxPayload True)
                                                (InplaceDB False)
+
     pre (not $ null blocks)
     let blocksToVerify = OldestFirst $ case blocks of
             -- impossible because of precondition (see 'pre' above)

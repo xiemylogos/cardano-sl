@@ -6,6 +6,7 @@ module Test.Pos.Block.Logic.Util
        ( EnableTxPayload (..)
        , InplaceDB (..)
        , bpGenBlocks
+       , bpGenBlocksNoApply
        , bpGenBlock
        , genBlockGenParams
        , bpGoToArbitraryState
@@ -31,7 +32,8 @@ import           Pos.Core.Block (Block)
 import           Pos.Core.Chrono (NE, OldestFirst (..))
 import           Pos.Crypto (ProtocolMagic)
 import           Pos.Generator.Block (BlockGenMode, BlockGenParams (..),
-                     MonadBlockGenInit, genBlocks, tgpTxCountRange)
+                     MonadBlockGenInit, genBlocks, genBlocksNoApply,
+                     tgpTxCountRange)
 import           Pos.Txp (HasTxpConfiguration, MempoolExt, MonadTxpLocal,
                      TxpGlobalSettings, txpGlobalSettings)
 import           Pos.Util (HasLens', _neLast)
@@ -96,6 +98,26 @@ bpGenBlocks pm blkCnt enableTxPayload inplaceDB = do
     params <- genBlockGenParams pm blkCnt enableTxPayload inplaceDB
     g <- pick $ MkGen $ \qc _ -> qc
     lift $ OldestFirst <$> evalRandT (genBlocks pm params maybeToList) g
+
+-- | Generate blocks, but it does not apply them.  It accepts the same arguments
+-- as @'bpGenBlocks'@.
+bpGenBlocksNoApply
+    :: ( MonadBlockGenInit ctx m
+       , HasLens' ctx TxpGlobalSettings
+       , HasTxpConfiguration
+       , Default (MempoolExt m)
+       , MonadTxpLocal (BlockGenMode (MempoolExt m) m)
+       , HasAllSecrets ctx
+       )
+    => ProtocolMagic
+    -> Maybe BlockCount
+    -> EnableTxPayload
+    -> InplaceDB
+    -> PropertyM m (OldestFirst [] Block)
+bpGenBlocksNoApply pm blkCnt enableTxPayload inplaceDB = do
+    params <- genBlockGenParams pm blkCnt enableTxPayload inplaceDB
+    g <- pick $ MkGen $ \qc _ -> qc
+    lift $ OldestFirst <$> evalRandT (genBlocksNoApply pm params maybeToList) g
 
 -- | A version of 'bpGenBlocks' which generates exactly one
 -- block. Allows one to avoid unsafe functions sometimes.
