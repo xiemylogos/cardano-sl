@@ -25,10 +25,9 @@ import           Test.QuickCheck.Random (QCGen)
 
 import           Pos.Block.Logic (getVerifyBlocksContext', verifyAndApplyBlocks,
                      verifyBlocksPrefix)
-import           Pos.Block.Types (Blund)
-import           Pos.Core (EpochOrSlot (..), GenesisData (..), HasConfiguration,
-                     blkSecurityParam, epochSlots, genesisData, getEpochOrSlot,
-                     headerHash)
+import           Pos.Core (Block, EpochOrSlot (..), GenesisData (..),
+                     HasConfiguration, blkSecurityParam, epochSlots,
+                     genesisData, getEpochOrSlot, headerHash)
 import           Pos.Core.Chrono (NE, NewestFirst (..), OldestFirst (..),
                      nonEmptyNewestFirst, nonEmptyOldestFirst,
                      splitAtNewestFirst, toNewestFirst, _NewestFirst)
@@ -47,9 +46,8 @@ import           Test.Pos.Block.Logic.Event (BlockScenarioResult (..),
                      runBlockScenario)
 import           Test.Pos.Block.Logic.Mode (BlockProperty, BlockTestMode)
 import           Test.Pos.Block.Logic.Util (EnableTxPayload (..),
-                     InplaceDB (..), bpGenBlock, bpGenBlocks,
-                     bpGenBlocksNoApply, bpGoToArbitraryState, getAllSecrets,
-                     satisfySlotCheck)
+                     InplaceDB (..), bpGenBlock, bpGenBlocksNoApply,
+                     bpGoToArbitraryState, getAllSecrets, satisfySlotCheck)
 import           Test.Pos.Block.Property (blockPropertySpec)
 import           Test.Pos.Configuration (HasStaticConfigurations,
                      withStaticConfigurations)
@@ -108,11 +106,11 @@ verifyValidBlocks
     :: HasConfigurations => BlockProperty ()
 verifyValidBlocks = do
     bpGoToArbitraryState
-    blocks <- toList <$> bpGenBlocksNoApply dummyProtocolMagic
-                                               Nothing
-                                               (EnableTxPayload True)
-                                               (InplaceDB False)
-
+    blocks <- toList <$> bpGenBlocksNoApply
+        dummyProtocolMagic
+        Nothing
+        (EnableTxPayload True)
+        (InplaceDB False)
     pre (not $ null blocks)
     let blocksToVerify = OldestFirst $ case blocks of
             -- impossible because of precondition (see 'pre' above)
@@ -136,9 +134,8 @@ verifyAndApplyBlocksSpec :: HasStaticConfigurations => Spec
 verifyAndApplyBlocksSpec =
     blockPropertySpec applyByOneOrAllAtOnceDesc (applyByOneOrAllAtOnce applier)
   where
-    applier :: HasConfiguration => OldestFirst NE Blund -> BlockTestMode ()
-    applier blunds = do
-        let blocks = map fst blunds
+    applier :: HasConfiguration => OldestFirst NE Block -> BlockTestMode ()
+    applier blocks = do
         ctx <- getVerifyBlocksContext' (lastSlot . IL.toList $ blocks)
         satisfySlotCheck blocks $
            -- we don't check current SlotId, because the applier is run twice
@@ -172,25 +169,26 @@ applyBlocksSpec = pass
 
 applyByOneOrAllAtOnce
     :: HasConfigurations
-    => (OldestFirst NE Blund -> BlockTestMode ())
+    => (OldestFirst NE Block -> BlockTestMode ())
     -> BlockProperty ()
 applyByOneOrAllAtOnce applier = do
     bpGoToArbitraryState
-    blunds <- getOldestFirst <$> bpGenBlocks dummyProtocolMagic
-                                             Nothing
-                                             (EnableTxPayload True)
-                                             (InplaceDB False)
-    pre (not $ null blunds)
-    let blundsNE = OldestFirst (NE.fromList blunds)
+    blocks <- getOldestFirst <$> bpGenBlocksNoApply
+        dummyProtocolMagic
+        Nothing
+        (EnableTxPayload True)
+        (InplaceDB False)
+    pre (not $ null blocks)
+    let blocksNE = OldestFirst (NE.fromList blocks)
     stateAfter1by1 <- lift $ GS.withClonedGState $ do
-        mapM_ (applier . one) (getOldestFirst blundsNE)
+        mapM_ (applier . one) (getOldestFirst blocksNE)
         dbPureDump
-    chunks             <- splitIntoChunks 5 (blunds)
+    chunks             <- splitIntoChunks 5 (blocks)
     stateAfterInChunks <- lift $ GS.withClonedGState $ do
         mapM_ (applier . OldestFirst) chunks
         dbPureDump
     stateAfterAllAtOnce <- lift $ do
-        applier blundsNE
+        applier blocksNE
         dbPureDump
     assert
         (  stateAfter1by1
