@@ -222,9 +222,6 @@ extra-deps:
 
 # Serokell-specific utilities not on stackage
 - universum-1.2.0
-# - formatting-6.3.4
-# fmt <0.6 depends on text-format,
-# instead of formatting
 - fmt-0.6
 
 # Following 9 are not on stackage.
