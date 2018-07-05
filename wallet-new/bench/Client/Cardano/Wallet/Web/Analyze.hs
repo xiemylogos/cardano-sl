@@ -5,9 +5,9 @@ module Client.Cardano.Wallet.Web.Analyze
     , checkResponse
     ) where
 
-import           Universum
 import           Fmt (fmt)
-import           Formatting.Buildable (Buildable(build))
+import           Formatting.Buildable (Buildable (build))
+import           Universum
 
 import           Bench.Cardano.Wallet.Config.Endpoints
                      (extractEndpointConfigFor)

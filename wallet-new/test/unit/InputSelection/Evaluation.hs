@@ -13,7 +13,7 @@ import           Conduit
 import           Crypto.Random (MonadRandom)
 import qualified Data.Map.Strict as Map
 import           Data.Time
-import           Formatting (build, sformat, (%), Buildable)
+import           Formatting (Buildable, build, sformat, (%))
 import           Serokell.Util (listJson)
 import           System.FilePath (takeBaseName)
 import           System.IO (hFlush, stdout)
