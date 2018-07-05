@@ -31,7 +31,7 @@ import           Universum
 import           Control.Lens.TH (makeLenses)
 import qualified Data.List
 import qualified Formatting.Buildable
-import           Formatting (bprint, build, sformat, (%))
+import           Formatting (bprint, build, sformat, (%), Buildable)
 
 {-------------------------------------------------------------------------------
   Ranges

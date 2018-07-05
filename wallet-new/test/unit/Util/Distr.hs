@@ -16,6 +16,7 @@ module Util.Distr (
   ) where
 
 import           Universum
+import           Prelude (log)
 
 import           Data.Random.Normal (normal)
 import           System.Random

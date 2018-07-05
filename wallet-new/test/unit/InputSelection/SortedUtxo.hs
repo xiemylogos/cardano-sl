@@ -24,7 +24,7 @@ import           Universum hiding (empty)
 import           Data.Coerce (coerce)
 import qualified Data.Map.Strict as Map
 import qualified Formatting.Buildable
-import           Formatting (bprint)
+import           Formatting (bprint, Buildable)
 import           Serokell.Util (mapJson)
 
 import           Cardano.Wallet.Kernel.CoinSelection.Generic

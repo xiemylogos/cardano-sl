@@ -23,7 +23,7 @@ import           Data.Coerce (coerce)
 import qualified Data.Map.Strict as Map
 import qualified Data.Set as Set
 import qualified Formatting.Buildable
-import           Formatting (bprint, build, sformat, (%))
+import           Formatting (bprint, build, sformat, (%), Buildable)
 import           Serokell.Util (listJson)
 
 import           Cardano.Wallet.Kernel.CoinSelection.Generic

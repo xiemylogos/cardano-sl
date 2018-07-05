@@ -6,6 +6,8 @@ module Client.Cardano.Wallet.Web.Analyze
     ) where
 
 import           Universum
+import           Fmt (fmt)
+import           Formatting.Buildable (Buildable(build))
 
 import           Bench.Cardano.Wallet.Config.Endpoints
                      (extractEndpointConfigFor)
@@ -35,5 +37,5 @@ checkResponse
 checkResponse response messageIfFail actionIfSuccess =
     case response of
         Left problem             -> ResponseReport $ messageIfFail <> ": " <> problem
-        Right (Left walletError) -> ResponseReport $ "Server returned an error: " <> pretty walletError
+        Right (Left walletError) -> ResponseReport $ "Server returned an error: " <> (fmt . build) walletError
         Right (Right dataWeNeed) -> actionIfSuccess dataWeNeed

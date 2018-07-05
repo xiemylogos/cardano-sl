@@ -41,6 +41,7 @@ module Util.Histogram (
 
 import           Universum hiding (empty, max, readFile, toList, writeFile)
 import qualified Universum
+import           Formatting (Buildable)
 
 import qualified Data.IntMap.Strict as Map
 import qualified Data.Set as Set

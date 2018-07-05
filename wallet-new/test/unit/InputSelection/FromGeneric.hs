@@ -19,7 +19,7 @@ import           Universum
 import qualified Data.List.NonEmpty as NE
 import qualified Data.Set as Set
 import qualified Formatting.Buildable
-import           Formatting (bprint, build)
+import           Formatting (bprint, build, Buildable)
 import qualified Prelude
 
 import           Cardano.Wallet.Kernel.CoinSelection.Generic

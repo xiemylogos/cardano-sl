@@ -69,7 +69,8 @@ import           Data.Coerce (coerce)
 import qualified Data.Map.Strict as Map
 import qualified Data.Set as Set
 import qualified Formatting.Buildable
-import           Formatting (bprint, build, (%))
+import           Formatting (bprint, (%), Buildable)
+import qualified Formatting as F
 
 import           Cardano.Wallet.Kernel.Util (withoutKeys)
 import           Cardano.Wallet.Kernel.Util.StrictStateT
@@ -590,21 +591,21 @@ divvyFee f fee as = map (\a -> (feeForOut a, a)) as
 instance Buildable CoinSelHardErr where
   build (CoinSelHardErrOutputCannotCoverFee out val) = bprint
     ( "CoinSelHardErrOutputCannotCoverFee"
-    % "{ output: " % build
-    % ", value:  " % build
+    % "{ output: " % F.build
+    % ", value:  " % F.build
     % "}"
     )
     out
     val
   build (CoinSelHardErrOutputIsRedeemAddress out) = bprint
     ( "CoinSelHardErrOutputIsRedeemAddress"
-    % "{ output: " % build
+    % "{ output: " % F.build
     % "}"
     )
     out
   build (CoinSelHardErrMaxInputsReached inputs) = bprint
     ( "CoinSelHardErrMaxInputsReached"
-    % "{ inputs: " % build
+    % "{ inputs: " % F.build
     % "}"
     )
     inputs
@@ -612,8 +613,8 @@ instance Buildable CoinSelHardErr where
     ( "CoinSelHardErrCannotCoverFee" )
   build (CoinSelHardErrUtxoExhausted bal val) = bprint
     ( "CoinSelHardErrUtxoExhausted"
-    % "{ balance: " % build
-    % ", value:   " % build
+    % "{ balance: " % F.build
+    % ", value:   " % F.build
     % "}"
     )
     bal
@@ -622,4 +623,4 @@ instance Buildable CoinSelHardErr where
     ( "CoinSelHardErrUtxoDepleted" )
 
 instance CoinSelDom dom => Buildable (Fee dom) where
-  build = bprint build . getFee
+  build = bprint F.build . getFee
