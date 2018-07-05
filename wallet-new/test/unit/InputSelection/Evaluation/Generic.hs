@@ -66,7 +66,7 @@ import           Control.Lens.TH (makeLenses)
 import           Data.Conduit
 import qualified Data.List.NonEmpty as NE
 import qualified Data.Map.Strict as Map
-import qualified Data.Text.Buildable
+import qualified Formatting.Buildable
 import qualified Data.Text.IO as Text
 import           Formatting (bprint, build, sformat, shown, (%))
 import           System.Directory (createDirectory)

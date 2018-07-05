@@ -68,7 +68,7 @@ import           Crypto.Random (MonadRandom (..))
 import           Data.Coerce (coerce)
 import qualified Data.Map.Strict as Map
 import qualified Data.Set as Set
-import qualified Data.Text.Buildable
+import qualified Formatting.Buildable
 import           Formatting (bprint, build, (%))
 
 import           Cardano.Wallet.Kernel.Util (withoutKeys)

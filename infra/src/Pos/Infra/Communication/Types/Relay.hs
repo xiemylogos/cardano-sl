@@ -21,7 +21,6 @@ import           Data.Tagged (Tagged)
 import           Formatting (bprint, (%))
 import qualified Formatting as F
 import           Formatting.Buildable (Buildable (build))
-import           Universum
 
 import           Pos.Binary.Class (Bi (..))
 import qualified Pos.Core.Update as U

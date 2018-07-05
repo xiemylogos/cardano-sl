@@ -15,7 +15,7 @@ import           Test.Hspec.QuickCheck (modifyMaxSuccess, prop)
 import           Test.QuickCheck (Gen, Property, arbitrary, conjoin,
                      counterexample, forAll)
 
-import           Data.Text.Buildable (Buildable (..))
+import           Formatting.Buildable (Buildable (..))
 import           Formatting (bprint, sformat, (%))
 import qualified Formatting as F
 import qualified Text.Tabl as Tabl

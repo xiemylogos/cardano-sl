@@ -9,7 +9,7 @@ module Cardano.Wallet.Kernel.CoinSelection.Generic.Fees (
 import           Universum
 
 import           Control.Monad.Trans.Except (Except)
-import           Data.Text.Buildable (Buildable (..))
+import           Formatting.Buildable (Buildable (..))
 import           Formatting (bprint)
 
 import           Cardano.Wallet.Kernel.CoinSelection.Generic
